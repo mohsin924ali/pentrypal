@@ -101,3 +101,8 @@ coverage/
 
 # nyc test coverage
 .nyc_output
+
+# Expo
+.expo
+dist/
+web-build/

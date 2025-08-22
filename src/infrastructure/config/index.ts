@@ -1,60 +1,71 @@
 import Config from 'react-native-config';
 
+/**
+ * Application Configuration
+ * Centralized configuration management for all environments
+ */
+
 export interface AppConfig {
   apiBaseUrl: string;
   apiTimeout: number;
-  authProvider: string;
   firebaseApiKey: string;
   firebaseAuthDomain: string;
   firebaseProjectId: string;
   enableFlipper: boolean;
+  enableDevTools: boolean;
   enableAnalytics: boolean;
   enableCrashReporting: boolean;
-  nodeEnv: string;
+  enablePerformanceMonitoring: boolean;
+  logLevel: 'debug' | 'info' | 'warn' | 'error';
 }
 
-class ConfigService {
-  private static instance: ConfigService;
-  private config: AppConfig;
+const createConfig = (): AppConfig => {
+  return {
+    apiBaseUrl: Config.API_BASE_URL || 'https://api.pentrypal.com',
+    apiTimeout: parseInt(Config.API_TIMEOUT || '10000', 10),
+    firebaseApiKey: Config.FIREBASE_API_KEY || '',
+    firebaseAuthDomain: Config.FIREBASE_AUTH_DOMAIN || '',
+    firebaseProjectId: Config.FIREBASE_PROJECT_ID || '',
+    enableFlipper: Config.ENABLE_FLIPPER === 'true',
+    enableDevTools: Config.ENABLE_DEV_TOOLS === 'true' || __DEV__,
+    enableAnalytics: Config.ENABLE_ANALYTICS === 'true',
+    enableCrashReporting: Config.ENABLE_CRASH_REPORTING === 'true',
+    enablePerformanceMonitoring:
+      Config.ENABLE_PERFORMANCE_MONITORING === 'true' || __DEV__,
+    logLevel: (Config.LOG_LEVEL as any) || (__DEV__ ? 'debug' : 'error'),
+  };
+};
 
-  private constructor() {
-    this.config = {
-      apiBaseUrl: Config.API_BASE_URL || 'https://api.pentrypal.com',
-      apiTimeout: parseInt(Config.API_TIMEOUT || '10000', 10),
-      authProvider: Config.AUTH_PROVIDER || 'firebase',
-      firebaseApiKey: Config.FIREBASE_API_KEY || '',
-      firebaseAuthDomain: Config.FIREBASE_AUTH_DOMAIN || '',
-      firebaseProjectId: Config.FIREBASE_PROJECT_ID || '',
-      enableFlipper: Config.ENABLE_FLIPPER === 'true',
-      enableAnalytics: Config.ENABLE_ANALYTICS === 'true',
-      enableCrashReporting: Config.ENABLE_CRASH_REPORTING === 'true',
-      nodeEnv: Config.NODE_ENV || 'development',
-    };
+export const appConfig = createConfig();
+
+// Initialize development tools if enabled
+if (__DEV__ && appConfig.enableDevTools) {
+  // Initialize Flipper
+  if (appConfig.enableFlipper) {
+    import('./flipper').then(({ initializeFlipper }) => {
+      initializeFlipper();
+    });
   }
 
-  public static getInstance(): ConfigService {
-    if (!ConfigService.instance) {
-      ConfigService.instance = new ConfigService();
-    }
-    return ConfigService.instance;
-  }
+  // Initialize DevTools
+  import('./devtools').then(({ devTools }) => {
+    console.log('🛠️ Development tools loaded');
+  });
 
-  public getConfig(): AppConfig {
-    return this.config;
-  }
+  // Initialize Development Manager
+  import('./development').then(({ developmentManager }) => {
+    console.log('🔥 Development manager loaded');
+  });
 
-  public get<K extends keyof AppConfig>(key: K): AppConfig[K] {
-    return this.config[key];
-  }
-
-  public isDevelopment(): boolean {
-    return this.config.nodeEnv === 'development';
-  }
-
-  public isProduction(): boolean {
-    return this.config.nodeEnv === 'production';
-  }
+  // Initialize Bundle Analyzer
+  import('./bundleAnalyzer').then(({ bundleAnalyzer }) => {
+    console.log('📦 Bundle analyzer loaded');
+  });
 }
 
-export const configService = ConfigService.getInstance();
-export default configService;
+// Export individual configurations for specific use cases
+export * from './flipper';
+export * from './devtools';
+export * from './development';
+export * from './bundleAnalyzer';
+export * from './debugUtils';

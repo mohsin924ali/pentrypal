@@ -2,10 +2,11 @@
 export { default as Button } from './atoms/Button';
 
 // Molecules
-// TODO: Add molecule components
+export * from './molecules';
 
 // Organisms
-// TODO: Add organism components
+export { BottomNavigation } from './organisms';
+export type { NavigationTab } from './organisms';
 
 // Templates
 // TODO: Add template components

@@ -1,78 +1,164 @@
+/**
+ * Button Component
+ * Primary button component based on Stitch designs
+ */
+
 import React from 'react';
 import {
   TouchableOpacity,
   Text,
-  StyleSheet,
+  ViewStyle,
+  TextStyle,
+  ActivityIndicator,
   TouchableOpacityProps,
 } from 'react-native';
+import { Theme } from '@/shared/theme';
 
-interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends Omit<TouchableOpacityProps, 'style'> {
   title: string;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   size?: 'small' | 'medium' | 'large';
+  loading?: boolean;
+  disabled?: boolean;
+  fullWidth?: boolean;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
-const Button: React.FC<ButtonProps> = ({
+export const Button: React.FC<ButtonProps> = ({
   title,
   variant = 'primary',
   size = 'medium',
+  loading = false,
+  disabled = false,
+  fullWidth = false,
   style,
+  textStyle,
+  onPress,
   ...props
 }) => {
+  const isDisabled = disabled || loading;
+
+  const getButtonStyle = (): ViewStyle => {
+    const baseStyle: ViewStyle = {
+      borderRadius: Theme.borderRadius.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      ...Theme.shadows.button,
+    };
+
+    // Size styles
+    const sizeStyles: Record<string, ViewStyle> = {
+      small: {
+        paddingHorizontal: Theme.spacing.md,
+        paddingVertical: Theme.spacing.sm,
+        minHeight: 40,
+      },
+      medium: {
+        paddingHorizontal: Theme.spacing.lg,
+        paddingVertical: Theme.spacing.base,
+        minHeight: 48,
+      },
+      large: {
+        paddingHorizontal: Theme.spacing.xl,
+        paddingVertical: Theme.spacing.lg,
+        minHeight: Theme.designSpacing.buttonHeight,
+      },
+    };
+
+    // Variant styles
+    const variantStyles: Record<string, ViewStyle> = {
+      primary: {
+        backgroundColor: isDisabled
+          ? Theme.colors.neutral[300]
+          : Theme.colors.primary[500],
+      },
+      secondary: {
+        backgroundColor: isDisabled
+          ? Theme.colors.neutral[300]
+          : Theme.colors.secondary[500],
+      },
+      outline: {
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderColor: isDisabled
+          ? Theme.colors.neutral[300]
+          : Theme.colors.primary[500],
+      },
+      ghost: {
+        backgroundColor: isDisabled
+          ? Theme.colors.neutral[100]
+          : Theme.colors.neutral[100],
+      },
+    };
+
+    return {
+      ...baseStyle,
+      ...sizeStyles[size],
+      ...variantStyles[variant],
+      ...(fullWidth && { width: '100%' }),
+      ...(isDisabled && { opacity: 0.6 }),
+      ...style,
+    };
+  };
+
+  const getTextStyle = (): TextStyle => {
+    const sizeStyles: Record<string, TextStyle> = {
+      small: Theme.typography.buttonSmall,
+      medium: Theme.typography.button,
+      large: Theme.typography.buttonLarge,
+    };
+
+    const variantStyles: Record<string, TextStyle> = {
+      primary: {
+        color: Theme.colors.text.inverse,
+      },
+      secondary: {
+        color: Theme.colors.text.inverse,
+      },
+      outline: {
+        color: isDisabled
+          ? Theme.colors.neutral[400]
+          : Theme.colors.primary[500],
+      },
+      ghost: {
+        color: isDisabled
+          ? Theme.colors.neutral[400]
+          : Theme.colors.text.primary,
+      },
+    };
+
+    return {
+      ...sizeStyles[size],
+      ...variantStyles[variant],
+      ...textStyle,
+    };
+  };
+
   return (
     <TouchableOpacity
-      style={[styles.button, styles[variant], styles[size], style]}
+      style={getButtonStyle()}
+      onPress={onPress}
+      disabled={isDisabled}
+      activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: isDisabled }}
       {...props}
     >
-      <Text style={[styles.text, styles[`${variant}Text`]]}>{title}</Text>
+      {loading && (
+        <ActivityIndicator
+          size="small"
+          color={
+            variant === 'outline' || variant === 'ghost'
+              ? Theme.colors.primary[500]
+              : Theme.colors.text.inverse
+          }
+          style={{ marginRight: Theme.spacing.sm }}
+        />
+      )}
+      <Text style={getTextStyle()}>{title}</Text>
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // Variants
-  primary: {
-    backgroundColor: '#007AFF',
-  },
-  secondary: {
-    backgroundColor: '#5856D6',
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#007AFF',
-  },
-  // Sizes
-  small: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  medium: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  large: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  // Text styles
-  text: {
-    fontWeight: '600',
-  },
-  primaryText: {
-    color: '#FFFFFF',
-  },
-  secondaryText: {
-    color: '#FFFFFF',
-  },
-  outlineText: {
-    color: '#007AFF',
-  },
-});
-
-export default Button;

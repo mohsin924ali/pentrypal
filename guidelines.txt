@@ -1,0 +1,63 @@
+Core Architectural Principles
+A "rock solid" architecture in React Native is built on a few key principles:
+
+Separation of Concerns: Each part of your application should have a single, well-defined purpose. For example, a component should either handle a specific UI element (a button) or manage data and logic (a screen), but not both.
+
+Modularity: Break your application into small, independent modules or features. This makes the codebase easier to understand, test, and maintain.
+
+Reusability: Design your components and functions to be reusable. This reduces code duplication and speeds up development.
+
+Predictable Data Flow: The flow of data through your app should be easy to follow. A unidirectional data flow, where state changes are predictable, is a cornerstone of React.
+
+Project Structure
+A well-organized folder structure is the first step toward a maintainable application. The Feature-based structure is a popular and scalable approach for medium to large applications.
+
+A typical structure looks like this:
+
+src/
+├── assets/          # Static assets like images, fonts, icons
+├── components/      # Reusable, "dumb" UI components (e.g., Button, Card)
+├── features/        # Business-logic-driven modules
+│   ├── Auth/
+│   │   ├── components/
+│   │   ├── screens/
+│   │   ├── api/
+│   │   └── hooks/
+│   └── Profile/
+│       ├── components/
+│       ├── screens/
+│       ├── api/
+│       └── hooks/
+├── navigation/      # All navigation-related logic (React Navigation setup)
+├── screens/         # Top-level screen components
+├── services/        # API calls, Firebase, or other external services
+├── store/           # Global state management setup (e.g., Redux store)
+├── hooks/           # Custom, reusable hooks
+└── utils/           # Helper functions, constants, and global utilities
+
+Components: This folder should contain small, reusable UI elements that don't have any business logic.
+
+Features: This is the heart of the feature-based approach. All code related to a specific feature (like "Authentication" or "User Profile") lives in its own dedicated folder. This includes its screens, components, and API calls.
+
+Services & API: Centralize all your network requests in one place to keep them separate from your UI and business logic.
+
+State Management
+Choosing the right state management solution is critical. The right choice depends on your application's complexity.
+
+React's Built-in State (useState & useReducer): Perfect for local, component-level state. Use this by default for simplicity.
+
+React Context API: Ideal for sharing a small amount of "global" state (like user authentication status or theme preferences) across many components without prop drilling. It is not recommended for frequent updates or complex state, as it can cause performance issues.
+
+Zustand: A lightweight and modern state management library. It has minimal boilerplate and is easy to learn, making it a great choice for small to medium-sized applications.
+
+Redux Toolkit: The industry standard for complex, large-scale applications. It provides a predictable data flow and powerful debugging tools, but comes with a steeper learning curve and more boilerplate.
+
+Data Fetching and Caching
+For handling server-side data, it is a best practice to use a dedicated library that manages the fetching, caching, and updating of data.
+
+React Query (TanStack Query): This is a highly recommended library for managing asynchronous data. It handles caching, background fetching, and refetching "out of the box," significantly improving performance and reducing the amount of manual state management you need to do.
+
+Component Design and Styling
+Presentational vs. Container Components: A classic pattern where you separate UI components (presentational) from components that handle data and state (containers). Presentational components receive all their data via props and have no internal logic.
+
+Custom Hooks: Extract reusable logic into custom hooks. For example, create a useAuth hook to manage user login/logout state and a useFetchData hook to handle API calls. This keeps your components clean and focused on rendering.
