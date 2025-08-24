@@ -124,12 +124,12 @@ export const generateInitials = (name: string): string => {
 
   const words = name.trim().split(/\s+/);
   if (words.length === 1) {
-    return words[0].substring(0, 2).toUpperCase();
+    return words[0]?.substring(0, 2).toUpperCase() || '??';
   }
 
   return words
     .slice(0, 2)
-    .map(word => word.charAt(0).toUpperCase())
+    .map(word => word?.charAt(0).toUpperCase() || '?')
     .join('');
 };
 
@@ -142,7 +142,7 @@ export const getFallbackAvatar = (name?: string): string => {
   // Generate a consistent emoji based on name hash
   const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const avatars = ['👤', '👩', '👨', '🧑', '👩‍💼', '👨‍💼', '👩‍🎓', '👨‍🎓', '🧑‍💻'];
-  return avatars[hash % avatars.length];
+  return avatars[hash % avatars.length] || '👤';
 };
 
 /**
