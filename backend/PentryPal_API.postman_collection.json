@@ -1,0 +1,676 @@
+{
+  "info": {
+    "name": "PentryPal API",
+    "description": "Complete API collection for PentryPal - Collaborative Grocery & Pantry Management",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "list_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "item_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"phone\": \"+1234567890\",\n  \"name\": \"Test User\",\n  \"password\": \"TestPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', response.tokens.access_token);",
+                  "    pm.collectionVariables.set('user_id', response.user.id);",
+                  "    console.log('Token saved:', response.tokens.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_or_phone\": \"test@example.com\",\n  \"password\": \"TestPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Biometric Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"signature\": \"mock_biometric_signature_abcdef123456\",\n  \"device_id\": \"iPhone_14_Pro_Max_Device_123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/biometric",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "biometric"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"your_refresh_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👤 User Management",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Test User\",\n  \"avatar_url\": \"https://example.com/avatar.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"TestPassword123\",\n  \"new_password\": \"NewTestPassword456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/me/password",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me", "password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Security Settings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users/me/security",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me", "security"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Biometric Auth",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"public_key\": \"mock_biometric_public_key_12345\",\n  \"device_id\": \"iPhone_14_Pro_Max_Device_123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/me/biometric/enable",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me", "biometric", "enable"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🛒 Shopping Lists",
+      "item": [
+        {
+          "name": "Get Shopping Lists",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/shopping-lists/?status=active&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["shopping-lists", ""],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Shopping List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('list_id', response.id);",
+                  "    console.log('List ID saved:', response.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Weekly Groceries\",\n  \"description\": \"Groceries for this week\",\n  \"budget_amount\": 150.00,\n  \"budget_currency\": \"USD\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/shopping-lists/",
+              "host": ["{{base_url}}"],
+              "path": ["shopping-lists", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shopping List",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/shopping-lists/{{list_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["shopping-lists", "{{list_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shopping List",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Weekly Groceries\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/shopping-lists/{{list_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["shopping-lists", "{{list_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Item to List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('item_id', response.id);",
+                  "    console.log('Item ID saved:', response.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Milk\",\n  \"quantity\": 2,\n  \"unit\": \"bottles\",\n  \"estimated_price\": 4.99,\n  \"notes\": \"Organic if available\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/shopping-lists/{{list_id}}/items",
+              "host": ["{{base_url}}"],
+              "path": ["shopping-lists", "{{list_id}}", "items"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shopping Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed\": true,\n  \"actual_price\": 4.99\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/shopping-lists/{{list_id}}/items/{{item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["shopping-lists", "{{list_id}}", "items", "{{item_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Shopping Item",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/shopping-lists/{{list_id}}/items/{{item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["shopping-lists", "{{list_id}}", "items", "{{item_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏠 Pantry Management",
+      "item": [
+        {
+          "name": "Get Pantry Items",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/pantry/?location=Refrigerator&sort_by=expiration_date",
+              "host": ["{{base_url}}"],
+              "path": ["pantry", ""],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "Refrigerator"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "expiration_date"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Pantry Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Whole Milk\",\n  \"quantity\": 2,\n  \"unit\": \"bottles\",\n  \"location\": \"Refrigerator\",\n  \"expiration_date\": \"2024-01-15\",\n  \"low_stock_threshold\": 1,\n  \"barcode\": \"123456789012\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pantry/",
+              "host": ["{{base_url}}"],
+              "path": ["pantry", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pantry Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/pantry/stats/overview",
+              "host": ["{{base_url}}"],
+              "path": ["pantry", "stats", "overview"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Expiring Items",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/pantry/alerts/expiring?days_ahead=7",
+              "host": ["{{base_url}}"],
+              "path": ["pantry", "alerts", "expiring"],
+              "query": [
+                {
+                  "key": "days_ahead",
+                  "value": "7"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Low Stock Items",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/pantry/alerts/low-stock",
+              "host": ["{{base_url}}"],
+              "path": ["pantry", "alerts", "low-stock"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Barcode",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/pantry/barcode/123456789012",
+              "host": ["{{base_url}}"],
+              "path": ["pantry", "barcode", "123456789012"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Social Features",
+      "item": [
+        {
+          "name": "Get Friends",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/social/friends",
+              "host": ["{{base_url}}"],
+              "path": ["social", "friends"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/social/users/search?query=test&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["social", "users", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "test"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Friend Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to_user_id\": \"target_user_id_here\",\n  \"message\": \"Let's be friends!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/social/friend-requests",
+              "host": ["{{base_url}}"],
+              "path": ["social", "friend-requests"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Friend Requests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/social/friend-requests",
+              "host": ["{{base_url}}"],
+              "path": ["social", "friend-requests"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Friend Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/social/friend-requests/request_id_here",
+              "host": ["{{base_url}}"],
+              "path": ["social", "friend-requests", "request_id_here"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📱 Real-time Features",
+      "item": [
+        {
+          "name": "Get WebSocket Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/realtime/ws/stats",
+              "host": ["{{base_url}}"],
+              "path": ["realtime", "ws", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Notification to User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"test_notification\",\n  \"title\": \"Test Notification\",\n  \"message\": \"This is a test real-time notification\",\n  \"priority\": \"medium\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/realtime/ws/notify/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["realtime", "ws", "notify", "{{user_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Broadcast Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"system_announcement\",\n  \"title\": \"System Maintenance\",\n  \"message\": \"The system will undergo maintenance in 30 minutes\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/realtime/ws/broadcast",
+              "host": ["{{base_url}}"],
+              "path": ["realtime", "ws", "broadcast"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

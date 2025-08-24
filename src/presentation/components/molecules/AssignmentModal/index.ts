@@ -1,0 +1,1 @@
+export { AssignmentModal } from './AssignmentModal';
