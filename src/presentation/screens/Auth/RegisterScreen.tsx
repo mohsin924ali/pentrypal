@@ -21,6 +21,8 @@ import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
 import { Input } from '../../components/atoms/Input/Input';
 import { LoadingScreen } from '../../components/atoms/LoadingScreen/LoadingScreen';
+import { PhoneNumberInput, type Country } from '../../components/molecules/PhoneNumberInput';
+import { SuccessModal } from '../../components/molecules/SuccessModal';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
@@ -80,6 +82,15 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: [] });
   const [showPasswordStrength, setShowPasswordStrength] = useState(false);
 
+  // Local state for UI interactions
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successModalData, setSuccessModalData] = useState({
+    title: '',
+    message: '',
+    requiresEmailVerification: false,
+  });
+
   // Form management
   const {
     fields,
@@ -97,10 +108,11 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
       firstName: '',
       lastName: '',
       email: '',
+      countryCode: 'US',
+      phoneNumber: '',
       password: '',
       confirmPassword: '',
       gender: '' as any,
-      showGenderDropdown: false,
       acceptTerms: false,
       marketingConsent: false,
     },
@@ -233,18 +245,14 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
       ).unwrap();
 
       if (result.success) {
-        Alert.alert(
-          'Account Created Successfully!',
-          result.requiresEmailVerification
+        setSuccessModalData({
+          title: 'Account Created Successfully!',
+          message: result.requiresEmailVerification
             ? "We've sent a verification link to your email address. Please check your inbox and click the link, then login with your credentials."
             : 'Your account has been created successfully. Please login with your credentials.',
-          [
-            {
-              text: 'Go to Login',
-              onPress: () => onNavigateToLogin(),
-            },
-          ]
-        );
+          requiresEmailVerification: result.requiresEmailVerification || false,
+        });
+        setShowSuccessModal(true);
       }
     } catch (error: any) {
       // Handle specific error cases
@@ -281,6 +289,21 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
   // ========================================
   // UI Handlers
   // ========================================
+
+  const handlePhoneNumberChange = (phoneNumber: string) => {
+    setValue('phoneNumber', phoneNumber);
+  };
+
+  const handleCountryChange = (country: Country) => {
+    setValue('countryCode', country.code);
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    resetForm();
+    dispatch(clearError());
+    onNavigateToLogin();
+  };
 
   const handleLoginNavigation = () => {
     resetForm();
@@ -484,24 +507,24 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
               </View>
             </View>
 
-            {/* Email or Mobile Input */}
+            {/* Email Input */}
             <View style={{ marginBottom: theme.spacing.lg }}>
               <Typography
                 variant='body2'
                 color={theme.colors.text.primary}
                 style={{ marginBottom: theme.spacing.sm, fontWeight: '600' }}>
-                Email or Mobile Number *
+                Email Address *
               </Typography>
               <Input
-                placeholder='Email address or mobile number'
-                keyboardType='default'
+                placeholder='Enter your email address'
+                keyboardType='email-address'
                 autoComplete='email'
                 returnKeyType='next'
                 size='md'
                 {...getFieldProps('email')}
                 testID='register-email-input'
-                accessibilityLabel='Email or mobile number input'
-                accessibilityHint='Enter your email address or mobile number'
+                accessibilityLabel='Email address input'
+                accessibilityHint='Enter your email address'
               />
               {fields.email.error && fields.email.touched && (
                 <Typography
@@ -511,6 +534,30 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                   {fields.email.error}
                 </Typography>
               )}
+            </View>
+
+            {/* Phone Number Input */}
+            <View style={{ marginBottom: theme.spacing.lg }}>
+              <Typography
+                variant='body2'
+                color={theme.colors.text.primary}
+                style={{ marginBottom: theme.spacing.sm, fontWeight: '600' }}>
+                Phone Number *
+              </Typography>
+              <PhoneNumberInput
+                countryCode={fields.countryCode.value}
+                phoneNumber={fields.phoneNumber.value}
+                onChangeCountry={handleCountryChange}
+                onChangePhoneNumber={handlePhoneNumberChange}
+                placeholder='Enter your phone number'
+                error={
+                  fields.phoneNumber.error && fields.phoneNumber.touched
+                    ? fields.phoneNumber.error
+                    : undefined
+                }
+                testID='register-phone-input'
+                accessibilityLabel='Phone number input'
+              />
             </View>
 
             {/* Gender Dropdown */}
@@ -530,7 +577,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                   },
                 ]}
                 onPress={() => {
-                  setValue('showGenderDropdown', !fields.showGenderDropdown?.value);
+                  setShowGenderDropdown(!showGenderDropdown);
                 }}
                 testID='gender-dropdown'
                 accessibilityLabel='Gender selection dropdown'>
@@ -553,7 +600,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                 </Typography>
               </TouchableOpacity>
 
-              {fields.showGenderDropdown?.value && (
+              {showGenderDropdown && (
                 <View
                   style={[
                     styles.genderDropdownList,
@@ -584,7 +631,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                       ]}
                       onPress={() => {
                         setValue('gender', option.value as any);
-                        setValue('showGenderDropdown', false);
+                        setShowGenderDropdown(false);
                       }}
                       testID={`gender-option-${option.value}`}>
                       <Typography
@@ -850,6 +897,11 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
               variant='outline'
               size='lg'
               fullWidth
+              leftIcon={{
+                type: 'image',
+                source: require('../../../assets/images/login.png'),
+                size: 18,
+              }}
               onPress={handleLoginNavigation}
               testID='login-navigation-button'
               accessibilityLabel='Sign in button'
@@ -858,6 +910,23 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Success Modal */}
+      <SuccessModal
+        visible={showSuccessModal}
+        title={successModalData.title}
+        message={successModalData.message}
+        primaryButtonText='Go to Login'
+        primaryButtonIcon={{
+          type: 'image',
+          source: require('../../../assets/images/login.png'),
+          size: 16,
+        }}
+        onPrimaryPress={handleSuccessModalClose}
+        onDismiss={handleSuccessModalClose}
+        icon='🎉'
+        testID='registration-success-modal'
+      />
     </SafeAreaView>
   );
 };

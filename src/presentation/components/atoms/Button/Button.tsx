@@ -3,10 +3,20 @@
 // ========================================
 
 import React, { type FC } from 'react';
-import { TouchableOpacity, ActivityIndicator, type TouchableOpacityProps } from 'react-native';
+import {
+  TouchableOpacity,
+  ActivityIndicator,
+  Image,
+  type TouchableOpacityProps,
+} from 'react-native';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { Typography } from '../Typography/Typography';
-import type { ButtonProps, ButtonVariant, ButtonSize } from '../../../../shared/types/ui';
+import type {
+  ButtonProps,
+  ButtonVariant,
+  ButtonSize,
+  ButtonImageIcon,
+} from '../../../../shared/types/ui';
 
 /**
  * Button Component
@@ -34,6 +44,46 @@ export const Button: FC<ButtonProps> = ({
   ...rest
 }) => {
   const { theme } = useTheme();
+
+  // Helper function to render icons
+  const renderIcon = (icon: typeof leftIcon, position: 'left' | 'right') => {
+    if (!icon || loading) return null;
+
+    const isImageIcon = (icon as ButtonImageIcon).type === 'image';
+    const marginStyle =
+      position === 'left' ? { marginRight: theme.spacing.sm } : { marginLeft: theme.spacing.sm };
+
+    if (isImageIcon) {
+      const imageIcon = icon as ButtonImageIcon;
+      const iconSize = imageIcon.size || (size === 'lg' ? 20 : size === 'md' ? 18 : 16);
+
+      return (
+        <Image
+          source={imageIcon.source}
+          style={[
+            {
+              width: iconSize,
+              height: iconSize,
+              tintColor: imageIcon.tintColor || variantStyles.text.color,
+            },
+            marginStyle,
+          ]}
+          resizeMode='contain'
+        />
+      );
+    } else {
+      // Handle regular icon font
+      const iconProps = icon as any;
+      return (
+        <iconProps.component
+          name={iconProps.name}
+          size={iconProps.size}
+          color={iconProps.color || variantStyles.text.color}
+          style={marginStyle}
+        />
+      );
+    }
+  };
 
   // Get variant styles
   const variantStyles = React.useMemo(() => {
@@ -218,14 +268,7 @@ export const Button: FC<ButtonProps> = ({
       }}
       {...rest}>
       {/* Left Icon */}
-      {leftIcon && !loading && (
-        <leftIcon.component
-          name={leftIcon.name}
-          size={leftIcon.size}
-          color={leftIcon.color || variantStyles.text.color}
-          style={{ marginRight: theme.spacing.sm }}
-        />
-      )}
+      {renderIcon(leftIcon, 'left')}
 
       {/* Loading Indicator */}
       {loading && (
@@ -247,14 +290,7 @@ export const Button: FC<ButtonProps> = ({
       )}
 
       {/* Right Icon */}
-      {rightIcon && !loading && (
-        <rightIcon.component
-          name={rightIcon.name}
-          size={rightIcon.size}
-          color={rightIcon.color || variantStyles.text.color}
-          style={{ marginLeft: theme.spacing.sm }}
-        />
-      )}
+      {renderIcon(rightIcon, 'right')}
     </TouchableOpacity>
   );
 };

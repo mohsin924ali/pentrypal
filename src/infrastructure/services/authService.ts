@@ -5,6 +5,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import CryptoJS from 'crypto-js';
+import { SecureTokenStorage } from '../storage/SecureTokenStorage';
 import type {
   IAuthService,
   AuthTokens,
@@ -358,7 +359,7 @@ class AuthServiceImpl implements IAuthService {
         // Convert backend user to frontend user format
         const frontendUser: User = {
           id: user.id,
-          email: user.email || '',
+          email: user.email,
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
@@ -393,7 +394,7 @@ class AuthServiceImpl implements IAuthService {
         };
 
         // Store tokens securely
-        await SecureStorage.setItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
         await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
 
         return {
@@ -430,24 +431,14 @@ class AuthServiceImpl implements IAuthService {
       // Debug: Log what we're receiving
       console.log('🔍 DEBUG: Registration request data:', request);
 
-      // Backend now accepts either email or phone (or both)
-      const isEmail = request.email.includes('@');
-
-      const registrationData: any = {
+      // Format data for the backend with the new structure
+      const registrationData = {
+        email: request.email,
+        phone: request.phoneNumber,
+        country_code: request.countryCode,
         name: `${request.firstName} ${request.lastName}`,
         password: request.password,
       };
-
-      if (isEmail) {
-        registrationData.email = request.email;
-        // Add phone if provided separately
-        if (request.phone) {
-          registrationData.phone = request.phone;
-        }
-      } else {
-        // User entered phone number in email field
-        registrationData.phone = request.email;
-      }
 
       console.log('🔍 DEBUG: Sending to backend:', registrationData);
 
@@ -459,7 +450,7 @@ class AuthServiceImpl implements IAuthService {
         // Convert backend user to frontend user format
         const frontendUser: User = {
           id: user.id,
-          email: user.email || '',
+          email: user.email,
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
@@ -494,7 +485,7 @@ class AuthServiceImpl implements IAuthService {
         };
 
         // Store tokens securely
-        await SecureStorage.setItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
         await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
 
         return {
@@ -539,7 +530,7 @@ class AuthServiceImpl implements IAuthService {
         // Convert backend user to frontend user format
         const frontendUser: User = {
           id: user.id,
-          email: user.email || '',
+          email: user.email,
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
@@ -574,7 +565,7 @@ class AuthServiceImpl implements IAuthService {
         };
 
         // Store tokens securely
-        await SecureStorage.setItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
         await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
 
         return {
@@ -689,7 +680,7 @@ class AuthServiceImpl implements IAuthService {
         };
 
         // Store new tokens securely
-        await SecureStorage.setItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
 
         return frontendTokens;
       } else {

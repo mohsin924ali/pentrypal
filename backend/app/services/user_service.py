@@ -41,6 +41,15 @@ class UserService:
             
         return db.query(User).filter(or_(*conditions)).first()
     
+    async def get_user_by_phone_and_country(
+        self, db: Session, phone: str, country_code: str
+    ) -> Optional[User]:
+        """Get user by phone number and country code"""
+        return db.query(User).filter(
+            User.phone == phone,
+            User.country_code == country_code
+        ).first()
+    
     async def create_user(self, db: Session, user_data: UserCreate) -> User:
         """Create a new user"""
         # Hash password
@@ -50,6 +59,7 @@ class UserService:
         db_user = User(
             email=user_data.email,
             phone=user_data.phone,
+            country_code=user_data.country_code,
             name=user_data.name,
             avatar_url=user_data.avatar_url,
             password_hash=password_hash,

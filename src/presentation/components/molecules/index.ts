@@ -3,3 +3,6 @@ export { AddFriendModal } from './AddFriendModal';
 export { CreateListModal } from './CreateListModal';
 export { AddContributorModal } from './AddContributorModal';
 export { ProfilePhotoModal } from './ProfilePhotoModal';
+export { PhoneNumberInput } from './PhoneNumberInput';
+export { SuccessModal } from './SuccessModal';
+export { ConsultContributorsModal } from './ConsultContributorsModal';

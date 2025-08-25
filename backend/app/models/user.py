@@ -2,7 +2,7 @@
 User related database models
 """
 import uuid
-from sqlalchemy import Boolean, Column, String, DateTime, Text, ForeignKey
+from sqlalchemy import Boolean, Column, String, DateTime, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -13,14 +13,20 @@ class User(Base):
     __tablename__ = "users"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    email = Column(String(255), unique=True, index=True, nullable=True)
-    phone = Column(String(20), unique=True, index=True, nullable=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    phone = Column(String(15), nullable=False)  # Phone number without country code
+    country_code = Column(String(4), nullable=False)  # ISO country code (e.g., 'US', 'PK')
     name = Column(String(255), nullable=False)
     avatar_url = Column(Text, nullable=True)
     password_hash = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Table constraints
+    __table_args__ = (
+        UniqueConstraint('phone', 'country_code', name='unique_phone_per_country'),
+    )
     
     # Relationships
     preferences = relationship("UserPreferences", back_populates="user", uselist=False, cascade="all, delete-orphan")

@@ -27,8 +27,9 @@ export interface PaginatedApiResponse<T> {
 
 export interface BackendUser {
   readonly id: string;
-  readonly email?: string;
-  readonly phone?: string;
+  readonly email: string;
+  readonly phone: string;
+  readonly country_code: string;
   readonly name: string;
   readonly avatar_url?: string;
   readonly is_active: boolean;
@@ -54,8 +55,9 @@ export interface BackendLoginResponse {
 }
 
 export interface BackendRegisterRequest {
-  readonly email?: string;
-  readonly phone?: string;
+  readonly email: string;
+  readonly phone: string;
+  readonly country_code: string;
   readonly name: string;
   readonly password: string;
 }
@@ -176,6 +178,7 @@ export interface BackendListCollaborator {
   };
   readonly created_at: string;
   readonly updated_at: string;
+  readonly user?: BackendUser; // Include nested user data
 }
 
 export interface BackendShoppingListCreate {

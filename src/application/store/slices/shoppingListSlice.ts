@@ -180,6 +180,7 @@ export const loadShoppingLists = createAsyncThunk(
           permissions: Object.keys(collab.permissions || {}),
           invitedAt: collab.invited_at || collab.created_at,
           acceptedAt: collab.accepted_at || collab.created_at,
+          user: collab.user, // Include the full user object
         }));
 
         // Add the owner as a collaborator if not already included
@@ -194,6 +195,7 @@ export const loadShoppingLists = createAsyncThunk(
           permissions: ['read', 'write', 'delete', 'manage'],
           invitedAt: backendList.created_at,
           acceptedAt: backendList.created_at,
+          user: backendList.owner, // Include the full owner user object
         };
 
         // Check if owner is already in collaborators list
@@ -298,14 +300,15 @@ export const loadShoppingList = createAsyncThunk(
         collaborators: (backendList.collaborators || []).map(collab => ({
           id: collab.id,
           userId: collab.user_id,
-          name: 'Collaborator', // Will be populated by other calls
-          email: '', // Will be populated by other calls
-          avatar: undefined,
+          name: collab.user?.name || 'Unknown User',
+          email: collab.user?.email || '',
+          avatar: collab.user?.avatar_url || undefined,
           listId: collab.list_id,
           role: collab.role,
-          permissions: Object.keys(collab.permissions),
-          invitedAt: collab.created_at,
-          acceptedAt: collab.created_at,
+          permissions: Object.keys(collab.permissions || {}),
+          invitedAt: collab.invited_at || collab.created_at,
+          acceptedAt: collab.accepted_at || collab.created_at,
+          user: collab.user, // Include the full user object
         })),
         items: (backendList.items || []).map(item => ({
           id: item.id,

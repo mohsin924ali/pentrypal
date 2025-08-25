@@ -311,10 +311,17 @@ export interface ButtonProps extends BaseComponentProps {
   readonly size?: ButtonSize;
   readonly disabled?: boolean;
   readonly loading?: boolean;
-  readonly leftIcon?: IconProps;
-  readonly rightIcon?: IconProps;
+  readonly leftIcon?: IconProps | ButtonImageIcon;
+  readonly rightIcon?: IconProps | ButtonImageIcon;
   readonly fullWidth?: boolean;
   readonly children?: ReactNode;
+}
+
+export interface ButtonImageIcon {
+  readonly type: 'image';
+  readonly source: any; // Image source (require() or uri)
+  readonly size?: number;
+  readonly tintColor?: string; // Optional color tinting for the image
 }
 
 export type ButtonVariant =

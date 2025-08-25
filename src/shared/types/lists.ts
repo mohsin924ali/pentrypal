@@ -35,6 +35,14 @@ export interface Collaborator {
   permissions: string[];
   invitedAt: string;
   acceptedAt?: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    country_code: string;
+    avatar_url?: string;
+  };
 }
 
 export interface ShoppingList {

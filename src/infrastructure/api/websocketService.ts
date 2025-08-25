@@ -11,6 +11,7 @@ import type {
   BackendFriendRequestMessage,
   BackendTokens,
 } from '../../shared/types/backend';
+import { SecureTokenStorage } from '../storage/SecureTokenStorage';
 
 // ========================================
 // WebSocket Event Types
@@ -88,35 +89,15 @@ export class WebSocketService {
 
   private async initializeToken(): Promise<void> {
     try {
-      const tokens = await AsyncStorage.getItem(STORAGE_KEYS.authTokens);
+      const tokens = await SecureTokenStorage.getTokens(STORAGE_KEYS.authTokens);
       if (tokens) {
-        console.log('🔍 DEBUG: WebSocket raw tokens from storage:', tokens);
-
-        // Check if tokens look like valid JSON
-        if (!tokens.startsWith('{') || !tokens.endsWith('}')) {
-          console.warn(
-            '🚨 DEBUG: WebSocket tokens appear to be corrupted (not JSON format), clearing...'
-          );
-          await AsyncStorage.removeItem(STORAGE_KEYS.authTokens);
-          return;
-        }
-
-        const parsedTokens: BackendTokens = JSON.parse(tokens);
-
-        // Validate token structure
-        if (!parsedTokens.access_token) {
-          console.warn('🚨 DEBUG: WebSocket tokens missing access_token, clearing...');
-          await AsyncStorage.removeItem(STORAGE_KEYS.authTokens);
-          return;
-        }
-
-        this.accessToken = parsedTokens.access_token;
-        console.log('🔍 DEBUG: Successfully initialized WebSocket token from storage');
+        this.accessToken = tokens.accessToken;
+        console.log('🔍 DEBUG: Successfully initialized WebSocket token from secure storage');
       }
     } catch (error) {
       console.error('Failed to initialize WebSocket token:', error);
       // Clear corrupted tokens
-      await AsyncStorage.removeItem(STORAGE_KEYS.authTokens);
+      await SecureTokenStorage.removeTokens(STORAGE_KEYS.authTokens);
     }
   }
 

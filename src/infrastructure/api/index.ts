@@ -65,15 +65,20 @@ export const forceResetAuthentication = async (): Promise<void> => {
   try {
     const AsyncStorage = await import('@react-native-async-storage/async-storage');
     const { STORAGE_KEYS } = await import('../../shared/constants');
+    const { SecureTokenStorage } = await import('../storage/SecureTokenStorage');
 
     console.log('🔄 DEBUG: Force clearing all authentication data...');
+
+    // Clear tokens using both methods to ensure complete cleanup
+    await SecureTokenStorage.clearAllTokens();
     await AsyncStorage.default.removeItem(STORAGE_KEYS.authTokens);
     await AsyncStorage.default.removeItem(STORAGE_KEYS.user);
+    await AsyncStorage.default.removeItem('@pentrypal_session');
 
     // Clear from API services
     clearApiAuthentication();
 
-    console.log('✅ DEBUG: All authentication data cleared');
+    console.log('✅ DEBUG: All authentication data cleared - both encrypted and plain');
   } catch (error) {
     console.error('❌ DEBUG: Failed to force reset authentication:', error);
   }

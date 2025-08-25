@@ -19,6 +19,9 @@ import {
 
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
+import { ConsultButton } from '../../components/atoms/ConsultButton/ConsultButton';
+import { ConsultContributorsModal } from '../../components/molecules/ConsultContributorsModal/ConsultContributorsModal';
+import type { Contributor } from '../../components/molecules/ConsultContributorsModal/ConsultContributorsModal';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
@@ -139,6 +142,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   const [amountInput, setAmountInput] = useState<string>('');
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showUnfinishedModal, setShowUnfinishedModal] = useState(false);
+  const [showConsultModal, setShowConsultModal] = useState(false);
 
   // Load shopping lists on mount
   useEffect(() => {
@@ -147,6 +151,80 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       dispatch(loadShoppingLists({ status: 'active', limit: 50 }));
     }
   }, [dispatch, user?.id]);
+
+  // ========================================
+  // Consult Contributors Handlers
+  // ========================================
+
+  const handleConsultPress = () => {
+    console.log('🔥🔥🔥 CONSULT BUTTON PRESSED - NEW VERSION');
+    console.log('🔥 Selected list:', selectedList?.name);
+    console.log('🔥 Collaborators count:', selectedList?.collaborators?.length || 0);
+
+    // Debug raw collaborator data
+    console.log(
+      '🔥 Raw collaborators:',
+      selectedList?.collaborators?.map(c => ({
+        name: c.name,
+        email: c.email,
+        user: c.user
+          ? {
+              name: c.user.name,
+              phone: c.user.phone,
+              country_code: c.user.country_code,
+            }
+          : 'NO USER DATA',
+      }))
+    );
+
+    const contributors = getContributors();
+    console.log('🔥🔥🔥 Contributors for modal (NEW):', contributors);
+
+    // DEBUG: Our new code is working with contributors count: ${contributors.length}
+
+    setShowConsultModal(true);
+    console.log('🔥 Modal state set to true');
+  };
+
+  const handleConsultModalClose = () => {
+    setShowConsultModal(false);
+  };
+
+  // Transform collaborators to contributors format with real phone numbers
+  const getContributors = (): Contributor[] => {
+    if (!selectedList) return [];
+
+    return selectedList.collaborators.map(collaborator => {
+      console.log('🔥 Processing collaborator:', {
+        name: collaborator.name,
+        hasUser: !!collaborator.user,
+        userPhone: collaborator.user?.phone,
+        userCountry: collaborator.user?.country_code,
+      });
+
+      // Construct international phone number if user data exists
+      let phone: string | undefined = undefined;
+      if (collaborator.user?.phone) {
+        const countryCode = collaborator.user.country_code || 'PK';
+        // Map country codes to international dialing codes
+        const dialingCode = countryCode === 'PK' ? '92' : '1'; // Default to US for unknown
+        phone = `+${dialingCode}${collaborator.user.phone}`;
+      }
+
+      return {
+        id: collaborator.id,
+        userId: collaborator.userId,
+        name: collaborator.name,
+        email: collaborator.email,
+        phone,
+        avatar: collaborator.avatar,
+        role: collaborator.role,
+      };
+    });
+  };
+
+  // Check if list has contributors (excluding current user)
+  const hasContributors = selectedList && selectedList.collaborators.length > 0;
 
   // Update selected list when lists change (for real-time updates)
   useEffect(() => {
@@ -913,12 +991,33 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         style={styles.shoppingList}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* Floating Consult Contributors Button */}
+      {hasContributors && (
+        <View style={styles.consultButtonContainer}>
+          <ConsultButton
+            onPress={handleConsultPress}
+            testID='consult-contributors-button'
+            accessibilityLabel='Consult contributors'
+            accessibilityHint='Contact list contributors for questions or confirmations'
+          />
+        </View>
+      )}
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
       {renderContent()}
+
+      {/* Consult Contributors Modal */}
+      <ConsultContributorsModal
+        visible={showConsultModal}
+        contributors={getContributors()}
+        listName={selectedList?.name || 'Shopping List'}
+        onDismiss={handleConsultModalClose}
+        testID='shop-consult-modal'
+      />
 
       {/* TODO: Add modals when molecular components are created */}
       {/* UnfinishedListModal and ArchiveConfirmationModal will be added later */}
@@ -1325,5 +1424,13 @@ const styles = {
     borderRadius: 8,
     alignItems: 'center',
     backgroundColor: '#22c55e',
+  } as ViewStyle,
+
+  // Consult Contributors Button Container
+  consultButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    zIndex: 1000,
   } as ViewStyle,
 };

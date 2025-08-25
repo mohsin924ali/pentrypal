@@ -369,12 +369,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
             fullWidth
             onPress={handleLogout}
             leftIcon={{
-              component: ({ size, color }) => (
-                <Typography variant='h6' style={{ fontSize: size, color }}>
-                  🚪
-                </Typography>
-              ),
-              name: 'logout',
+              type: 'image',
+              source: require('../../../assets/images/logout.png'),
               size: 18,
             }}
           />

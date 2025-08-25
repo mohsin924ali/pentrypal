@@ -24,9 +24,26 @@ class AuthService:
         """
         Authenticate user with email/phone and password
         """
-        user = await self.user_service.get_user_by_email_or_phone(
-            db, email_or_phone, email_or_phone
-        )
+        # Determine if input is email or phone
+        is_email = "@" in email_or_phone
+        
+        if is_email:
+            user = await self.user_service.get_user_by_email_or_phone(
+                db, email_or_phone, None
+            )
+        else:
+            # It's a phone number - handle international format
+            parsed_phone = self._parse_international_phone(email_or_phone)
+            if parsed_phone:
+                # Try to find user by parsed phone number
+                user = await self.user_service.get_user_by_phone_and_country(
+                    db, parsed_phone['phone'], parsed_phone['country_code']
+                )
+            else:
+                # Fallback: try as-is (for local phone numbers)
+                user = await self.user_service.get_user_by_email_or_phone(
+                    db, None, email_or_phone
+                )
         
         if not user:
             return None
@@ -35,6 +52,37 @@ class AuthService:
             return None
         
         return user
+    
+    def _parse_international_phone(self, phone_input: str) -> Optional[dict]:
+        """
+        Parse international phone number format (+92 3016933184) to extract country code and phone
+        """
+        import re
+        
+        # Remove any spaces and non-numeric characters except +
+        cleaned = re.sub(r'[^\d+]', '', phone_input)
+        
+        # Handle common international formats
+        if cleaned.startswith('+92'):
+            # Pakistan (+92)
+            phone_part = cleaned[3:]  # Remove +92
+            return {'country_code': 'PK', 'phone': phone_part}
+        elif cleaned.startswith('+1'):
+            # US/Canada (+1)
+            phone_part = cleaned[2:]  # Remove +1
+            return {'country_code': 'US', 'phone': phone_part}
+        elif cleaned.startswith('+44'):
+            # UK (+44)
+            phone_part = cleaned[3:]  # Remove +44
+            return {'country_code': 'GB', 'phone': phone_part}
+        elif cleaned.startswith('+'):
+            # Generic international format - try to extract
+            # For now, just handle +92 specifically
+            if cleaned.startswith('+92'):
+                phone_part = cleaned[3:]
+                return {'country_code': 'PK', 'phone': phone_part}
+        
+        return None
     
     async def create_tokens(self, user_id: str) -> TokenResponse:
         """

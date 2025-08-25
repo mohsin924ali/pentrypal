@@ -9,26 +9,25 @@ import re
 
 
 class UserBase(BaseModel):
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = Field(None, min_length=10, max_length=20)
+    email: EmailStr = Field(..., description="User's email address")
+    phone: str = Field(..., min_length=7, max_length=15, description="User's phone number (without country code)")
+    country_code: str = Field(..., min_length=2, max_length=4, description="ISO country code")
     name: str = Field(..., min_length=2, max_length=255)
     avatar_url: Optional[str] = None
     
     @validator('phone')
     def validate_phone(cls, v):
-        if v is None:
-            return v
-        # Basic phone number validation (can be enhanced based on requirements)
-        phone_pattern = re.compile(r'^\+?1?\d{9,15}$')
-        if not phone_pattern.match(v.replace(' ', '').replace('-', '').replace('(', '').replace(')', '')):
-            raise ValueError('Invalid phone number format')
+        # Phone number validation (digits only, 7-15 characters)
+        phone_pattern = re.compile(r'^[0-9]{7,15}$')
+        if not phone_pattern.match(v):
+            raise ValueError('Phone number must contain only digits and be 7-15 characters long')
         return v
     
-    @validator('email')
-    def validate_email_or_phone(cls, v, values):
-        # Ensure at least one of email or phone is provided
-        if not v and not values.get('phone'):
-            raise ValueError('Either email or phone must be provided')
+    @validator('country_code')
+    def validate_country_code(cls, v):
+        # Basic country code validation (2-4 uppercase letters)
+        if not re.match(r'^[A-Z]{2,4}$', v):
+            raise ValueError('Country code must be 2-4 uppercase letters')
         return v
 
 
@@ -55,8 +54,9 @@ class UserUpdate(BaseModel):
 
 class UserResponse(BaseModel):
     id: str
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
+    email: EmailStr
+    phone: str
+    country_code: str
     name: str
     avatar_url: Optional[str] = None
     is_active: bool
@@ -106,7 +106,7 @@ class UserPreferencesResponse(BaseModel):
 
 # Authentication schemas
 class LoginRequest(BaseModel):
-    email_or_phone: str = Field(..., min_length=1)
+    email_or_phone: str = Field(..., min_length=1, description="Email address or phone number with country code")
     password: str = Field(..., min_length=1)
 
 

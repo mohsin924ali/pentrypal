@@ -563,6 +563,11 @@ export const LoginScreen: FC<LoginScreenProps> = ({
                 title='Sign In'
                 variant='primary'
                 size='lg'
+                leftIcon={{
+                  type: 'image',
+                  source: require('../../../assets/images/login.png'),
+                  size: 20,
+                }}
                 onPress={handleEmailLogin}
                 loading={auth.isLoggingIn}
                 disabled={!isValid || auth.isLoggingIn}

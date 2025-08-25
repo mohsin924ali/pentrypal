@@ -47,8 +47,8 @@ export const nameSchema = z
 
 export const phoneSchema = z
   .string()
-  .regex(/^\+?[\d\s\-\(\)]+$/, 'Please enter a valid phone number')
-  .optional();
+  .min(1, 'Phone number is required')
+  .regex(/^[0-9]{7,15}$/, 'Please enter a valid phone number (7-15 digits)');
 
 export const urlSchema = z.string().url('Please enter a valid URL').optional();
 
@@ -87,7 +87,9 @@ export const registerSchema = z
   .object({
     firstName: nameSchema,
     lastName: nameSchema,
-    email: emailOrMobileSchema,
+    email: emailSchema,
+    countryCode: z.string().min(1, 'Country code is required'),
+    phoneNumber: phoneSchema,
     password: passwordSchema,
     confirmPassword: z.string(),
     gender: z.enum(['male', 'female', 'other', 'prefer-not-to-say'], {

@@ -13,10 +13,16 @@ interface LoginFormData {
 }
 
 interface RegisterFormData {
+  firstName: string;
+  lastName: string;
   email: string;
+  countryCode: string;
+  phoneNumber: string;
   password: string;
-  name: string;
-  phone?: string;
+  confirmPassword: string;
+  gender: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  acceptTerms: boolean;
+  marketingConsent?: boolean;
 }
 
 // ========================================

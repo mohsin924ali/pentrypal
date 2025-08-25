@@ -14,6 +14,7 @@ import type {
   BackendValidationError,
   BackendTokens,
 } from '../../shared/types/backend';
+import { SecureTokenStorage } from '../storage/SecureTokenStorage';
 
 // ========================================
 // API Client Configuration
@@ -49,34 +50,16 @@ export class ApiClient {
 
   private async initializeTokens(): Promise<void> {
     try {
-      const tokens = await AsyncStorage.getItem(STORAGE_KEYS.authTokens);
+      const tokens = await SecureTokenStorage.getTokens(STORAGE_KEYS.authTokens);
       if (tokens) {
-        console.log('🔍 DEBUG: Raw tokens from storage:', tokens);
-
-        // Check if tokens look like valid JSON
-        if (!tokens.startsWith('{') || !tokens.endsWith('}')) {
-          console.warn('🚨 DEBUG: Tokens appear to be corrupted (not JSON format), clearing...');
-          await AsyncStorage.removeItem(STORAGE_KEYS.authTokens);
-          return;
-        }
-
-        const parsedTokens: BackendTokens = JSON.parse(tokens);
-
-        // Validate token structure
-        if (!parsedTokens.access_token || !parsedTokens.refresh_token) {
-          console.warn('🚨 DEBUG: Tokens missing required fields, clearing...');
-          await AsyncStorage.removeItem(STORAGE_KEYS.authTokens);
-          return;
-        }
-
-        this.accessToken = parsedTokens.access_token;
-        this.refreshToken = parsedTokens.refresh_token;
-        console.log('🔍 DEBUG: Successfully initialized tokens from storage');
+        this.accessToken = tokens.accessToken;
+        this.refreshToken = tokens.refreshToken;
+        console.log('🔍 DEBUG: Successfully initialized tokens from secure storage');
       }
     } catch (error) {
       console.error('Failed to initialize tokens:', error);
       // Clear corrupted tokens
-      await AsyncStorage.removeItem(STORAGE_KEYS.authTokens);
+      await SecureTokenStorage.removeTokens(STORAGE_KEYS.authTokens);
     }
   }
 
