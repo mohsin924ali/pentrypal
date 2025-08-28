@@ -2,16 +2,16 @@
 // Login Screen - Secure Authentication Interface
 // ========================================
 
-import React, { useState, useEffect, type FC } from 'react';
+import React, { type FC, useEffect, useState } from 'react';
 import {
-  View,
-  ScrollView,
+  Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  ScrollView,
   TextInput,
   TouchableOpacity,
-  Image,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,14 +26,14 @@ import { LoadingScreen } from '../../components/atoms/LoadingScreen/LoadingScree
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
 import { useForm } from '../../hooks/useForm';
-import { loginSchema, type LoginFormData } from '../../../shared/validation';
+import { type LoginFormData, loginSchema } from '../../../shared/validation';
 
 // Store
 import {
+  clearError,
   loginUser,
   loginWithBiometric,
   selectAuth,
-  clearError,
   updateSecuritySettings,
 } from '../../../application/store/slices/authSlice';
 import type { AppDispatch, RootState } from '../../../application/store';
@@ -193,7 +193,7 @@ export const LoginScreen: FC<LoginScreenProps> = ({
   // ========================================
 
   const getDeviceInfo = (): DeviceInfo => ({
-    deviceId: 'device_' + Math.random().toString(36).substr(2, 9),
+    deviceId: `device_${Math.random().toString(36).substr(2, 9)}`,
     platform: Platform.OS,
     osVersion: Platform.Version.toString(),
     appVersion: '1.0.0',

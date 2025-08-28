@@ -2,7 +2,7 @@
 // Root Navigator - Main navigation structure
 // ========================================
 
-import React, { useEffect, useState, type FC } from 'react';
+import React, { type FC, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';

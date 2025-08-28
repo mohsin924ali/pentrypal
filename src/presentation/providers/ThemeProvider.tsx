@@ -3,12 +3,12 @@
 // ========================================
 
 import React, {
+  type FC,
+  type PropsWithChildren,
   createContext,
   useContext,
-  useState,
   useEffect,
-  type PropsWithChildren,
-  type FC,
+  useState,
 } from 'react';
 import { useColorScheme } from 'react-native';
 import { theme } from '../../shared/theme';

@@ -338,7 +338,7 @@ export interface BackendActivityLog {
   readonly action: string;
   readonly entity_type: string;
   readonly entity_id: string;
-  readonly meta_data?: Record<string, any>;
+  readonly meta_data?: Record<string, unknown>;
   readonly created_at: string;
 }
 
@@ -346,7 +346,7 @@ export interface BackendActivityLog {
 // WebSocket Message Types
 // ========================================
 
-export interface BackendWebSocketMessage<T = any> {
+export interface BackendWebSocketMessage<T = unknown> {
   readonly type: string;
   readonly data?: T;
   readonly timestamp: string;
@@ -441,8 +441,8 @@ export type BackendApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 export interface BackendRequestConfig {
   readonly method: BackendApiMethod;
   readonly url: string;
-  readonly data?: any;
-  readonly params?: Record<string, any>;
+  readonly data?: unknown;
+  readonly params?: Record<string, unknown>;
   readonly headers?: Record<string, string>;
   readonly requiresAuth?: boolean;
 }
@@ -474,8 +474,8 @@ export type BackendToFrontend<T> = T extends BackendUser
 
 // Import frontend types for conversion
 import type { AuthUser as User } from './auth';
-import type { ShoppingList, ShoppingItem } from './lists';
-import type { Friendship, FriendRequest } from './social';
+import type { ShoppingItem, ShoppingList } from './lists';
+import type { FriendRequest, Friendship } from './social';
 
 // Pantry item type (to be defined)
 export interface PantryItem {

@@ -104,7 +104,7 @@ export interface Notification {
   message: string;
   timestamp: string;
   isRead: boolean;
-  data?: any;
+  data?: unknown;
   priority: 'low' | 'medium' | 'high';
   userId?: string;
 }
@@ -120,7 +120,7 @@ export interface CurrencyInfo {
 }
 
 // Avatar types
-export type AvatarType = string | number | { uri: string } | any;
+export type AvatarType = string | number | { uri: string };
 
 // Assignment modal props
 export interface AssignmentModalProps {

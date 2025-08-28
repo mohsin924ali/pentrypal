@@ -4,17 +4,17 @@
  * Exact implementation matching the old project's user experience
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  View,
-  ScrollView,
-  ViewStyle,
-  TouchableOpacity,
-  SafeAreaView,
-  TextInput,
   Alert,
   Animated,
   Dimensions,
+  SafeAreaView,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
@@ -28,12 +28,12 @@ import { useTheme } from '../../providers/ThemeProvider';
 
 // Services
 import groceryItemsService from '../../../infrastructure/services/groceryItemsService';
-import type { GroceryItem, Category } from '../../../infrastructure/services/groceryItemsService';
+import type { Category, GroceryItem } from '../../../infrastructure/services/groceryItemsService';
 
 // Redux
 import {
-  createShoppingList,
   addShoppingItem,
+  createShoppingList,
   selectIsCreatingList,
   selectShoppingListError,
 } from '../../../application/store/slices/shoppingListSlice';
@@ -553,16 +553,8 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             }
           }
 
-          Alert.alert(
-            'Success',
-            `Shopping list "${listName.trim()}" created with ${itemsArray.length} items!`,
-            [
-              {
-                text: 'OK',
-                onPress: () => navigation.goBack(),
-              },
-            ]
-          );
+          // Navigate back to show the success animation on the lists screen
+          navigation.goBack();
         }
       } catch (error: any) {
         console.error('Failed to create shopping list:', error);

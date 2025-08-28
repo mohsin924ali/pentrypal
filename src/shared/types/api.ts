@@ -113,7 +113,9 @@ export interface ApiInterceptors {
 }
 
 export type RequestInterceptor = (config: RequestConfig) => RequestConfig | Promise<RequestConfig>;
-export type ResponseInterceptor<T = unknown> = (response: ApiResponse<T>) => ApiResponse<T> | Promise<ApiResponse<T>>;
+export type ResponseInterceptor<T = unknown> = (
+  response: ApiResponse<T>
+) => ApiResponse<T> | Promise<ApiResponse<T>>;
 export type ErrorInterceptor = (error: ApiError) => ApiError | Promise<ApiError>;
 
 export interface CacheConfig {
@@ -175,7 +177,16 @@ export interface NetworkState {
   readonly details: NetworkDetails;
 }
 
-export type NetworkType = 'none' | 'unknown' | 'cellular' | 'wifi' | 'bluetooth' | 'ethernet' | 'wimax' | 'vpn' | 'other';
+export type NetworkType =
+  | 'none'
+  | 'unknown'
+  | 'cellular'
+  | 'wifi'
+  | 'bluetooth'
+  | 'ethernet'
+  | 'wimax'
+  | 'vpn'
+  | 'other';
 
 export interface NetworkDetails {
   readonly strength?: number; // 0-100
@@ -261,12 +272,12 @@ export interface WebSocketEvent {
   readonly timestamp: Date;
 }
 
-export type WebSocketEventType = 
-  | 'connected' 
-  | 'disconnected' 
-  | 'reconnecting' 
-  | 'message' 
-  | 'error' 
+export type WebSocketEventType =
+  | 'connected'
+  | 'disconnected'
+  | 'reconnecting'
+  | 'message'
+  | 'error'
   | 'heartbeat';
 
 // ========================================

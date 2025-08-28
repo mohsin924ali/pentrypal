@@ -3,18 +3,19 @@
 // ========================================
 
 import { store } from '../../application/store';
-import { webSocketService, type WebSocketEvent } from '../api';
+import { type WebSocketEvent, webSocketService } from '../api';
 import {
-  updateListFromWebSocket,
-  updateItemFromWebSocket,
   addItemFromWebSocket,
   loadShoppingLists,
+  updateItemFromWebSocket,
+  updateListFromWebSocket,
 } from '../../application/store/slices/shoppingListSlice';
 import {
+  addFriendship,
   addReceivedFriendRequest,
   removeFriendRequest,
-  addFriendship,
 } from '../../application/store/slices/socialSlice';
+import { websocketLogger } from '../../shared/utils/logger';
 
 // ========================================
 // WebSocket Integration Class
@@ -28,17 +29,17 @@ export class WebSocketIntegration {
    */
   public initialize(): void {
     if (this.isInitialized) {
-      console.log('🔌 WebSocket integration already initialized');
+      websocketLogger.debug('🔌 WebSocket integration already initialized');
       return;
     }
 
-    console.log('🔌 Initializing WebSocket integration with Redux');
+    websocketLogger.debug('🔌 Initializing WebSocket integration with Redux');
 
     // Set up event listeners
     this.setupEventListeners();
 
     this.isInitialized = true;
-    console.log('✅ WebSocket integration initialized successfully');
+    websocketLogger.debug('✅ WebSocket integration initialized successfully');
   }
 
   /**
@@ -49,13 +50,13 @@ export class WebSocketIntegration {
       return;
     }
 
-    console.log('🧹 Cleaning up WebSocket integration');
+    websocketLogger.debug('🧹 Cleaning up WebSocket integration');
 
     // Remove all event listeners
     webSocketService.removeAllEventListeners();
 
     this.isInitialized = false;
-    console.log('✅ WebSocket integration cleaned up');
+    websocketLogger.debug('✅ WebSocket integration cleaned up');
   }
 
   /**
@@ -65,11 +66,11 @@ export class WebSocketIntegration {
     const authState = store.getState().auth;
 
     if (!authState.isAuthenticated || !authState.tokens?.accessToken) {
-      console.warn('⚠️ Cannot connect WebSocket: User not authenticated');
+      websocketLogger.warn('⚠️ Cannot connect WebSocket: User not authenticated');
       return;
     }
 
-    console.log('🔌 Connecting WebSocket with auth token');
+    websocketLogger.debug('🔌 Connecting WebSocket with auth token');
     webSocketService.setAccessToken(authState.tokens.accessToken);
     await webSocketService.connect();
   }
@@ -78,7 +79,7 @@ export class WebSocketIntegration {
    * Disconnect from WebSocket
    */
   public disconnect(): void {
-    console.log('🔌 Disconnecting WebSocket');
+    websocketLogger.debug('🔌 Disconnecting WebSocket');
     webSocketService.disconnect();
   }
 
@@ -86,7 +87,7 @@ export class WebSocketIntegration {
    * Join a shopping list room for real-time updates
    */
   public joinListRoom(listId: string): void {
-    console.log('🏠 Joining list room:', listId);
+    websocketLogger.debug('🏠 Joining list room:', listId);
     webSocketService.joinRoom(listId);
   }
 
@@ -94,7 +95,7 @@ export class WebSocketIntegration {
    * Leave a shopping list room
    */
   public leaveListRoom(listId: string): void {
-    console.log('🏠 Leaving list room:', listId);
+    websocketLogger.debug('🏠 Leaving list room:', listId);
     webSocketService.leaveRoom(listId);
   }
 
@@ -144,7 +145,7 @@ export class WebSocketIntegration {
   }
 
   private handleConnected(event: WebSocketEvent): void {
-    console.log('✅ WebSocket connected:', event.data);
+    websocketLogger.debug('✅ WebSocket connected:', event.data);
 
     // Auto-join rooms for current shopping lists
     const shoppingListState = store.getState().shoppingList;
@@ -154,24 +155,24 @@ export class WebSocketIntegration {
   }
 
   private handleDisconnected(event: WebSocketEvent): void {
-    console.log('❌ WebSocket disconnected:', event.data);
+    websocketLogger.debug('❌ WebSocket disconnected:', event.data);
   }
 
   private handleReconnecting(event: WebSocketEvent): void {
-    console.log('🔄 WebSocket reconnecting:', event.data);
+    websocketLogger.debug('🔄 WebSocket reconnecting:', event.data);
   }
 
   private handleError(event: WebSocketEvent): void {
-    console.error('❌ WebSocket error:', event.data);
+    websocketLogger.error('❌ WebSocket error:', event.data);
   }
 
   private handleListUpdate(event: WebSocketEvent): void {
-    console.log('📝 List update received:', event.data);
+    websocketLogger.debug('📝 List update received:', event.data);
 
     try {
       const listData = event.data?.data;
       if (!listData?.id) {
-        console.warn('Invalid list update data:', event.data);
+        websocketLogger.warn('Invalid list update data:', event.data);
         return;
       }
 
@@ -185,21 +186,21 @@ export class WebSocketIntegration {
 
       store.dispatch(updateListFromWebSocket(listUpdate));
 
-      console.log('✅ List update applied to Redux store');
+      websocketLogger.debug('✅ List update applied to Redux store');
     } catch (error) {
-      console.error('Failed to handle list update:', error);
+      websocketLogger.error('Failed to handle list update:', error);
     }
   }
 
   private handleItemUpdate(event: WebSocketEvent): void {
-    console.log('📦 Item update received:', event.data);
+    websocketLogger.debug('📦 Item update received:', event.data);
 
     try {
       const itemData = event.data?.data;
       const listId = event.data?.list_id;
 
       if (!itemData?.id || !listId) {
-        console.warn('Invalid item update data:', event.data);
+        websocketLogger.warn('Invalid item update data:', event.data);
         return;
       }
 
@@ -233,19 +234,19 @@ export class WebSocketIntegration {
         store.dispatch(updateItemFromWebSocket({ listId, item }));
       }
 
-      console.log('✅ Item update applied to Redux store');
+      websocketLogger.debug('✅ Item update applied to Redux store');
     } catch (error) {
-      console.error('Failed to handle item update:', error);
+      websocketLogger.error('Failed to handle item update:', error);
     }
   }
 
   private handleFriendRequest(event: WebSocketEvent): void {
-    console.log('👥 Friend request received:', event.data);
+    websocketLogger.debug('👥 Friend request received:', event.data);
 
     try {
       const requestData = event.data?.data;
       if (!requestData?.id) {
-        console.warn('Invalid friend request data:', event.data);
+        websocketLogger.warn('Invalid friend request data:', event.data);
         return;
       }
 
@@ -264,7 +265,7 @@ export class WebSocketIntegration {
           name: 'You',
           email: '',
         } as any,
-        status: requestData.status as any,
+        status: requestData.status,
         message: requestData.message,
         createdAt: new Date(requestData.created_at || Date.now()),
         updatedAt: new Date(requestData.created_at || Date.now()),
@@ -300,73 +301,75 @@ export class WebSocketIntegration {
         store.dispatch(removeFriendRequest(requestData.id));
       }
 
-      console.log('✅ Friend request applied to Redux store');
+      websocketLogger.debug('✅ Friend request applied to Redux store');
     } catch (error) {
-      console.error('Failed to handle friend request:', error);
+      websocketLogger.error('Failed to handle friend request:', error);
     }
   }
 
   private handleFriendStatusUpdate(event: WebSocketEvent): void {
-    console.log('👥 Friend status update received:', event.data);
+    websocketLogger.debug('👥 Friend status update received:', event.data);
     // TODO: Implement friend status updates (online/offline)
   }
 
   private handleNotification(event: WebSocketEvent): void {
-    console.log('🔔 Notification received:', event.data);
+    websocketLogger.debug('🔔 Notification received:', event.data);
 
     try {
       const notificationData = event.data?.data;
       if (!notificationData) {
-        console.warn('Invalid notification data:', event.data);
+        websocketLogger.warn('Invalid notification data:', event.data);
         return;
       }
 
       // Import notification service
-      import('../../../infrastructure/services/notificationService').then(({ notificationService }) => {
-        // Handle different notification types
-        switch (notificationData.type) {
-          case 'list_shared':
-            notificationService.notifyListShared(
-              notificationData.list_name || 'Unknown List',
-              notificationData.inviter_name || 'Someone'
-            );
-            
-            // Refresh shopping lists to show the new shared list
-            store.dispatch(loadShoppingLists({ status: 'active', limit: 50 }));
-            break;
+      import('../../../infrastructure/services/notificationService')
+        .then(({ notificationService }) => {
+          // Handle different notification types
+          switch (notificationData.type) {
+            case 'list_shared':
+              notificationService.notifyListShared(
+                notificationData.list_name || 'Unknown List',
+                notificationData.inviter_name || 'Someone'
+              );
 
-          case 'friend_request':
-            // Already handled in handleFriendRequest
-            break;
+              // Refresh shopping lists to show the new shared list
+              store.dispatch(loadShoppingLists({ status: 'active', limit: 50 }));
+              break;
 
-          default:
-            // Generic notification
-            notificationService.addNotification({
-              type: notificationData.type || 'general',
-              title: notificationData.title || 'Notification',
-              message: notificationData.message || 'You have a new notification',
-              priority: 'medium',
-              data: notificationData,
-            });
-            break;
-        }
+            case 'friend_request':
+              // Already handled in handleFriendRequest
+              break;
 
-        console.log('✅ Notification processed:', notificationData.type);
-      }).catch(error => {
-        console.error('Failed to import notification service:', error);
-      });
+            default:
+              // Generic notification
+              notificationService.addNotification({
+                type: notificationData.type || 'general',
+                title: notificationData.title || 'Notification',
+                message: notificationData.message || 'You have a new notification',
+                priority: 'medium',
+                data: notificationData,
+              });
+              break;
+          }
+
+          websocketLogger.debug('✅ Notification processed:', notificationData.type);
+        })
+        .catch(error => {
+          websocketLogger.error('Failed to import notification service:', error);
+        });
     } catch (error) {
-      console.error('Failed to handle notification:', error);
+      websocketLogger.error('Failed to handle notification:', error);
     }
   }
 
   private handleTypingIndicator(event: WebSocketEvent): void {
-    console.log('⌨️ Typing indicator received:', event.data);
+    websocketLogger.debug('⌨️ Typing indicator received:', event.data);
     // TODO: Implement typing indicator UI updates
   }
 
   private handleOnlineStatusUpdate(event: WebSocketEvent): void {
-    console.log('🟢 Online status update received:', event.data);
+    websocketLogger.debug('🟢 Online status update received:', event.data);
     // TODO: Update friend online status in Redux
   }
 

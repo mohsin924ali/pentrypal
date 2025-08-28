@@ -186,12 +186,12 @@ export interface UserAchievement {
   readonly rarity: AchievementRarity;
 }
 
-export type AchievementCategory = 
-  | 'lists' 
-  | 'items' 
-  | 'collaboration' 
-  | 'spending' 
-  | 'streaks' 
+export type AchievementCategory =
+  | 'lists'
+  | 'items'
+  | 'collaboration'
+  | 'spending'
+  | 'streaks'
   | 'social';
 
 export type AchievementRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';

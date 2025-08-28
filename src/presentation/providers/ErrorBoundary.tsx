@@ -2,8 +2,8 @@
 // Error Boundary - Catches and handles React errors
 // ========================================
 
-import React, { Component, type ReactNode, type ErrorInfo } from 'react';
-import { View, ScrollView } from 'react-native';
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+import { ScrollView, View } from 'react-native';
 import { Typography } from '../components/atoms/Typography/Typography';
 import { Button } from '../components/atoms/Button/Button';
 import { useTheme } from './ThemeProvider';

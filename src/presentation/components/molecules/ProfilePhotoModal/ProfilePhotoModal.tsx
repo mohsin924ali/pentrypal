@@ -3,7 +3,7 @@
 // ========================================
 
 import React, { useState } from 'react';
-import { View, Modal, TouchableOpacity, Alert, Image } from 'react-native';
+import { Alert, Image, Modal, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -17,10 +17,10 @@ import { useTheme } from '../../../providers/ThemeProvider';
 // Redux
 import type { AppDispatch } from '../../../../application/store';
 import {
-  uploadAvatar,
   removeAvatar,
-  selectUser,
   selectIsLoading,
+  selectUser,
+  uploadAvatar,
 } from '../../../../application/store/slices/authSlice';
 
 // ========================================
@@ -118,7 +118,7 @@ export const ProfilePhotoModal: React.FC<ProfilePhotoModalProps> = ({ visible, o
 
       // Create React Native file object
       const file = {
-        uri: uri,
+        uri,
         type: 'image/jpeg', // Default to JPEG
         name: 'avatar.jpg',
       };

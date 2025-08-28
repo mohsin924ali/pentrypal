@@ -3,20 +3,10 @@
 // ========================================
 
 import React, { type FC } from 'react';
-import {
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-  type TouchableOpacityProps,
-} from 'react-native';
+import { ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { Typography } from '../Typography/Typography';
-import type {
-  ButtonProps,
-  ButtonVariant,
-  ButtonSize,
-  ButtonImageIcon,
-} from '../../../../shared/types/ui';
+import type { ButtonImageIcon, ButtonProps } from '../../../../shared/types/ui';
 
 /**
  * Button Component
@@ -55,7 +45,7 @@ export const Button: FC<ButtonProps> = ({
 
     if (isImageIcon) {
       const imageIcon = icon as ButtonImageIcon;
-      const iconSize = imageIcon.size || (size === 'lg' ? 20 : size === 'md' ? 18 : 16);
+      const iconSize = imageIcon.size ?? (size === 'lg' ? 20 : size === 'md' ? 18 : 16);
 
       return (
         <Image
@@ -64,7 +54,7 @@ export const Button: FC<ButtonProps> = ({
             {
               width: iconSize,
               height: iconSize,
-              tintColor: imageIcon.tintColor || variantStyles.text.color,
+              tintColor: imageIcon.tintColor ?? variantStyles.text.color,
             },
             marginStyle,
           ]}
@@ -73,12 +63,22 @@ export const Button: FC<ButtonProps> = ({
       );
     } else {
       // Handle regular icon font
-      const iconProps = icon as any;
+      const iconProps = icon as {
+        component: React.ComponentType<{
+          name: string;
+          size?: number;
+          color?: string;
+          style?: any;
+        }>;
+        name: string;
+        size?: number;
+        color?: string;
+      };
       return (
         <iconProps.component
           name={iconProps.name}
           size={iconProps.size}
-          color={iconProps.color || variantStyles.text.color}
+          color={iconProps.color ?? variantStyles.text.color}
           style={marginStyle}
         />
       );
@@ -87,9 +87,12 @@ export const Button: FC<ButtonProps> = ({
 
   // Get variant styles
   const variantStyles = React.useMemo(() => {
-    const styles = {
+    const styles: {
+      container: Record<string, any>;
+      text: { color: string };
+    } = {
       container: {},
-      text: {},
+      text: { color: theme.colors.text.primary },
     };
 
     switch (variant) {
@@ -231,7 +234,7 @@ export const Button: FC<ButtonProps> = ({
 
     // Add shadow for elevated variants
     if (variant === 'primary' || variant === 'secondary') {
-      Object.assign(baseStyle, theme.shadows.sm);
+      Object.assign(baseStyle, theme.shadows?.sm || {});
     }
 
     return baseStyle;
@@ -259,7 +262,7 @@ export const Button: FC<ButtonProps> = ({
       activeOpacity={0.7}
       testID={testID}
       accessible={accessible}
-      accessibilityLabel={accessibilityLabel || title}
+      accessibilityLabel={accessibilityLabel ?? title}
       accessibilityHint={accessibilityHint}
       accessibilityRole={accessibilityRole}
       accessibilityState={{
@@ -275,17 +278,17 @@ export const Button: FC<ButtonProps> = ({
         <ActivityIndicator
           size='small'
           color={variantStyles.text.color}
-          style={{ marginRight: title ? theme.spacing.sm : 0 }}
+          style={{ marginRight: Boolean(title) ? theme.spacing.sm : 0 }}
         />
       )}
 
       {/* Button Text */}
-      {(title || children) && (
+      {Boolean(title || children) && (
         <Typography
           variant='button'
           color={variantStyles.text.color}
           style={{ textAlign: 'center' }}>
-          {children || title}
+          {children ?? title}
         </Typography>
       )}
 

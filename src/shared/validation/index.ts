@@ -19,22 +19,27 @@ export const passwordSchema = z
   .min(8, 'Password must be at least 8 characters')
   .max(128, 'Password is too long')
   .refine(password => {
-    console.log('🔍 PASSWORD VALIDATION DEBUG:');
-    console.log('- Input password:', JSON.stringify(password));
-    console.log('- Password length:', password.length);
-
+    // Password complexity validation
     const hasLowercase = /[a-z]/.test(password);
     const hasUppercase = /[A-Z]/.test(password);
     const hasDigit = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*()_+=\[\]{};':"\\|,.<>/?~`-]/.test(password);
 
-    console.log('- Has lowercase [a-z]:', hasLowercase);
-    console.log('- Has uppercase [A-Z]:', hasUppercase);
-    console.log('- Has digit [\\d]:', hasDigit);
-    console.log('- Has special char:', hasSpecialChar);
+    // Debug logging only in development
+    if (__DEV__) {
+      console.log('🔍 PASSWORD VALIDATION DEBUG:');
+      console.log('- Input password length:', password.length);
+      console.log('- Has lowercase [a-z]:', hasLowercase);
+      console.log('- Has uppercase [A-Z]:', hasUppercase);
+      console.log('- Has digit [\\d]:', hasDigit);
+      console.log('- Has special char:', hasSpecialChar);
+    }
 
     const isValid = hasLowercase && hasUppercase && hasDigit && hasSpecialChar;
-    console.log('- Final validation result:', isValid);
+
+    if (__DEV__) {
+      console.log('- Final validation result:', isValid);
+    }
 
     return isValid;
   }, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character');

@@ -4,18 +4,18 @@
 
 import React, { useEffect, useMemo } from 'react';
 import {
-  View,
-  ScrollView,
-  RefreshControl,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  Modal,
-  TextInput,
   Alert,
+  Dimensions,
+  Image,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 
 // Components
@@ -30,7 +30,7 @@ import { useNetwork } from '../../providers/NetworkProvider';
 import CreateListIcon from '../../../assets/images/createList.png';
 
 // Store
-import type { RootState, AppDispatch } from '../../../application/store';
+import type { AppDispatch, RootState } from '../../../application/store';
 import { selectUser } from '../../../application/store/slices/authSlice';
 import {
   loadShoppingLists,
@@ -39,7 +39,7 @@ import {
 } from '../../../application/store/slices/shoppingListSlice';
 
 // Types
-export interface DashboardScreenProps {}
+export type DashboardScreenProps = Record<string, never>;
 
 const { width: screenWidth } = Dimensions.get('window');
 

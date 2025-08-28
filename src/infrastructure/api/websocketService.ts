@@ -5,11 +5,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG, STORAGE_KEYS } from '../../shared/constants';
 import type {
-  BackendWebSocketMessage,
-  BackendListUpdateMessage,
-  BackendItemUpdateMessage,
   BackendFriendRequestMessage,
+  BackendItemUpdateMessage,
+  BackendListUpdateMessage,
   BackendTokens,
+  BackendWebSocketMessage,
 } from '../../shared/types/backend';
 import { SecureTokenStorage } from '../storage/SecureTokenStorage';
 
@@ -80,7 +80,7 @@ export class WebSocketService {
 
   constructor(config: Partial<WebSocketConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
-    this.initializeToken();
+    void this.initializeToken();
   }
 
   // ========================================
@@ -107,7 +107,7 @@ export class WebSocketService {
     // Reconnect with new token if currently connected
     if (this.isConnected) {
       this.disconnect();
-      this.connect();
+      void this.connect();
     }
   }
 
@@ -211,7 +211,7 @@ export class WebSocketService {
     this.reconnectTimer = setTimeout(
       () => {
         this.isReconnecting = false;
-        this.connect();
+        void this.connect();
       },
       this.config.reconnectInterval * Math.pow(2, this.reconnectAttempts - 1)
     ); // Exponential backoff

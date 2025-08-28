@@ -16,8 +16,11 @@ export type AvatarIdentifier =
   | 'avt-8'
   | 'avt-9';
 
+// Asset type for predefined avatars
+type AvatarAsset = string;
+
 // Predefined avatar assets (these would be actual require() calls in a real app)
-const AVATAR_ASSETS: Record<AvatarIdentifier, any> = {
+const AVATAR_ASSETS: Record<AvatarIdentifier, AvatarAsset> = {
   'avt-1': '👤', // In real app: require('@/assets/avatars/avt-1.png')
   'avt-2': '👩', // In real app: require('@/assets/avatars/avt-2.png')
   'avt-3': '👨', // In real app: require('@/assets/avatars/avt-3.png')
@@ -39,7 +42,7 @@ export const isValidAvatarIdentifier = (identifier: string): identifier is Avata
 /**
  * Get avatar asset by identifier
  */
-export const getAvatarAsset = (identifier: AvatarIdentifier): any => {
+export const getAvatarAsset = (identifier: AvatarIdentifier): AvatarAsset => {
   return AVATAR_ASSETS[identifier];
 };
 
@@ -67,7 +70,7 @@ export const getAvatarProps = (
   avatar: AvatarType
 ): {
   type: 'emoji' | 'asset' | 'uri' | 'fallback';
-  source?: any;
+  source?: AvatarAsset | { uri: string } | number | object;
   emoji?: string;
 } => {
   // Handle emoji/text avatars
@@ -155,7 +158,7 @@ export const getAvailableAvatars = (): AvatarIdentifier[] => {
 /**
  * Validate avatar data
  */
-export const validateAvatar = (avatar: any): boolean => {
+export const validateAvatar = (avatar: unknown): boolean => {
   if (!avatar) return false;
 
   if (typeof avatar === 'string') {
@@ -176,7 +179,7 @@ export const validateAvatar = (avatar: any): boolean => {
 /**
  * Sanitize avatar data for storage
  */
-export const sanitizeAvatar = (avatar: any): string => {
+export const sanitizeAvatar = (avatar: unknown): string => {
   if (typeof avatar === 'string') {
     return avatar;
   }
@@ -185,8 +188,13 @@ export const sanitizeAvatar = (avatar: any): string => {
     return `asset_${avatar}`;
   }
 
-  if (typeof avatar === 'object' && avatar?.uri) {
-    return avatar.uri;
+  if (
+    typeof avatar === 'object' &&
+    avatar !== null &&
+    'uri' in avatar &&
+    typeof (avatar as { uri?: unknown }).uri === 'string'
+  ) {
+    return (avatar as { uri: string }).uri;
   }
 
   return '👤'; // Default fallback

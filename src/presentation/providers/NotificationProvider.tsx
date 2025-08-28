@@ -2,7 +2,7 @@
 // Notification Provider - Push notifications (placeholder)
 // ========================================
 
-import React, { type PropsWithChildren, type FC } from 'react';
+import React, { type FC, type PropsWithChildren } from 'react';
 
 /**
  * Notification Provider Component (Placeholder)

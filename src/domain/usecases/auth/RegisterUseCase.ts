@@ -7,7 +7,7 @@ import type { IAuthService } from '../../../infrastructure/services/IAuthService
 import type { ISecurityService } from './LoginUseCase';
 import { User } from '../../entities/User';
 import type { RegisterFormData } from '@/validation';
-import { validateForm, registerSchema } from '@/validation';
+import { registerSchema, validateForm } from '@/validation';
 
 export interface RegisterRequest extends RegisterFormData {
   readonly deviceInfo?: DeviceInfo;

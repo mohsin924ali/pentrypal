@@ -3,7 +3,7 @@
 // ========================================
 
 import React, { useState } from 'react';
-import { View, ScrollView, FlatList, RefreshControl } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Components
@@ -14,7 +14,7 @@ import { Button } from '../../components/atoms/Button/Button';
 import { useTheme } from '../../providers/ThemeProvider';
 
 // Types
-export interface PantryScreenProps {}
+export type PantryScreenProps = Record<string, never>;
 
 interface PantryItem {
   id: string;
@@ -196,7 +196,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
             </Typography>
           </View>
 
-          <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
+          <View style={[styles.statusBadge, { backgroundColor: `${statusColor}20` }]}>
             <Typography variant='caption' color={statusColor}>
               {statusText}
             </Typography>

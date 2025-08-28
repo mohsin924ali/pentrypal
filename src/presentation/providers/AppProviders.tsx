@@ -2,12 +2,12 @@
 // Application Providers - Wraps the app with all necessary providers
 // ========================================
 
-import React, { type PropsWithChildren, type FC } from 'react';
+import React, { type FC, type PropsWithChildren } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
 // Store
-import { store, persistor } from '../../application/store';
+import { persistor, store } from '../../application/store';
 
 // Theme Provider
 import { ThemeProvider } from './ThemeProvider';

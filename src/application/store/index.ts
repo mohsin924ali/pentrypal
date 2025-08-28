@@ -2,10 +2,9 @@
 // Redux Store - Production Configuration
 // ========================================
 
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { combineReducers } from '@reduxjs/toolkit';
 
 // Reducers
 import authReducer from './slices/authSlice';
@@ -88,7 +87,7 @@ export type AppDispatch = typeof store.dispatch;
  * Reset store to initial state
  */
 export const resetStore = () => {
-  persistor.purge();
+  persistor.purge().catch(console.error);
   store.dispatch({ type: 'RESET_STORE' });
 };
 

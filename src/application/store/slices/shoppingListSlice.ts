@@ -2,8 +2,9 @@
 // Shopping List Slice - List Management State
 // ========================================
 
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { ShoppingList, ShoppingItem, Collaborator } from '../../../shared/types/lists';
+import { type PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import type { Collaborator, ShoppingItem, ShoppingList } from '../../../shared/types/lists';
+import { shoppingLogger } from '../../../shared/utils/logger';
 
 // ========================================
 // State Types
@@ -57,7 +58,7 @@ export interface ShoppingListError {
   readonly code: string;
   readonly message: string;
   readonly timestamp: string;
-  readonly context?: Record<string, any>;
+  readonly context?: Record<string, unknown>;
 }
 
 // ========================================
@@ -127,18 +128,18 @@ export const loadShoppingLists = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log('🛒 Redux loadShoppingLists started with params:', params);
+      shoppingLogger.debug('🛒 Redux loadShoppingLists started with params:', params);
 
       // Import shopping list API
       const { shoppingListApi } = await import('../../../infrastructure/api');
 
       const response = await shoppingListApi.getShoppingLists(params);
-      console.log('🛒 Redux loadShoppingLists received response:', response);
+      shoppingLogger.debug('🛒 Redux loadShoppingLists received response:', response);
 
       if (!response.data) {
         return rejectWithValue({
-          code: response.error_code || 'LOAD_LISTS_FAILED',
-          message: response.detail || 'Failed to load shopping lists',
+          code: response.error_code ?? 'LOAD_LISTS_FAILED',
+          message: response.detail ?? 'Failed to load shopping lists',
           timestamp: new Date().toISOString(),
         });
       }
@@ -146,14 +147,15 @@ export const loadShoppingLists = createAsyncThunk(
       // Convert backend lists to frontend format
       const lists: ShoppingList[] = response.data.map(backendList => {
         // Process items if they exist in the response
-        const items = (backendList.items || []).map(item => ({
+        const items = (backendList.items ?? []).map(item => ({
           id: item.id,
           name: item.name,
-          description: item.description || undefined,
-          quantity: parseFloat(item.quantity) || 1,
-          unit: item.unit || 'pcs',
+          description: item.description ?? undefined,
+          quantity:
+            typeof item.quantity === 'string' ? parseFloat(item.quantity) || 1 : item.quantity || 1,
+          unit: item.unit ?? 'pcs',
           category: {
-            id: item.category_id || 'other',
+            id: item.category_id ?? 'other',
             name: 'Other',
             color: '#636e72',
           },
@@ -211,7 +213,7 @@ export const loadShoppingLists = createAsyncThunk(
           ownerId: backendList.owner_id,
           ownerName: backendList.owner?.name || 'You',
           collaborators: allCollaborators,
-          items: items,
+          items,
           categories: [], // Will be loaded separately if needed
           status: backendList.status,
           budget: backendList.budget_amount
@@ -272,13 +274,13 @@ export const loadShoppingList = createAsyncThunk(
   'shoppingList/loadList',
   async (listId: string, { rejectWithValue }) => {
     try {
-      console.log('🛒 Redux loadShoppingList started for list:', listId);
+      shoppingLogger.debug('🛒 Redux loadShoppingList started for list:', listId);
 
       // Import shopping list API
       const { shoppingListApi } = await import('../../../infrastructure/api');
 
       const response = await shoppingListApi.getShoppingList(listId);
-      console.log('🛒 Redux loadShoppingList received response:', response);
+      shoppingLogger.debug('🛒 Redux loadShoppingList received response:', response);
 
       if (!response.data) {
         return rejectWithValue({
@@ -381,13 +383,13 @@ export const createShoppingList = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log('🛒 Redux createShoppingList started with data:', data);
+      shoppingLogger.debug('🛒 Redux createShoppingList started with data:', data);
 
       // Import shopping list API
       const { shoppingListApi } = await import('../../../infrastructure/api');
 
       const response = await shoppingListApi.createShoppingList(data);
-      console.log('🛒 Redux createShoppingList received response:', response);
+      shoppingLogger.debug('🛒 Redux createShoppingList received response:', response);
 
       if (!response.data) {
         return rejectWithValue({
@@ -454,14 +456,14 @@ export const addShoppingItem = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log('🛒 Redux addShoppingItem started with data:', data);
+      shoppingLogger.debug('🛒 Redux addShoppingItem started with data:', data);
 
       // Import shopping list API
       const { shoppingListApi } = await import('../../../infrastructure/api');
 
       const { listId, ...itemData } = data;
       const response = await shoppingListApi.addShoppingItem(listId, itemData);
-      console.log('🛒 Redux addShoppingItem received response:', response);
+      shoppingLogger.debug('🛒 Redux addShoppingItem received response:', response);
 
       if (!response.data) {
         return rejectWithValue({
@@ -529,14 +531,14 @@ export const updateShoppingItem = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log('🛒 Redux updateShoppingItem started with data:', data);
+      shoppingLogger.debug('🛒 Redux updateShoppingItem started with data:', data);
 
       // Import shopping list API
       const { shoppingListApi } = await import('../../../infrastructure/api');
 
       const { listId, itemId, updates } = data;
       const response = await shoppingListApi.updateShoppingItem(listId, itemId, updates);
-      console.log('🛒 Redux updateShoppingItem received response:', response);
+      shoppingLogger.debug('🛒 Redux updateShoppingItem received response:', response);
 
       if (!response.data) {
         return rejectWithValue({
@@ -596,14 +598,14 @@ export const assignShoppingItem = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log('🛒 Redux assignShoppingItem started with data:', data);
+      shoppingLogger.debug('🛒 Redux assignShoppingItem started with data:', data);
 
       // Import shopping list API
       const { shoppingListApi } = await import('../../../infrastructure/api');
 
       const { listId, itemId, userId } = data;
       const response = await shoppingListApi.assignItem(listId, itemId, userId);
-      console.log('🛒 Redux assignShoppingItem received response:', response);
+      shoppingLogger.debug('🛒 Redux assignShoppingItem received response:', response);
 
       if (!response.data) {
         return rejectWithValue({
@@ -662,14 +664,14 @@ export const unassignShoppingItem = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log('🛒 Redux unassignShoppingItem started with data:', data);
+      shoppingLogger.debug('🛒 Redux unassignShoppingItem started with data:', data);
 
       // Import shopping list API
       const { shoppingListApi } = await import('../../../infrastructure/api');
 
       const { listId, itemId } = data;
       const response = await shoppingListApi.unassignItem(listId, itemId);
-      console.log('🛒 Redux unassignShoppingItem received response:', response);
+      shoppingLogger.debug('🛒 Redux unassignShoppingItem received response:', response);
 
       if (!response.data) {
         return rejectWithValue({
@@ -722,7 +724,7 @@ export const archiveShoppingList = createAsyncThunk(
   'shoppingList/archiveList',
   async (listId: string, { rejectWithValue }) => {
     try {
-      console.log('🛒 Redux archiveShoppingList started with listId:', listId);
+      shoppingLogger.debug('🛒 Redux archiveShoppingList started with listId:', listId);
 
       // Import shopping list API
       const { shoppingListApi } = await import('../../../infrastructure/api');
@@ -730,7 +732,7 @@ export const archiveShoppingList = createAsyncThunk(
       const response = await shoppingListApi.updateShoppingList(listId, {
         status: 'archived',
       });
-      console.log('🛒 Redux archiveShoppingList received response:', response);
+      shoppingLogger.debug('🛒 Redux archiveShoppingList received response:', response);
 
       if (!response.data) {
         return rejectWithValue({
@@ -979,7 +981,7 @@ const shoppingListSlice = createSlice({
         state.lists.unshift(action.payload);
         state.totalLists += 1;
         state.activeLists += 1;
-        state.showCreateListModal = false;
+        // Don't auto-close modal - let the component handle it for animation timing
       })
       .addCase(createShoppingList.rejected, (state, action) => {
         state.isCreatingList = false;

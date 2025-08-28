@@ -3,7 +3,7 @@
 // ========================================
 
 import React, { useState } from 'react';
-import { View, ScrollView, FlatList, RefreshControl, Image } from 'react-native';
+import { FlatList, Image, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Components
@@ -17,14 +17,14 @@ import { useTheme } from '../../providers/ThemeProvider';
 // Redux
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  loadFriends,
   loadFriendRequests,
+  loadFriends,
   respondToFriendRequest,
-  setShowAddFriendModal,
-  selectFriends,
   selectFriendRequests,
+  selectFriends,
   selectIsLoadingFriends,
   selectSocialState,
+  setShowAddFriendModal,
 } from '../../../application/store/slices/socialSlice';
 import { selectUser } from '../../../application/store/slices/authSlice';
 import type { AppDispatch } from '../../../application/store';
@@ -35,7 +35,7 @@ import AddFriendIcon from '../../../assets/images/addFriend.png';
 // Types
 import type { FriendRequest } from '../../../shared/types/social';
 
-export interface SocialScreenProps {}
+export type SocialScreenProps = Record<string, never>;
 
 interface Friend {
   id: string;

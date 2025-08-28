@@ -2,8 +2,8 @@
 // Consult Button - Animated Floating Action Button
 // ========================================
 
-import React, { type FC, useRef, useEffect } from 'react';
-import { TouchableOpacity, Animated, StyleSheet, Platform, ViewStyle, Image } from 'react-native';
+import React, { type FC, useEffect, useRef } from 'react';
+import { Animated, Image, Platform, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { Typography } from '../Typography/Typography';
 import { useTheme } from '../../../providers/ThemeProvider';
 

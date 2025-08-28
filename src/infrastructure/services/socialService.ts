@@ -5,26 +5,27 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode as base64Decode } from 'base-64';
 import type {
-  FriendRequest,
-  Friendship,
-  FriendSearchResult,
   FriendActivity,
-  SendFriendRequestRequest,
-  SendFriendRequestResponse,
+  FriendPrivacySettings,
+  FriendRequest,
+  FriendSearchResult,
+  Friendship,
   RespondToFriendRequestRequest,
   RespondToFriendRequestResponse,
   SearchFriendsRequest,
   SearchFriendsResponse,
-  FriendPrivacySettings,
+  SendFriendRequestRequest,
+  SendFriendRequestResponse,
 } from '../../shared/types/social';
 import type { User } from '../../shared/types';
 import {
-  validateForm,
-  sendFriendRequestSchema,
   respondToFriendRequestSchema,
   searchFriendsSchema,
+  sendFriendRequestSchema,
+  validateForm,
 } from '../../shared/validation';
 import NotificationService from './notificationService';
+import { socialLogger } from '../../shared/utils/logger';
 
 // ========================================
 // Social Service Interface
@@ -78,12 +79,12 @@ class SocialServiceImpl implements ISocialService {
 
   async sendFriendRequest(request: SendFriendRequestRequest): Promise<SendFriendRequestResponse> {
     try {
-      console.log('🎯 Service sendFriendRequest started with request:', request);
+      socialLogger.debug('🎯 Service sendFriendRequest started with request:', request);
 
       // Validate input
       const validation = validateForm(sendFriendRequestSchema, request);
       if (!validation.success) {
-        console.log('❌ Validation failed:', validation.errors);
+        socialLogger.debug('❌ Validation failed:', validation.errors);
         return {
           success: false,
           message: Object.values(validation.errors)[0],
@@ -92,13 +93,13 @@ class SocialServiceImpl implements ISocialService {
       }
 
       const validRequest = validation.data;
-      console.log('✅ Validation passed:', validRequest);
+      socialLogger.debug('✅ Validation passed:', validRequest);
 
       // Get current user (in real app, this would come from auth context)
       const currentUserId = await this.getCurrentUserId();
-      console.log('👤 Current user ID:', currentUserId);
+      socialLogger.debug('👤 Current user ID:', currentUserId);
       if (!currentUserId) {
-        console.log('❌ No current user ID');
+        socialLogger.debug('❌ No current user ID');
         return {
           success: false,
           message: 'User not authenticated',
@@ -116,9 +117,9 @@ class SocialServiceImpl implements ISocialService {
       }
 
       // Check if target user exists
-      console.log('🔍 Checking if target user exists...');
+      socialLogger.debug('🔍 Checking if target user exists...');
       const targetUser = await this.getUserById(validRequest.toUserId);
-      console.log('👤 Target user:', targetUser ? targetUser.name : 'not found');
+      socialLogger.debug('👤 Target user:', targetUser ? targetUser.name : 'not found');
       if (!targetUser) {
         return {
           success: false,
@@ -128,12 +129,12 @@ class SocialServiceImpl implements ISocialService {
       }
 
       // Check if already friends
-      console.log('🔍 Checking if already friends...');
+      socialLogger.debug('🔍 Checking if already friends...');
       const existingFriendship = await this.getFriendshipBetweenUsers(
         currentUserId,
         validRequest.toUserId
       );
-      console.log('👫 Existing friendship:', existingFriendship ? 'found' : 'none');
+      socialLogger.debug('👫 Existing friendship:', existingFriendship ? 'found' : 'none');
       if (existingFriendship) {
         return {
           success: false,
@@ -143,12 +144,12 @@ class SocialServiceImpl implements ISocialService {
       }
 
       // Check if request already exists
-      console.log('🔍 Checking if request already exists...');
+      socialLogger.debug('🔍 Checking if request already exists...');
       const existingRequest = await this.getExistingFriendRequest(
         currentUserId,
         validRequest.toUserId
       );
-      console.log('📨 Existing request:', existingRequest ? existingRequest.status : 'none');
+      socialLogger.debug('📨 Existing request:', existingRequest ? existingRequest.status : 'none');
       if (existingRequest) {
         if (existingRequest.status === 'pending') {
           return {
@@ -160,9 +161,9 @@ class SocialServiceImpl implements ISocialService {
       }
 
       // Check privacy settings
-      console.log('🔍 Checking privacy settings...');
+      socialLogger.debug('🔍 Checking privacy settings...');
       const targetPrivacySettings = await this.getPrivacySettings(validRequest.toUserId);
-      console.log(
+      socialLogger.debug(
         '🔒 Privacy settings:',
         targetPrivacySettings.allowFriendRequests ? 'allows requests' : 'blocks requests'
       );
@@ -175,16 +176,16 @@ class SocialServiceImpl implements ISocialService {
       }
 
       // Check if user is blocked
-      console.log('🔍 Checking if user is blocked...');
+      socialLogger.debug('🔍 Checking if user is blocked...');
       if (targetPrivacySettings.blockedUserIds.includes(currentUserId)) {
-        console.log('❌ User is blocked');
+        socialLogger.debug('❌ User is blocked');
         return {
           success: false,
           message: 'Unable to send friend request',
           errorCode: 'USER_BLOCKED',
         };
       }
-      console.log('✅ User is not blocked');
+      socialLogger.debug('✅ User is not blocked');
 
       // Create friend request
       const currentUser = await this.getUserById(currentUserId);
@@ -199,7 +200,7 @@ class SocialServiceImpl implements ISocialService {
         toUser: targetUser,
         status: 'pending',
         message: validRequest.message,
-        expiresAt: expiresAt,
+        expiresAt,
         createdAt: now,
         updatedAt: now,
       };
@@ -226,7 +227,7 @@ class SocialServiceImpl implements ISocialService {
         message: 'Friend request sent successfully',
       };
     } catch (error: any) {
-      console.error('Error sending friend request:', error);
+      socialLogger.error('Error sending friend request:', error);
       return {
         success: false,
         message: 'Failed to send friend request',
@@ -272,21 +273,21 @@ class SocialServiceImpl implements ISocialService {
       }
 
       // Verify user can respond to this request
-      console.log(
+      socialLogger.debug(
         '🔍 Respond validation - Request toUserId:',
         friendRequest.toUserId,
         'Current userId:',
         currentUserId
       );
       if (friendRequest.toUserId !== currentUserId) {
-        console.log('❌ User cannot respond - not the recipient');
+        socialLogger.debug('❌ User cannot respond - not the recipient');
         return {
           success: false,
           message: 'You can only respond to requests sent to you',
           errorCode: 'UNAUTHORIZED',
         };
       }
-      console.log('✅ User can respond to this request');
+      socialLogger.debug('✅ User can respond to this request');
 
       // Check if request is still pending
       if (friendRequest.status !== 'pending') {
@@ -368,7 +369,7 @@ class SocialServiceImpl implements ISocialService {
           validRequest.action === 'accept' ? 'Friend request accepted' : 'Friend request rejected',
       };
     } catch (error: any) {
-      console.error('Error responding to friend request:', error);
+      socialLogger.error('Error responding to friend request:', error);
       return {
         success: false,
         message: 'Failed to respond to friend request',
@@ -407,7 +408,7 @@ class SocialServiceImpl implements ISocialService {
 
       return { success: true, message: 'Friend request cancelled' };
     } catch (error: any) {
-      console.error('Error cancelling friend request:', error);
+      socialLogger.error('Error cancelling friend request:', error);
       return { success: false, message: 'Failed to cancel friend request' };
     }
   }
@@ -426,7 +427,7 @@ class SocialServiceImpl implements ISocialService {
 
       return { sent, received };
     } catch (error: any) {
-      console.error('Error getting friend requests:', error);
+      socialLogger.error('Error getting friend requests:', error);
       return { sent: [], received: [] };
     }
   }
@@ -444,7 +445,7 @@ class SocialServiceImpl implements ISocialService {
           friendship.status === 'active'
       );
     } catch (error: any) {
-      console.error('Error getting friends:', error);
+      socialLogger.error('Error getting friends:', error);
       return [];
     }
   }
@@ -460,7 +461,7 @@ class SocialServiceImpl implements ISocialService {
 
       return { success: true, message: 'Friend removed successfully' };
     } catch (error: any) {
-      console.error('Error unfriending user:', error);
+      socialLogger.error('Error unfriending user:', error);
       return { success: false, message: 'Failed to remove friend' };
     }
   }
@@ -486,7 +487,7 @@ class SocialServiceImpl implements ISocialService {
 
       return { success: true, message: 'User blocked successfully' };
     } catch (error: any) {
-      console.error('Error blocking user:', error);
+      socialLogger.error('Error blocking user:', error);
       return { success: false, message: 'Failed to block user' };
     }
   }
@@ -506,7 +507,7 @@ class SocialServiceImpl implements ISocialService {
 
       return { success: true, message: 'User unblocked successfully' };
     } catch (error: any) {
-      console.error('Error unblocking user:', error);
+      socialLogger.error('Error unblocking user:', error);
       return { success: false, message: 'Failed to unblock user' };
     }
   }
@@ -517,12 +518,12 @@ class SocialServiceImpl implements ISocialService {
 
   async searchUsers(request: SearchFriendsRequest): Promise<SearchFriendsResponse> {
     try {
-      console.log('🔍 SearchUsers called with request:', request);
+      socialLogger.debug('🔍 SearchUsers called with request:', request);
 
       // Validate input
       const validation = validateForm(searchFriendsSchema, request.filters);
       if (!validation.success) {
-        console.log('❌ Validation failed:', validation.errors);
+        socialLogger.debug('❌ Validation failed:', validation.errors);
         return {
           success: false,
           results: [],
@@ -533,13 +534,13 @@ class SocialServiceImpl implements ISocialService {
       }
 
       const filters = validation.data;
-      console.log('✅ Validation passed, filters:', filters);
+      socialLogger.debug('✅ Validation passed, filters:', filters);
 
       const currentUserId = await this.getCurrentUserId();
-      console.log('👤 Current user ID:', currentUserId);
+      socialLogger.debug('👤 Current user ID:', currentUserId);
 
       if (!currentUserId) {
-        console.log('❌ No current user ID');
+        socialLogger.debug('❌ No current user ID');
         return {
           success: false,
           results: [],
@@ -551,8 +552,8 @@ class SocialServiceImpl implements ISocialService {
 
       // Get all users (in real app, this would be a database query)
       const allUsers = await this.getAllUsers();
-      console.log('👥 All users loaded:', allUsers.length, 'users');
-      console.log(
+      socialLogger.debug('👥 All users loaded:', allUsers.length, 'users');
+      socialLogger.debug(
         '👥 User names:',
         allUsers.map(u => u.name)
       );
@@ -561,23 +562,23 @@ class SocialServiceImpl implements ISocialService {
       const friendIds = currentUserFriends.map(f =>
         f.user1Id === currentUserId ? f.user2Id : f.user1Id
       );
-      console.log('👫 Current user friends:', friendIds);
+      socialLogger.debug('👫 Current user friends:', friendIds);
 
       // Filter users based on search criteria
-      let filteredUsers = allUsers.filter(user => {
-        console.log(
+      const filteredUsers = allUsers.filter(user => {
+        socialLogger.debug(
           `🔍 Checking user: ${user.name} (${user.email}) mobile: ${user.mobile || 'undefined'}`
         );
 
         // Exclude self
         if (user.id === currentUserId) {
-          console.log(`❌ Excluding self: ${user.name}`);
+          socialLogger.debug(`❌ Excluding self: ${user.name}`);
           return false;
         }
 
         // Exclude already friends
         if (friendIds.includes(user.id)) {
-          console.log(`❌ Already friends: ${user.name}`);
+          socialLogger.debug(`❌ Already friends: ${user.name}`);
           return false;
         }
 
@@ -587,21 +588,21 @@ class SocialServiceImpl implements ISocialService {
           const matchesName = user.name.toLowerCase().includes(query);
           const matchesEmail = user.email.toLowerCase().includes(query);
           const matchesMobile = user.mobile?.includes(query) || false;
-          console.log(
+          socialLogger.debug(
             `🔍 Query: "${query}", Name match: ${matchesName}, Email match: ${matchesEmail}, Mobile match: ${matchesMobile}, User mobile: "${user.mobile}"`
           );
           if (!matchesName && !matchesEmail && !matchesMobile) {
-            console.log(`❌ No match for query: ${user.name}`);
+            socialLogger.debug(`❌ No match for query: ${user.name}`);
             return false;
           }
         }
 
-        console.log(`✅ User passed all filters: ${user.name}`);
+        socialLogger.debug(`✅ User passed all filters: ${user.name}`);
         return true;
       });
 
-      console.log('🎯 Filtered users:', filteredUsers.length, 'users found');
-      console.log(
+      socialLogger.debug('🎯 Filtered users:', filteredUsers.length, 'users found');
+      socialLogger.debug(
         '🎯 Filtered user names:',
         filteredUsers.map(u => u.name)
       );
@@ -629,11 +630,11 @@ class SocialServiceImpl implements ISocialService {
         hasMore: offset + limit < filteredUsers.length,
       };
 
-      console.log('🎉 Search completed successfully:', response);
-      console.log('🎉 About to return response from service');
+      socialLogger.debug('🎉 Search completed successfully:', response);
+      socialLogger.debug('🎉 About to return response from service');
       return response;
     } catch (error: any) {
-      console.error('Error searching users:', error);
+      socialLogger.error('Error searching users:', error);
       return {
         success: false,
         results: [],
@@ -670,7 +671,7 @@ class SocialServiceImpl implements ISocialService {
 
       return mutualFriends;
     } catch (error: any) {
-      console.error('Error getting mutual friends:', error);
+      socialLogger.error('Error getting mutual friends:', error);
       return [];
     }
   }
@@ -703,7 +704,7 @@ class SocialServiceImpl implements ISocialService {
 
       return updatedSettings;
     } catch (error: any) {
-      console.error('Error updating privacy settings:', error);
+      socialLogger.error('Error updating privacy settings:', error);
       throw error;
     }
   }
@@ -734,7 +735,7 @@ class SocialServiceImpl implements ISocialService {
       );
       return defaultSettings;
     } catch (error: any) {
-      console.error('Error getting privacy settings:', error);
+      socialLogger.error('Error getting privacy settings:', error);
       // Return safe defaults
       return {
         allowFriendRequests: true,
@@ -757,12 +758,12 @@ class SocialServiceImpl implements ISocialService {
     try {
       // Get current user from secure storage (same as auth service)
       const user = await this.getStoredUser();
-      console.log('🔍 getCurrentUserId - stored user:', user);
+      socialLogger.debug('🔍 getCurrentUserId - stored user:', user);
       const userId = user?.id || null;
-      console.log('🔍 getCurrentUserId - returning userId:', userId);
+      socialLogger.debug('🔍 getCurrentUserId - returning userId:', userId);
       return userId;
     } catch (error) {
-      console.log('🔍 getCurrentUserId - error:', error);
+      socialLogger.debug('🔍 getCurrentUserId - error:', error);
       return null;
     }
   }
@@ -771,9 +772,9 @@ class SocialServiceImpl implements ISocialService {
     try {
       // Use the same storage method as auth service
       const userStr = await AsyncStorage.getItem('@pentrypal_user');
-      console.log('🔍 getStoredUser - raw userStr:', userStr);
+      socialLogger.debug('🔍 getStoredUser - raw userStr:', userStr);
       if (!userStr) {
-        console.log('🔍 getStoredUser - no userStr found');
+        socialLogger.debug('🔍 getStoredUser - no userStr found');
         return null;
       }
 
@@ -781,24 +782,24 @@ class SocialServiceImpl implements ISocialService {
       try {
         // First try to decode from base64 (using base-64 library)
         const decodedStr = base64Decode(userStr);
-        console.log('🔍 getStoredUser - decoded string:', decodedStr);
+        socialLogger.debug('🔍 getStoredUser - decoded string:', decodedStr);
         const parsed = JSON.parse(decodedStr);
-        console.log('🔍 getStoredUser - parsed user:', parsed);
+        socialLogger.debug('🔍 getStoredUser - parsed user:', parsed);
         return parsed;
       } catch (base64Error) {
-        console.log('🔍 getStoredUser - base64 decode failed, trying plain JSON:', base64Error);
+        socialLogger.debug('🔍 getStoredUser - base64 decode failed, trying plain JSON:', base64Error);
         // Fallback to plain JSON parsing
         try {
           const parsed = JSON.parse(userStr);
-          console.log('🔍 getStoredUser - parsed user (plain JSON):', parsed);
+          socialLogger.debug('🔍 getStoredUser - parsed user (plain JSON):', parsed);
           return parsed;
         } catch (jsonError) {
-          console.log('🔍 getStoredUser - JSON parse error:', jsonError);
+          socialLogger.debug('🔍 getStoredUser - JSON parse error:', jsonError);
           return null;
         }
       }
     } catch (storageError) {
-      console.log('🔍 getStoredUser - storage error:', storageError);
+      socialLogger.debug('🔍 getStoredUser - storage error:', storageError);
       return null;
     }
   }
@@ -824,30 +825,30 @@ class SocialServiceImpl implements ISocialService {
       const stored = await AsyncStorage.getItem(AUTH_USERS_KEY);
       let users: User[] = stored ? JSON.parse(stored) : [];
 
-      console.log('👥 Users from single source:', users.length);
-      console.log('🔍 Raw stored data:', stored);
-      console.log(
+      socialLogger.debug('👥 Users from single source:', users.length);
+      socialLogger.debug('🔍 Raw stored data:', stored);
+      socialLogger.debug(
         '🔍 Parsed users:',
         users.map(u => `${u.name} (${u.email}) mobile: ${u.mobile || 'none'}`)
       );
 
       // TEMPORARY: Clear storage to force fresh start with single source of truth
       if (users.length <= 3) {
-        console.log('🔄 Clearing old storage and rebuilding with current user...');
+        socialLogger.debug('🔄 Clearing old storage and rebuilding with current user...');
         await AsyncStorage.removeItem(AUTH_USERS_KEY);
         users = [];
       }
 
       // Add mock users if no users exist (for demo purposes)
       if (users.length === 0) {
-        console.log('🔄 Adding initial mock users...');
+        socialLogger.debug('🔄 Adding initial mock users...');
 
         // First, add the current logged-in user if they exist
         const currentUserStr = await AsyncStorage.getItem('@pentrypal_user');
         if (currentUserStr) {
           try {
             const currentUserData = JSON.parse(base64Decode(currentUserStr));
-            console.log('🔄 Adding current user to database:', currentUserData.name);
+            socialLogger.debug('🔄 Adding current user to database:', currentUserData.name);
             users.push({
               id: currentUserData.id,
               email: currentUserData.email,
@@ -860,7 +861,7 @@ class SocialServiceImpl implements ISocialService {
               updatedAt: currentUserData.updatedAt,
             });
           } catch (error) {
-            console.error('❌ Failed to add current user:', error);
+            socialLogger.error('❌ Failed to add current user:', error);
           }
         }
         const mockUsers: User[] = [
@@ -961,13 +962,13 @@ class SocialServiceImpl implements ISocialService {
         await AsyncStorage.setItem(AUTH_USERS_KEY, JSON.stringify(users));
       }
 
-      console.log(
+      socialLogger.debug(
         '📋 All users:',
         users.map(u => `${u.name} (${u.email}) mobile: ${u.mobile || 'none'}`)
       );
       return users;
     } catch (error) {
-      console.error('❌ Error getting users:', error);
+      socialLogger.error('❌ Error getting users:', error);
       return [];
     }
   }

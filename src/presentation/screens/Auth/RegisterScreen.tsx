@@ -2,15 +2,15 @@
 // Register Screen - Secure User Registration
 // ========================================
 
-import React, { useState, useEffect, type FC } from 'react';
+import React, { type FC, useEffect, useState } from 'react';
 import {
-  View,
-  ScrollView,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  ScrollView,
   TextInput,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,23 +21,23 @@ import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
 import { Input } from '../../components/atoms/Input/Input';
 import { LoadingScreen } from '../../components/atoms/LoadingScreen/LoadingScreen';
-import { PhoneNumberInput, type Country } from '../../components/molecules/PhoneNumberInput';
+import { type Country, PhoneNumberInput } from '../../components/molecules/PhoneNumberInput';
 import { SuccessModal } from '../../components/molecules/SuccessModal';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
 import { useForm } from '../../hooks/useForm';
 import {
-  registerSchema,
   type RegisterFormData,
   getPasswordStrength,
+  registerSchema,
 } from '../../../shared/validation';
 
 // Store
 import {
+  clearError,
   registerUser,
   selectAuth,
-  clearError,
   updateSecuritySettings,
 } from '../../../application/store/slices/authSlice';
 import type { AppDispatch, RootState } from '../../../application/store';
@@ -176,7 +176,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
   // ========================================
 
   const getDeviceInfo = (): DeviceInfo => ({
-    deviceId: 'device_' + Math.random().toString(36).substr(2, 9),
+    deviceId: `device_${Math.random().toString(36).substr(2, 9)}`,
     platform: Platform.OS,
     osVersion: Platform.Version.toString(),
     appVersion: '1.0.0',
@@ -246,10 +246,8 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
 
       if (result.success) {
         setSuccessModalData({
-          title: 'Account Created Successfully!',
-          message: result.requiresEmailVerification
-            ? "We've sent a verification link to your email address. Please check your inbox and click the link, then login with your credentials."
-            : 'Your account has been created successfully. Please login with your credentials.',
+          title: 'Welcome to PentryPal',
+          message: 'Your account has been created successfully!',
           requiresEmailVerification: result.requiresEmailVerification || false,
         });
         setShowSuccessModal(true);
@@ -924,7 +922,6 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
         }}
         onPrimaryPress={handleSuccessModalClose}
         onDismiss={handleSuccessModalClose}
-        icon='🎉'
         testID='registration-success-modal'
       />
     </SafeAreaView>

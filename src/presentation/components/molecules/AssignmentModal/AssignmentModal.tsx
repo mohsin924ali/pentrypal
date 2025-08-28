@@ -3,7 +3,7 @@
 // ========================================
 
 import React, { useState } from 'react';
-import { View, Modal, ScrollView, TouchableOpacity, ViewStyle, Alert, Image } from 'react-native';
+import { Alert, Image, Modal, ScrollView, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 // Components
 import { Typography } from '../../atoms/Typography/Typography';

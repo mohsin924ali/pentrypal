@@ -2,9 +2,8 @@
 // Auth Slice - Secure Authentication State Management
 // ========================================
 
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { AuthUser as User } from '../../../shared/types/auth';
-import type { AuthTokens, DeviceInfo } from '../../../shared/types/auth';
+import { type PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import type { AuthTokens, DeviceInfo, AuthUser as User } from '../../../shared/types/auth';
 
 // Temporary form data types
 interface LoginFormData {
@@ -159,8 +158,8 @@ export const loginUser = createAsyncThunk(
 
       if (!response.success) {
         return rejectWithValue({
-          code: response.errorCode || 'LOGIN_FAILED',
-          message: response.message || 'Login failed',
+          code: response.errorCode ?? 'LOGIN_FAILED',
+          message: response.message ?? 'Login failed',
           timestamp: new Date().toISOString(),
         });
       }
@@ -178,10 +177,11 @@ export const loginUser = createAsyncThunk(
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorObj = error as { code?: string; message?: string };
       return rejectWithValue({
-        code: error.code || 'NETWORK_ERROR',
-        message: error.message || 'Network error occurred',
+        code: errorObj.code ?? 'NETWORK_ERROR',
+        message: errorObj.message ?? 'Network error occurred',
         timestamp: new Date().toISOString(),
       });
     }
@@ -201,8 +201,8 @@ export const registerUser = createAsyncThunk(
 
       if (!response.success) {
         return rejectWithValue({
-          code: response.errorCode || 'REGISTRATION_FAILED',
-          message: response.message || 'Registration failed',
+          code: response.errorCode ?? 'REGISTRATION_FAILED',
+          message: response.message ?? 'Registration failed',
           timestamp: new Date().toISOString(),
         });
       }
@@ -220,10 +220,11 @@ export const registerUser = createAsyncThunk(
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorObj = error as { code?: string; message?: string };
       return rejectWithValue({
-        code: error.code || 'NETWORK_ERROR',
-        message: error.message || 'Network error occurred',
+        code: errorObj.code ?? 'NETWORK_ERROR',
+        message: errorObj.message ?? 'Network error occurred',
         timestamp: new Date().toISOString(),
       });
     }
@@ -243,8 +244,8 @@ export const loginWithBiometric = createAsyncThunk(
 
       if (!response.success) {
         return rejectWithValue({
-          code: response.errorCode || 'BIOMETRIC_LOGIN_FAILED',
-          message: response.message || 'Biometric login failed',
+          code: response.errorCode ?? 'BIOMETRIC_LOGIN_FAILED',
+          message: response.message ?? 'Biometric login failed',
           timestamp: new Date().toISOString(),
         });
       }
@@ -262,10 +263,11 @@ export const loginWithBiometric = createAsyncThunk(
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorObj = error as { code?: string; message?: string };
       return rejectWithValue({
-        code: error.code || 'BIOMETRIC_ERROR',
-        message: error.message || 'Biometric authentication error',
+        code: errorObj.code ?? 'BIOMETRIC_ERROR',
+        message: errorObj.message ?? 'Biometric authentication error',
         timestamp: new Date().toISOString(),
       });
     }
@@ -284,7 +286,8 @@ export const refreshTokens = createAsyncThunk(
       const state = getState() as { auth: AuthState };
       const { tokens, deviceInfo } = state.auth;
 
-      if (!tokens?.refreshToken) {
+      const refreshToken = tokens?.refreshToken;
+      if (typeof refreshToken !== 'string' || refreshToken.trim().length === 0) {
         return rejectWithValue({
           code: 'NO_REFRESH_TOKEN',
           message: 'No refresh token available',
@@ -294,16 +297,14 @@ export const refreshTokens = createAsyncThunk(
 
       const { authService } = await import('../../../infrastructure/services/authService');
 
-      const newTokens = await authService.refreshTokens(
-        tokens.refreshToken,
-        deviceInfo || undefined
-      );
+      const newTokens = await authService.refreshTokens(refreshToken, deviceInfo ?? undefined);
 
       return newTokens;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorObj = error as { code?: string; message?: string };
       return rejectWithValue({
-        code: error.code || 'NETWORK_ERROR',
-        message: error.message || 'Network error occurred',
+        code: errorObj.code ?? 'NETWORK_ERROR',
+        message: errorObj.message ?? 'Network error occurred',
         timestamp: new Date().toISOString(),
       });
     }
@@ -315,33 +316,41 @@ export const refreshTokens = createAsyncThunk(
  */
 export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { getState, rejectWithValue: _rejectWithValue }) => {
     try {
       const state = getState() as { auth: AuthState };
       const { tokens } = state.auth;
 
-      console.log('🔄 Starting logout process...');
+      if (__DEV__) {
+        console.log('🔄 Starting logout process...');
+      }
 
       // Always attempt logout, even with potentially corrupted tokens
       const { authService } = await import('../../../infrastructure/services/authService');
-      await authService.logout(tokens as any); // Cast to handle potential null/corrupted tokens
+      if (tokens) {
+        await authService.logout(tokens);
+      }
 
       // Clear API authentication
       const { clearApiAuthentication } = await import('../../../infrastructure/api');
       clearApiAuthentication();
 
-      console.log('✅ Logout process completed successfully');
+      if (__DEV__) {
+        console.log('✅ Logout process completed successfully');
+      }
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Even if logout fails on server, clear local state
-      console.warn('⚠️ Logout error (will still clear local state):', error);
+      if (__DEV__) {
+        console.warn('⚠️ Logout error (will still clear local state):', error);
+      }
 
       // Ensure API authentication is cleared even on error
       try {
         const { clearApiAuthentication } = await import('../../../infrastructure/api');
         clearApiAuthentication();
-      } catch (clearError) {
-        console.warn('Failed to clear API authentication:', clearError);
+      } catch (apiClearError) {
+        console.warn('Failed to clear API authentication:', apiClearError);
       }
 
       return { success: true }; // Always return success to clear local state
@@ -357,22 +366,29 @@ export const uploadAvatar = createAsyncThunk(
   'auth/uploadAvatar',
   async (file: File | Blob | { uri: string; type: string; name: string }, { rejectWithValue }) => {
     try {
-      console.log('📸 Starting avatar upload...');
+      if (__DEV__) {
+        console.log('📸 Starting avatar upload...');
+      }
 
       const { authApi } = await import('../../../infrastructure/api');
       const response = await authApi.uploadAvatar(file);
 
       if (!response.data) {
-        throw new Error(response.detail || 'Failed to upload avatar');
+        throw new Error(response.detail ?? 'Failed to upload avatar');
       }
 
-      console.log('✅ Avatar uploaded successfully:', response.data);
+      if (__DEV__) {
+        console.log('✅ Avatar uploaded successfully:', response.data);
+      }
       return response.data;
-    } catch (error: any) {
-      console.error('❌ Avatar upload failed:', error);
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      if (__DEV__) {
+        console.error('❌ Avatar upload failed:', error);
+      }
       return rejectWithValue({
         code: 'AVATAR_UPLOAD_ERROR',
-        message: error.message || 'Failed to upload avatar',
+        message: errorObj.message ?? 'Failed to upload avatar',
         timestamp: new Date().toISOString(),
       });
     }
@@ -383,22 +399,29 @@ export const removeAvatar = createAsyncThunk(
   'auth/removeAvatar',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('🗑️ Starting avatar removal...');
+      if (__DEV__) {
+        console.log('🗑️ Starting avatar removal...');
+      }
 
       const { authApi } = await import('../../../infrastructure/api');
       const response = await authApi.removeAvatar();
 
       if (!response.data) {
-        throw new Error(response.detail || 'Failed to remove avatar');
+        throw new Error(response.detail ?? 'Failed to remove avatar');
       }
 
-      console.log('✅ Avatar removed successfully');
+      if (__DEV__) {
+        console.log('✅ Avatar removed successfully');
+      }
       return response.data;
-    } catch (error: any) {
-      console.error('❌ Avatar removal failed:', error);
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      if (__DEV__) {
+        console.error('❌ Avatar removal failed:', error);
+      }
       return rejectWithValue({
         code: 'AVATAR_REMOVE_ERROR',
-        message: error.message || 'Failed to remove avatar',
+        message: errorObj.message ?? 'Failed to remove avatar',
         timestamp: new Date().toISOString(),
       });
     }
@@ -432,7 +455,9 @@ const authSlice = createSlice({
 
     // Force logout (for corrupted tokens or emergency logout)
     forceLogout: state => {
-      console.log('🚨 Force logout triggered - clearing all auth state');
+      if (__DEV__) {
+        console.log('🚨 Force logout triggered - clearing all auth state');
+      }
       Object.assign(state, initialState);
     },
 
@@ -483,13 +508,13 @@ const authSlice = createSlice({
         action.payload;
 
       // Only restore if we have valid user and tokens
-      if (user && tokens && isAuthenticated) {
+      if (user && tokens && Boolean(isAuthenticated)) {
         state.user = user;
         state.tokens = tokens;
-        state.isAuthenticated = isAuthenticated;
-        state.sessionId = sessionId || null;
-        state.lastTokenRefresh = lastTokenRefresh || null;
-        state.tokenExpiresAt = tokenExpiresAt || null;
+        state.isAuthenticated = Boolean(isAuthenticated);
+        state.sessionId = sessionId ?? null;
+        state.lastTokenRefresh = lastTokenRefresh ?? null;
+        state.tokenExpiresAt = tokenExpiresAt ?? null;
       }
     },
   },
@@ -502,7 +527,7 @@ const authSlice = createSlice({
         state.lastError = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        const { user, tokens, sessionId, requiresTwoFactor } = action.payload;
+        const { user, tokens, sessionId } = action.payload;
 
         state.isLoggingIn = false;
         state.loginAttempts = 0;
@@ -511,15 +536,13 @@ const authSlice = createSlice({
         state.lastLoginAt = new Date().toISOString();
 
         // 2FA removed - always proceed with full login
-        {
-          state.user = (user as unknown as User) || null;
-          state.tokens = (tokens as AuthTokens) || null;
-          state.sessionId = sessionId || null;
-          state.isAuthenticated = true;
-          state.tokenExpiresAt = tokens
-            ? new Date(Date.now() + tokens.expiresIn * 1000).toISOString()
-            : null;
-        }
+        state.user = (user as unknown as User) ?? null;
+        state.tokens = (tokens as AuthTokens) ?? null;
+        state.sessionId = sessionId ?? null;
+        state.isAuthenticated = true;
+        state.tokenExpiresAt = tokens
+          ? new Date(Date.now() + tokens.expiresIn * 1000).toISOString()
+          : null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoggingIn = false;
@@ -541,8 +564,9 @@ const authSlice = createSlice({
         state.error = null;
         state.lastError = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        const { user, tokens, sessionId, requiresEmailVerification } = action.payload;
+      .addCase(registerUser.fulfilled, (state, _action) => {
+        // Registration response contains user data but we don't auto-login
+        // User should be redirected to login screen
 
         state.isRegistering = false;
         // Don't automatically log in after registration
@@ -571,9 +595,9 @@ const authSlice = createSlice({
         const { user, tokens, sessionId } = action.payload;
 
         state.isLoggingIn = false;
-        state.user = (user as unknown as User) || null;
-        state.tokens = (tokens as AuthTokens) || null;
-        state.sessionId = sessionId || null;
+        state.user = (user as unknown as User) ?? null;
+        state.tokens = (tokens as AuthTokens) ?? null;
+        state.sessionId = sessionId ?? null;
         state.isAuthenticated = true;
         state.tokenExpiresAt = tokens
           ? new Date(Date.now() + tokens.expiresIn * 1000).toISOString()
@@ -634,19 +658,19 @@ const authSlice = createSlice({
       })
       .addCase(uploadAvatar.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (state.user && action.payload) {
-          // Update user with the full updated user data from backend
+        if (state.user !== null && action.payload !== null) {
+          // Update user with the updated avatar from backend
           state.user = {
             ...state.user,
-            avatar: action.payload.avatar_url,
-            updatedAt: action.payload.updated_at,
+            avatar: action.payload.avatar_url ?? state.user.avatar,
           };
         }
       })
       .addCase(uploadAvatar.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as AuthError;
-        state.lastError = action.payload as AuthError;
+        const errorPayload = action.payload as AuthError;
+        state.error = errorPayload?.message ?? 'Avatar upload failed';
+        state.lastError = errorPayload;
       })
 
       // Avatar Remove
@@ -656,19 +680,19 @@ const authSlice = createSlice({
       })
       .addCase(removeAvatar.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (state.user && action.payload) {
-          // Update user with the full updated user data from backend
+        if (state.user !== null && action.payload !== null) {
+          // Update user with the updated avatar from backend (should be null after removal)
           state.user = {
             ...state.user,
-            avatar: action.payload.avatar_url, // Should be null after removal
-            updatedAt: action.payload.updated_at,
+            avatar: action.payload.avatar_url ?? undefined,
           };
         }
       })
       .addCase(removeAvatar.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as AuthError;
-        state.lastError = action.payload as AuthError;
+        const errorPayload = action.payload as AuthError;
+        state.error = errorPayload?.message ?? 'Avatar removal failed';
+        state.lastError = errorPayload;
       });
   },
 });

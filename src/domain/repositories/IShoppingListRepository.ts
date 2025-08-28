@@ -31,7 +31,10 @@ export interface IShoppingListRepository {
    * @param options - Query options
    * @returns Promise resolving to search results
    */
-  findByCollaboratorId(userId: string, options?: ListQueryOptions): Promise<ShoppingListSearchResult>;
+  findByCollaboratorId(
+    userId: string,
+    options?: ListQueryOptions
+  ): Promise<ShoppingListSearchResult>;
 
   /**
    * Finds all shopping lists accessible to a user (owned + collaborating)
@@ -84,8 +87,8 @@ export interface IShoppingListRepository {
    * @returns Promise resolving to search results
    */
   findByStatus(
-    status: ShoppingListStatus, 
-    userId?: string, 
+    status: ShoppingListStatus,
+    userId?: string,
     options?: ListQueryOptions
   ): Promise<ShoppingListSearchResult>;
 
@@ -96,7 +99,11 @@ export interface IShoppingListRepository {
    * @param options - Query options
    * @returns Promise resolving to search results
    */
-  search(query: string, userId: string, options?: ListQueryOptions): Promise<ShoppingListSearchResult>;
+  search(
+    query: string,
+    userId: string,
+    options?: ListQueryOptions
+  ): Promise<ShoppingListSearchResult>;
 
   /**
    * Finds shopping lists by tags
@@ -105,7 +112,11 @@ export interface IShoppingListRepository {
    * @param options - Query options
    * @returns Promise resolving to search results
    */
-  findByTags(tags: string[], userId: string, options?: ListQueryOptions): Promise<ShoppingListSearchResult>;
+  findByTags(
+    tags: string[],
+    userId: string,
+    options?: ListQueryOptions
+  ): Promise<ShoppingListSearchResult>;
 
   /**
    * Finds recently modified shopping lists
@@ -149,7 +160,10 @@ export interface IShoppingListRepository {
    * @param item - Item to add
    * @returns Promise resolving to updated ShoppingList
    */
-  addItem(listId: string, item: Omit<ShoppingListItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ShoppingList>;
+  addItem(
+    listId: string,
+    item: Omit<ShoppingListItem, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ShoppingList>;
 
   /**
    * Updates an item in a shopping list
@@ -158,7 +172,11 @@ export interface IShoppingListRepository {
    * @param updates - Item updates
    * @returns Promise resolving to updated ShoppingList
    */
-  updateItem(listId: string, itemId: string, updates: Partial<ShoppingListItem>): Promise<ShoppingList>;
+  updateItem(
+    listId: string,
+    itemId: string,
+    updates: Partial<ShoppingListItem>
+  ): Promise<ShoppingList>;
 
   /**
    * Removes an item from a shopping list
@@ -187,7 +205,10 @@ export interface IShoppingListRepository {
    * @param collaborator - Collaborator to add
    * @returns Promise resolving to updated ShoppingList
    */
-  addCollaborator(listId: string, collaborator: ShoppingList['collaborators'][0]): Promise<ShoppingList>;
+  addCollaborator(
+    listId: string,
+    collaborator: ShoppingList['collaborators'][0]
+  ): Promise<ShoppingList>;
 
   /**
    * Removes a collaborator from a shopping list
@@ -205,8 +226,8 @@ export interface IShoppingListRepository {
    * @returns Promise resolving to updated ShoppingList
    */
   updateCollaboratorPermissions(
-    listId: string, 
-    userId: string, 
+    listId: string,
+    userId: string,
     permissions: Partial<ShoppingList['collaborators'][0]['permissions']>
   ): Promise<ShoppingList>;
 
@@ -259,12 +280,12 @@ export interface ListQueryOptions {
   readonly cursor?: string;
 }
 
-export type ListSortField = 
-  | 'name' 
-  | 'createdAt' 
-  | 'updatedAt' 
-  | 'completedAt' 
-  | 'totalItems' 
+export type ListSortField =
+  | 'name'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'completedAt'
+  | 'totalItems'
   | 'completionPercentage'
   | 'estimatedCost'
   | 'actualCost';
@@ -366,29 +387,21 @@ export class ShoppingListNotFoundError extends ShoppingListRepositoryError {
 
 export class ShoppingListAccessDeniedError extends ShoppingListRepositoryError {
   constructor(listId: string, userId: string) {
-    super(
-      `User ${userId} does not have access to shopping list ${listId}`, 
-      'ACCESS_DENIED', 
-      403
-    );
+    super(`User ${userId} does not have access to shopping list ${listId}`, 'ACCESS_DENIED', 403);
   }
 }
 
 export class ShoppingListItemNotFoundError extends ShoppingListRepositoryError {
   constructor(itemId: string, listId: string) {
-    super(
-      `Item ${itemId} not found in shopping list ${listId}`, 
-      'ITEM_NOT_FOUND', 
-      404
-    );
+    super(`Item ${itemId} not found in shopping list ${listId}`, 'ITEM_NOT_FOUND', 404);
   }
 }
 
 export class ShoppingListCollaboratorNotFoundError extends ShoppingListRepositoryError {
   constructor(userId: string, listId: string) {
     super(
-      `User ${userId} is not a collaborator on shopping list ${listId}`, 
-      'COLLABORATOR_NOT_FOUND', 
+      `User ${userId} is not a collaborator on shopping list ${listId}`,
+      'COLLABORATOR_NOT_FOUND',
       404
     );
   }

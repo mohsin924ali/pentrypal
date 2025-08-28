@@ -2,12 +2,12 @@
 // Redux Provider - State Management Provider
 // ========================================
 
-import React, { type PropsWithChildren, type FC } from 'react';
+import React, { type FC, type PropsWithChildren } from 'react';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
 // Store
-import { store, persistor } from '@/store';
+import { persistor, store } from '@/store';
 
 // Components
 import { LoadingScreen } from '@/components/atoms/LoadingScreen/LoadingScreen';

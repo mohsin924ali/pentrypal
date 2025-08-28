@@ -2,19 +2,19 @@
 // Input Component - Secure Form Input with Validation
 // ========================================
 
-import React, { useState, useRef, forwardRef, type Ref } from 'react';
+import React, { type Ref, forwardRef, useRef, useState } from 'react';
 import {
-  View,
-  TextInput,
-  TouchableOpacity,
   Animated,
-  type TextInputProps,
   type NativeSyntheticEvent,
+  TextInput,
   type TextInputFocusEventData,
+  type TextInputProps,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Typography } from '../Typography/Typography';
 import { useTheme } from '../../../providers/ThemeProvider';
-import type { InputProps, InputVariant, InputSize } from '../../../../shared/types/ui';
+import type { InputProps, InputSize, InputVariant } from '../../../../shared/types/ui';
 
 /**
  * Secure Input Component

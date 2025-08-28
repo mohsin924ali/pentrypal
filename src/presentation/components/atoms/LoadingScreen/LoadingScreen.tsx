@@ -2,9 +2,10 @@
 // Loading Screen - App initialization loading
 // ========================================
 
-import React, { useRef, useEffect, type FC } from 'react';
-import { View, Animated } from 'react-native';
+import React, { type FC } from 'react';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LottieView from 'lottie-react-native';
 import { Typography } from '../Typography/Typography';
 import { useTheme } from '../../../providers/ThemeProvider';
 
@@ -16,64 +17,19 @@ import { useTheme } from '../../../providers/ThemeProvider';
  */
 export const LoadingScreen: FC = () => {
   const { theme } = useTheme();
-  const spinValue = useRef(new Animated.Value(0)).current;
-  const pulseValue = useRef(new Animated.Value(1)).current;
-
-  // Spinning animation
-  useEffect(() => {
-    const spinAnimation = Animated.loop(
-      Animated.timing(spinValue, {
-        toValue: 1,
-        duration: 2000,
-        useNativeDriver: true,
-      })
-    );
-
-    const pulseAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseValue, {
-          toValue: 1.2,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseValue, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    spinAnimation.start();
-    pulseAnimation.start();
-
-    return () => {
-      spinAnimation.stop();
-      pulseAnimation.stop();
-    };
-  }, [spinValue, pulseValue]);
-
-  const spin = spinValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface.background }]}>
       <View style={styles.content}>
-        {/* App Logo/Icon */}
-        <Animated.View
-          style={[
-            styles.logoContainer,
-            {
-              backgroundColor: theme.colors.primary[500],
-              transform: [{ rotate: spin }, { scale: pulseValue }],
-            },
-          ]}>
-          <Typography variant='h2' color={theme.colors.text.onPrimary}>
-            🛒
-          </Typography>
-        </Animated.View>
+        {/* Lottie Animation */}
+        <View style={styles.animationContainer}>
+          <LottieView
+            source={require('../../../../assets/animations/GroceryUpdate.json')}
+            autoPlay
+            loop
+            style={styles.animation}
+          />
+        </View>
 
         {/* App Name */}
         <Typography
@@ -92,29 +48,6 @@ export const LoadingScreen: FC = () => {
           style={{ marginTop: theme.spacing.sm }}>
           Loading your grocery lists...
         </Typography>
-
-        {/* Loading Dots */}
-        <View style={styles.dotsContainer}>
-          {[0, 1, 2].map(index => (
-            <Animated.View
-              key={index}
-              style={[
-                styles.dot,
-                {
-                  backgroundColor: theme.colors.primary[500],
-                  transform: [
-                    {
-                      scale: pulseValue.interpolate({
-                        inputRange: [1, 1.2],
-                        outputRange: [0.8, 1.2],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            />
-          ))}
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -131,23 +64,14 @@ const styles = {
     alignItems: 'center' as const,
     padding: 24,
   },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  animationContainer: {
+    width: 200,
+    height: 200,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
   },
-  dotsContainer: {
-    flexDirection: 'row' as const,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    marginTop: 32,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 4,
+  animation: {
+    width: '100%',
+    height: '100%',
   },
 };

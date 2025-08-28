@@ -2,7 +2,7 @@
 // UI Component Types - Design System & Component Props
 // ========================================
 
-import type { StyleProp, ViewStyle, TextStyle, ImageStyle } from 'react-native';
+import type { ImageStyle, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 
 // ========================================
@@ -319,7 +319,7 @@ export interface ButtonProps extends BaseComponentProps {
 
 export interface ButtonImageIcon {
   readonly type: 'image';
-  readonly source: any; // Image source (require() or uri)
+  readonly source: unknown; // Image source (require() or uri)
   readonly size?: number;
   readonly tintColor?: string; // Optional color tinting for the image
 }
@@ -345,8 +345,8 @@ export interface InputProps extends BaseComponentProps {
   readonly placeholder?: string;
   readonly value?: string;
   readonly onChangeText?: (text: string) => void;
-  readonly onBlur?: (event: any) => void;
-  readonly onFocus?: (event: any) => void;
+  readonly onBlur?: (event: unknown) => void;
+  readonly onFocus?: (event: unknown) => void;
   readonly error?: string;
   readonly helperText?: string;
   readonly variant?: InputVariant;
@@ -475,7 +475,7 @@ export interface ListProps<T> extends BaseComponentProps {
   readonly data: T[];
   readonly renderItem: (item: ListRenderItemInfo<T>) => ReactNode;
   readonly keyExtractor?: (item: T, index: number) => string;
-  readonly separator?: boolean | ReactNode;
+  readonly separator?: ReactNode;
   readonly header?: ReactNode;
   readonly footer?: ReactNode;
   readonly empty?: ReactNode;

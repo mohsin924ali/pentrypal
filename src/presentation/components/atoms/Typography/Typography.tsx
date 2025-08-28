@@ -3,7 +3,7 @@
 // ========================================
 
 import React, { type FC } from 'react';
-import { Text, type TextProps as RNTextProps } from 'react-native';
+import { type TextProps as RNTextProps, Text } from 'react-native';
 import { useTheme } from '../../../providers/ThemeProvider';
 import type { BaseTextProps } from '../../../../shared/types/ui';
 

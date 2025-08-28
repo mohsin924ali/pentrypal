@@ -4,14 +4,14 @@
 
 import { apiClient } from './apiClient';
 import type {
-  BackendFriendship,
+  ApiResponse,
   BackendFriendRequest,
   BackendFriendRequestCreate,
   BackendFriendRequestUpdate,
-  BackendUserSearch,
+  BackendFriendship,
   BackendRelationshipStatus,
   BackendUser,
-  ApiResponse,
+  BackendUserSearch,
 } from '../../shared/types/backend';
 
 // ========================================

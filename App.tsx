@@ -4,18 +4,18 @@
 
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { LogBox, View, Text } from 'react-native';
+import { LogBox } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-// Providers
-import { AppProviders } from './src/presentation/providers/AppProviders';
+import type { FC } from 'react';
 
 // Configuration
 import { configureApp } from './src/infrastructure/config';
-
-// Types
-import type { FC } from 'react';
+// Navigation
+import { RootNavigator } from './src/presentation/navigation/RootNavigator';
+// Providers
+import { AppProviders } from './src/presentation/providers/AppProviders';
 
 // Configure the application
 configureApp();
@@ -27,9 +27,6 @@ if (__DEV__) {
     'Remote debugger', // React Native debugging warnings
   ]);
 }
-
-// Navigation
-import { RootNavigator } from './src/presentation/navigation/RootNavigator';
 
 /**
  * Main Application Component

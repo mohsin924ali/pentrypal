@@ -6,3 +6,4 @@ export { ProfilePhotoModal } from './ProfilePhotoModal';
 export { PhoneNumberInput } from './PhoneNumberInput';
 export { SuccessModal } from './SuccessModal';
 export { ConsultContributorsModal } from './ConsultContributorsModal';
+export { ListCreationSuccessAnimation } from './ListCreationSuccessAnimation';

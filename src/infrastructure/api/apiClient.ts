@@ -5,14 +5,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG, STORAGE_KEYS } from '../../shared/constants';
 import type {
+  ApiResponse,
   BackendApiConfig,
+  BackendApiMethod,
+  BackendError,
   BackendRequestConfig,
   BackendRequestOptions,
-  BackendApiMethod,
-  ApiResponse,
-  BackendError,
-  BackendValidationError,
   BackendTokens,
+  BackendValidationError,
 } from '../../shared/types/backend';
 import { SecureTokenStorage } from '../storage/SecureTokenStorage';
 
@@ -41,7 +41,7 @@ export class ApiClient {
 
   constructor(config: Partial<BackendApiConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
-    this.initializeTokens();
+    void this.initializeTokens();
   }
 
   // ========================================
@@ -239,7 +239,7 @@ export class ApiClient {
     // Ensure base URL ends with / and endpoint doesn't start with /
     const baseUrl = this.config.baseUrl.endsWith('/')
       ? this.config.baseUrl
-      : this.config.baseUrl + '/';
+      : `${this.config.baseUrl}/`;
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
 
     const url = new URL(cleanEndpoint, baseUrl);

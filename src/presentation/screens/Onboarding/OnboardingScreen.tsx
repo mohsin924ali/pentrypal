@@ -2,14 +2,14 @@
 // Onboarding Screen - App Introduction Flow
 // ========================================
 
-import React, { useState, useRef, type FC } from 'react';
-import { View, Image, Animated, Dimensions } from 'react-native';
+import React, { type FC, useRef, useState } from 'react';
+import { Animated, Dimensions, Image, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   GestureHandlerRootView,
   PanGestureHandler,
-  State,
   type PanGestureHandlerStateChangeEvent,
+  State,
 } from 'react-native-gesture-handler';
 
 // Components

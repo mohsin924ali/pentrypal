@@ -2,15 +2,15 @@
 // Professional International Phone Number Input Component
 // ========================================
 
-import React, { useState, useEffect, type FC } from 'react';
+import React, { type FC, useEffect, useState } from 'react';
 import {
-  View,
-  TouchableOpacity,
-  TextInput,
+  Dimensions,
   FlatList,
   Modal,
-  Dimensions,
   Platform,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Typography } from '../../atoms/Typography/Typography';
 import { useTheme } from '../../../providers/ThemeProvider';

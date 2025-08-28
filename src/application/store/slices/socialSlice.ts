@@ -2,18 +2,16 @@
 // Social Slice - Friend Management State
 // ========================================
 
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { type PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type {
-  SocialState,
-  SocialError,
-  Friendship,
   FriendRequest,
   FriendSearchResult,
-  FriendActivity,
-  FriendPrivacySettings,
-  SendFriendRequestRequest,
+  Friendship,
   RespondToFriendRequestRequest,
   SearchFriendsRequest,
+  SendFriendRequestRequest,
+  SocialError,
+  SocialState,
 } from '../../../shared/types/social';
 // Note: RootState import removed to avoid circular dependency
 
@@ -73,29 +71,35 @@ export const loadFriends = createAsyncThunk(
   'social/loadFriends',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('🎯 Redux loadFriends started');
+      if (__DEV__) {
+        console.log('🎯 Redux loadFriends started');
+      }
 
       // Import social API
       const { socialApi } = await import('../../../infrastructure/api');
 
       const response = await socialApi.getFriends();
-      console.log('🎯 Redux loadFriends received response:', response);
+      if (__DEV__) {
+        console.log('🎯 Redux loadFriends received response:', response);
+      }
 
       if (!response.data) {
         return rejectWithValue({
-          code: response.error_code || 'LOAD_FRIENDS_FAILED',
-          message: response.detail || 'Failed to load friends',
+          code: response.error_code ?? 'LOAD_FRIENDS_FAILED',
+          message: response.detail ?? 'Failed to load friends',
           timestamp: new Date().toISOString(),
         });
       }
 
       // Convert backend friendships to frontend format
       const friendships: Friendship[] = response.data.map(backendFriendship => {
-        console.log('🔍 Converting backend friendship:', backendFriendship);
+        if (__DEV__) {
+          console.log('🔍 Converting backend friendship:', backendFriendship);
+        }
 
         // Extract user data from backend response (now includes user objects)
-        const user1 = backendFriendship.user1 || {};
-        const user2 = backendFriendship.user2 || {};
+        const user1 = (backendFriendship.user1 as { name?: string; email?: string; phone?: string; avatar_url?: string; created_at?: string; updated_at?: string }) ?? {};
+        const user2 = (backendFriendship.user2 as { name?: string; email?: string; phone?: string; avatar_url?: string; created_at?: string; updated_at?: string }) ?? {};
 
         return {
           id: backendFriendship.id,
@@ -103,21 +107,21 @@ export const loadFriends = createAsyncThunk(
           user2Id: backendFriendship.user2_id,
           user1: {
             id: backendFriendship.user1_id,
-            name: user1.name || 'Unknown Friend',
-            email: user1.email || '',
-            phone: user1.phone || '',
+            name: user1.name ?? 'Unknown Friend',
+            email: user1.email ?? '',
+            phone: user1.phone ?? '',
             avatar: user1.avatar_url,
-            createdAt: user1.created_at || '',
-            updatedAt: user1.updated_at || '',
-          } as any,
+            createdAt: user1.created_at ?? '',
+            updatedAt: user1.updated_at ?? '',
+          },
           user2: {
             id: backendFriendship.user2_id,
-            name: user2.name || 'Unknown Friend',
-            email: user2.email || '',
-            phone: user2.phone || '',
+            name: user2.name ?? 'Unknown Friend',
+            email: user2.email ?? '',
+            phone: user2.phone ?? '',
             avatar: user2.avatar_url,
-            createdAt: user2.created_at || '',
-            updatedAt: user2.updated_at || '',
+            createdAt: user2.created_at ?? '',
+            updatedAt: user2.updated_at ?? '',
           } as any,
           status: backendFriendship.status as any,
           initiatedBy: backendFriendship.initiated_by,
@@ -147,7 +151,9 @@ export const loadFriendRequests = createAsyncThunk(
   'social/loadFriendRequests',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('🎯 Redux loadFriendRequests started');
+      if (__DEV__) {
+        console.log('🎯 Redux loadFriendRequests started');
+      }
 
       // Import social API
       const { socialApi } = await import('../../../infrastructure/api');
@@ -193,7 +199,7 @@ export const loadFriendRequests = createAsyncThunk(
             createdAt: toUser.created_at || '',
             updatedAt: toUser.updated_at || '',
           } as any,
-          status: backendRequest.status as any,
+          status: backendRequest.status,
           message: backendRequest.message,
           createdAt: backendRequest.created_at, // Keep as ISO string
           updatedAt: backendRequest.updated_at, // Keep as ISO string

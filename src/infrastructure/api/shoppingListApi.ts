@@ -4,15 +4,15 @@
 
 import { apiClient } from './apiClient';
 import type {
-  BackendShoppingList,
-  BackendShoppingItem,
+  ApiResponse,
   BackendListCollaborator,
-  BackendShoppingListCreate,
-  BackendShoppingListUpdate,
+  BackendShoppingItem,
   BackendShoppingItemCreate,
   BackendShoppingItemUpdate,
+  BackendShoppingList,
+  BackendShoppingListCreate,
+  BackendShoppingListUpdate,
   PaginatedApiResponse,
-  ApiResponse,
 } from '../../shared/types/backend';
 
 // ========================================

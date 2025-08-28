@@ -79,7 +79,7 @@ export interface FriendActivity extends BaseEntity {
   readonly type: FriendActivityType;
   readonly title: string;
   readonly description: string;
-  readonly metadata?: Record<string, any>;
+  readonly metadata?: Record<string, unknown>;
   readonly relatedEntityId?: string; // listId, itemId, etc.
   readonly isPublic: boolean;
 }
@@ -180,7 +180,7 @@ export interface SocialError {
   readonly code: string;
   readonly message: string;
   readonly timestamp: string;
-  readonly context?: Record<string, any>;
+  readonly context?: Record<string, unknown>;
 }
 
 // ========================================

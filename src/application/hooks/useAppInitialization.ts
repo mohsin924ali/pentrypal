@@ -4,12 +4,12 @@
 
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { selectUser, selectIsAuthenticated } from '../store/slices/authSlice';
+import { selectIsAuthenticated, selectUser } from '../store/slices/authSlice';
 import {
-  initializeWebSocket,
+  cleanupWebSocket,
   connectWebSocket,
   disconnectWebSocket,
-  cleanupWebSocket,
+  initializeWebSocket,
 } from '../../infrastructure/services/websocketIntegration';
 
 /**
@@ -21,13 +21,17 @@ export const useAppInitialization = () => {
 
   // Initialize WebSocket integration
   useEffect(() => {
-    console.log('🚀 Initializing app services...');
+    if (__DEV__) {
+      console.log('🚀 Initializing app services...');
+    }
 
     // Initialize WebSocket integration
     initializeWebSocket();
 
     return () => {
-      console.log('🧹 Cleaning up app services...');
+      if (__DEV__) {
+        console.log('🧹 Cleaning up app services...');
+      }
       cleanupWebSocket();
     };
   }, []);
@@ -35,11 +39,23 @@ export const useAppInitialization = () => {
   // Handle authentication state changes
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('🔐 User authenticated, connecting WebSocket...');
-      connectWebSocket();
+      if (__DEV__) {
+        console.log('🔐 User authenticated, connecting WebSocket...');
+      }
+      connectWebSocket().catch(error => {
+        if (__DEV__) {
+          console.error('Failed to connect WebSocket:', error);
+        }
+      });
     } else {
-      console.log('🔐 User not authenticated, disconnecting WebSocket...');
-      disconnectWebSocket();
+      if (__DEV__) {
+        console.log('🔐 User not authenticated, disconnecting WebSocket...');
+      }
+      disconnectWebSocket().catch(error => {
+        if (__DEV__) {
+          console.error('Failed to disconnect WebSocket:', error);
+        }
+      });
     }
   }, [isAuthenticated, user]);
 

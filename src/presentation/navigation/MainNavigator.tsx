@@ -4,7 +4,7 @@
 
 import React, { type FC } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Image, Text } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTheme } from '../providers/ThemeProvider';
 import { Typography } from '../components/atoms/Typography/Typography';

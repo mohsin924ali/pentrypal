@@ -2,8 +2,8 @@
 // Add Contributor Modal - List Collaboration
 // ========================================
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Modal, ScrollView, TouchableOpacity, Animated, Alert, Image } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, Animated, Image, Modal, ScrollView, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 // Components
@@ -16,10 +16,10 @@ import { useTheme } from '../../../providers/ThemeProvider';
 // Redux
 import type { AppDispatch } from '../../../../application/store';
 import {
+  loadFriends,
   selectFriends,
   selectIsLoadingFriends,
   selectSocialError,
-  loadFriends,
 } from '../../../../application/store/slices/socialSlice';
 import { selectUser } from '../../../../application/store/slices/authSlice';
 

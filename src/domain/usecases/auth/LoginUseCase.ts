@@ -3,7 +3,7 @@
 // ========================================
 
 import type { IUserRepository } from '../../repositories/IUserRepository';
-import type { LoginRequest, LoginResponse, AuthTokens } from '@/types/auth';
+import type { AuthTokens, LoginRequest, LoginResponse } from '@/types/auth';
 import type { User } from '../../entities/User';
 
 export interface IAuthService {
@@ -78,7 +78,7 @@ export class LoginUseCase {
     try {
       // Find user by email
       const user = await this.userRepository.findByEmail(request.email);
-      
+
       if (!user) {
         await this.handleFailedLogin(request, 'USER_NOT_FOUND');
         throw new LoginError('Invalid email or password', 'INVALID_CREDENTIALS');
@@ -89,7 +89,7 @@ export class LoginUseCase {
 
       // Perform security checks
       const securityCheck = await this.securityService.checkAccountSecurity(user);
-      
+
       if (securityCheck.isBlocked) {
         await this.handleBlockedAccount(user, securityCheck);
         throw new LoginError(
@@ -110,8 +110,8 @@ export class LoginUseCase {
       }
 
       // Check if two-factor authentication is required
-      const requiresTwoFactor = this.securityService.requiresTwoFactor(user) || 
-                                securityCheck.requiresTwoFactor;
+      const requiresTwoFactor =
+        this.securityService.requiresTwoFactor(user) || securityCheck.requiresTwoFactor;
 
       if (requiresTwoFactor) {
         return await this.handleTwoFactorRequired(user, request);
@@ -131,7 +131,6 @@ export class LoginUseCase {
         tokens,
         requiresTwoFactor: false,
       };
-
     } catch (error) {
       if (error instanceof LoginError) {
         throw error;
@@ -192,10 +191,7 @@ export class LoginUseCase {
   /**
    * Handles two-factor authentication requirement
    */
-  private async handleTwoFactorRequired(
-    user: User, 
-    request: LoginRequest
-  ): Promise<LoginResponse> {
+  private async handleTwoFactorRequired(user: User, request: LoginRequest): Promise<LoginResponse> {
     // Generate session token for two-factor flow
     const sessionTokens = await this.authService.generateSessionTokens(user);
 
@@ -249,7 +245,7 @@ export class LoginUseCase {
    * Handles failed login attempts
    */
   private async handleFailedLogin(
-    request: LoginRequest, 
+    request: LoginRequest,
     reason: string,
     userId?: string
   ): Promise<void> {
@@ -271,7 +267,7 @@ export class LoginUseCase {
    * Handles blocked account scenarios
    */
   private async handleBlockedAccount(
-    user: User, 
+    user: User,
     securityCheck: SecurityCheckResult
   ): Promise<void> {
     const securityEvent: SecurityEvent = {

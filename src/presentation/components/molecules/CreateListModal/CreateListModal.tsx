@@ -2,19 +2,19 @@
 // Create List Modal - Shopping List Creation Interface
 // ========================================
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  View,
-  Modal,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
   Alert,
-  ViewStyle,
   Animated,
   Dimensions,
   KeyboardAvoidingView,
+  Modal,
   Platform,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

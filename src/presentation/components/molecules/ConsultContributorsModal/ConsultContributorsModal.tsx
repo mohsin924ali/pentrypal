@@ -2,18 +2,18 @@
 // Consult Contributors Modal Component
 // ========================================
 
-import React, { type FC, useState, useEffect } from 'react';
+import React, { type FC, useEffect, useState } from 'react';
 import {
-  View,
-  Modal,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-  ScrollView,
-  Image,
-  Linking,
   Alert,
   Animated,
+  Dimensions,
+  Image,
+  Linking,
+  Modal,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Typography } from '../../atoms/Typography/Typography';
 import { Button } from '../../atoms/Button/Button';

@@ -2,17 +2,17 @@
 // Add Friend Modal - Comprehensive Friend Management
 // ========================================
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  View,
-  Modal,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
   Alert,
-  ViewStyle,
   Animated,
   Dimensions,
+  Modal,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,15 +26,15 @@ import { useTheme } from '../../../providers/ThemeProvider';
 
 // Redux
 import {
-  searchUsers,
-  sendFriendRequest,
-  clearSearchResults,
   clearError,
+  clearSearchResults,
   resetSendingState,
-  selectSearchResults,
+  searchUsers,
   selectIsSearching,
   selectIsSendingRequest,
+  selectSearchResults,
   selectSocialError,
+  sendFriendRequest,
 } from '../../../../application/store/slices/socialSlice';
 import type { AppDispatch } from '../../../../application/store';
 

@@ -3,9 +3,9 @@
 // ========================================
 
 import React, { useState } from 'react';
-import { View, ScrollView, Alert, TouchableOpacity, Image } from 'react-native';
+import { Alert, Image, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
@@ -17,15 +17,15 @@ import { useTheme } from '../../providers/ThemeProvider';
 import { useNetwork } from '../../providers/NetworkProvider';
 
 // Store
-import type { RootState, AppDispatch } from '../../../application/store';
+import type { AppDispatch, RootState } from '../../../application/store';
 import {
-  selectUser,
-  selectSecuritySettings,
   logoutUser,
+  selectSecuritySettings,
+  selectUser,
 } from '../../../application/store/slices/authSlice';
 
 // Types
-export interface ProfileScreenProps {}
+export type ProfileScreenProps = Record<string, never>;
 
 interface SettingItem {
   id: string;

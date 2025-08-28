@@ -4,19 +4,19 @@
 
 import { apiClient } from './apiClient';
 import type {
+  ApiResponse,
+  BackendBiometricAuthRequest,
+  BackendBiometricLoginRequest,
   BackendLoginRequest,
   BackendLoginResponse,
+  BackendPasswordChangeRequest,
+  BackendRefreshTokenRequest,
   BackendRegisterRequest,
   BackendRegisterResponse,
-  BackendBiometricLoginRequest,
-  BackendRefreshTokenRequest,
+  BackendSecuritySettings,
   BackendTokens,
   BackendUser,
   BackendUserUpdate,
-  BackendPasswordChangeRequest,
-  BackendSecuritySettings,
-  BackendBiometricAuthRequest,
-  ApiResponse,
 } from '../../shared/types/backend';
 
 // ========================================

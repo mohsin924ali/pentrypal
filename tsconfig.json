@@ -90,6 +90,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "App.tsx",
+    "App.*.tsx",
     "index.js",
     "global.d.ts",
     "metro.config.js",

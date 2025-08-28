@@ -7,22 +7,23 @@ import { Alert } from 'react-native';
 import CryptoJS from 'crypto-js';
 import { SecureTokenStorage } from '../storage/SecureTokenStorage';
 import type {
-  IAuthService,
   AuthTokens,
-  SessionTokens,
   DeviceInfo,
-  TokenValidationResult,
-  SessionInfo,
   EmailVerificationResult,
-  TwoFactorSetup,
+  IAuthService,
   SecurityAlertType,
+  SessionInfo,
+  SessionTokens,
+  TokenValidationResult,
+  TwoFactorSetup,
 } from './IAuthService';
 import type { User } from '../../domain/entities/User';
 import type {
+  BiometricLoginRequest,
   LoginRequest,
   RegisterRequest,
-  BiometricLoginRequest,
 } from '../../application/store/slices/authSlice';
+import { authLogger } from '../../shared/utils/logger';
 
 // ========================================
 // Configuration
@@ -87,7 +88,7 @@ class SecureStorage {
       }
       return CryptoJS.AES.encrypt(data, AUTH_CONFIG.ENCRYPTION_KEY).toString();
     } catch (error) {
-      console.error('Encryption failed, falling back to base64:', error);
+      authLogger.error('Encryption failed, falling back to base64:', error);
       // Fallback to base64 encoding
       return btoa(data);
     }
@@ -102,12 +103,12 @@ class SecureStorage {
       const bytes = CryptoJS.AES.decrypt(encryptedData, AUTH_CONFIG.ENCRYPTION_KEY);
       return bytes.toString(CryptoJS.enc.Utf8);
     } catch (error) {
-      console.error('Decryption failed, falling back to base64:', error);
+      authLogger.error('Decryption failed, falling back to base64:', error);
       // Fallback to base64 decoding
       try {
         return atob(encryptedData);
       } catch (base64Error) {
-        console.error('Base64 decoding also failed:', base64Error);
+        authLogger.error('Base64 decoding also failed:', base64Error);
         throw new Error('Failed to decrypt data');
       }
     }
@@ -118,12 +119,12 @@ class SecureStorage {
       const jsonString = JSON.stringify(value);
       const encryptedData = this.encrypt(jsonString);
       await AsyncStorage.setItem(key, encryptedData);
-      console.log(`🔐 Stored data for key: ${key}`);
+      authLogger.debug(`🔐 Stored data for key: ${key}`);
     } catch (error) {
-      console.error('Secure storage setItem failed:', error);
+      authLogger.error('Secure storage setItem failed:', error);
       // Fallback to plain storage in development
       if (__DEV__) {
-        console.log('💾 Falling back to plain storage for development');
+        authLogger.debug('💾 Falling back to plain storage for development');
         await AsyncStorage.setItem(key, JSON.stringify(value));
       } else {
         throw new Error('Failed to store secure data');
@@ -139,14 +140,14 @@ class SecureStorage {
       const decryptedData = this.decrypt(encryptedData);
       return JSON.parse(decryptedData) as T;
     } catch (error) {
-      console.error('Secure storage getItem failed:', error);
+      authLogger.error('Secure storage getItem failed:', error);
       // Fallback to plain storage in development
       if (__DEV__) {
         try {
           const plainData = await AsyncStorage.getItem(key);
           return plainData ? JSON.parse(plainData) : null;
         } catch (plainError) {
-          console.error('Plain storage getItem also failed:', plainError);
+          authLogger.error('Plain storage getItem also failed:', plainError);
         }
       }
       return null;
@@ -157,7 +158,7 @@ class SecureStorage {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error('Secure storage removeItem failed:', error);
+      authLogger.error('Secure storage removeItem failed:', error);
     }
   }
 
@@ -170,7 +171,7 @@ class SecureStorage {
       ];
       await AsyncStorage.multiRemove(keys);
     } catch (error) {
-      console.error('Secure storage clear failed:', error);
+      authLogger.error('Secure storage clear failed:', error);
     }
   }
 }
@@ -217,7 +218,7 @@ class HttpClient {
         data,
       };
     } catch (error) {
-      console.error('HTTP request failed:', error);
+      authLogger.error('HTTP request failed:', error);
       return {
         success: false,
         message: 'Network error occurred',
@@ -284,7 +285,7 @@ class AuthServiceImpl implements IAuthService {
 
       return `${salt.toString()}:${hash.toString()}`;
     } catch (error) {
-      console.error('Crypto hashing failed, using fallback:', error);
+      authLogger.error('Crypto hashing failed, using fallback:', error);
       // Fallback to simple hash
       return btoa(`fallback_hash_${password}_${Date.now()}`);
     }
@@ -316,7 +317,7 @@ class AuthServiceImpl implements IAuthService {
 
       return hash.toString() === hashHex;
     } catch (error) {
-      console.error('Password verification failed:', error);
+      authLogger.error('Password verification failed:', error);
       return false;
     }
   }
@@ -324,7 +325,7 @@ class AuthServiceImpl implements IAuthService {
   async storeUserCredentials(userId: string, hashedPassword: string): Promise<void> {
     // In production, this would be stored securely on the server
     // For demo purposes, we'll simulate this
-    console.log('Storing credentials for user:', userId);
+    authLogger.debug('Storing credentials for user:', userId);
   }
 
   async updateUserPassword(userId: string, newHashedPassword: string): Promise<void> {
@@ -413,7 +414,7 @@ class AuthServiceImpl implements IAuthService {
         };
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      authLogger.error('Login failed:', error);
       return {
         success: false,
         message: 'Login failed',
@@ -429,7 +430,7 @@ class AuthServiceImpl implements IAuthService {
 
       // Make real API call
       // Debug: Log what we're receiving
-      console.log('🔍 DEBUG: Registration request data:', request);
+      authLogger.debug('🔍 DEBUG: Registration request data:', request);
 
       // Format data for the backend with the new structure
       const registrationData = {
@@ -440,7 +441,7 @@ class AuthServiceImpl implements IAuthService {
         password: request.password,
       };
 
-      console.log('🔍 DEBUG: Sending to backend:', registrationData);
+      authLogger.debug('🔍 DEBUG: Sending to backend:', registrationData);
 
       const response = await authApi.register(registrationData);
 
@@ -503,7 +504,7 @@ class AuthServiceImpl implements IAuthService {
         };
       }
     } catch (error) {
-      console.error('Registration failed:', error);
+      authLogger.error('Registration failed:', error);
       return {
         success: false,
         message: 'Registration failed',
@@ -582,7 +583,7 @@ class AuthServiceImpl implements IAuthService {
         };
       }
     } catch (error) {
-      console.error('Biometric login failed:', error);
+      authLogger.error('Biometric login failed:', error);
       return {
         success: false,
         message: 'Biometric login failed',
@@ -601,7 +602,7 @@ class AuthServiceImpl implements IAuthService {
         try {
           // Revoke tokens on server
           await authApi.logout();
-          console.log('✅ Server logout successful');
+          authLogger.debug('✅ Server logout successful');
         } catch (serverError: any) {
           // If server logout fails due to authentication, it's likely tokens are already invalid
           if (
@@ -609,13 +610,13 @@ class AuthServiceImpl implements IAuthService {
             serverError.message?.includes('Unauthorized') ||
             serverError.status === 401
           ) {
-            console.log('ℹ️ Server logout skipped - tokens already invalid');
+            authLogger.debug('ℹ️ Server logout skipped - tokens already invalid');
           } else {
             console.warn('⚠️ Server logout failed:', serverError);
           }
         }
       } else {
-        console.log('ℹ️ Server logout skipped - no valid tokens available');
+        authLogger.debug('ℹ️ Server logout skipped - no valid tokens available');
       }
 
       // Clear API authentication
@@ -625,7 +626,7 @@ class AuthServiceImpl implements IAuthService {
     } finally {
       // Always clear local storage regardless of server response
       await SecureStorage.clear();
-      console.log('✅ Local storage cleared');
+      authLogger.debug('✅ Local storage cleared');
     }
   }
 
@@ -687,7 +688,7 @@ class AuthServiceImpl implements IAuthService {
         throw new Error(response.detail || 'Token refresh failed');
       }
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      authLogger.error('Token refresh failed:', error);
       throw new Error('Token refresh failed');
     }
   }
@@ -990,10 +991,10 @@ class AuthServiceImpl implements IAuthService {
     };
 
     const userData = userMap[request.email.toLowerCase()] || {
-      id: 'user_' + Date.now(),
+      id: `user_${Date.now()}`,
       name: 'Unknown User',
     };
-    console.log('🔍 Auth simulateLogin - Email:', request.email, '-> User:', userData);
+    authLogger.debug('🔍 Auth simulateLogin - Email:', request.email, '-> User:', userData);
 
     // Mock user data
     const mockUser: User = {
@@ -1039,7 +1040,7 @@ class AuthServiceImpl implements IAuthService {
 
     // Mock user data
     const mockUser: User = {
-      id: 'user_' + Date.now(),
+      id: `user_${Date.now()}`,
       email: request.email,
       name: `${request.firstName} ${request.lastName}`,
       mobile: request.email.includes('@') ? undefined : request.email, // If email is actually a mobile number
@@ -1069,9 +1070,9 @@ class AuthServiceImpl implements IAuthService {
     // Add the new user to the single source of truth
     try {
       await this.addUserToDatabase(mockUser);
-      console.log('✅ Added new user to database:', mockUser.name);
+      authLogger.debug('✅ Added new user to database:', mockUser.name);
     } catch (error) {
-      console.error('❌ Failed to add user to database:', error);
+      authLogger.error('❌ Failed to add user to database:', error);
     }
 
     return {
@@ -1092,16 +1093,16 @@ class AuthServiceImpl implements IAuthService {
 
       // Get existing users
       const stored = await AsyncStorage.getItem(USERS_KEY);
-      let existingUsers: User[] = stored ? JSON.parse(stored) : [];
+      const existingUsers: User[] = stored ? JSON.parse(stored) : [];
 
-      console.log('🔍 Auth addUserToDatabase - Key:', USERS_KEY);
-      console.log('🔍 Auth addUserToDatabase - Raw stored:', stored);
-      console.log('🔍 Auth addUserToDatabase - Existing users:', existingUsers.length);
+      authLogger.debug('🔍 Auth addUserToDatabase - Key:', USERS_KEY);
+      authLogger.debug('🔍 Auth addUserToDatabase - Raw stored:', stored);
+      authLogger.debug('🔍 Auth addUserToDatabase - Existing users:', existingUsers.length);
 
       // Check if user already exists
       const userExists = existingUsers.some(existingUser => existingUser.id === user.id);
       if (userExists) {
-        console.log('🔄 User already exists in database:', user.name);
+        authLogger.debug('🔄 User already exists in database:', user.name);
         return;
       }
 
@@ -1110,9 +1111,9 @@ class AuthServiceImpl implements IAuthService {
 
       // Save back to storage
       await AsyncStorage.setItem(USERS_KEY, JSON.stringify(existingUsers));
-      console.log('💾 Saved user to database. Total users:', existingUsers.length);
+      authLogger.debug('💾 Saved user to database. Total users:', existingUsers.length);
     } catch (error) {
-      console.error('❌ Error adding user to database:', error);
+      authLogger.error('❌ Error adding user to database:', error);
       throw error;
     }
   }

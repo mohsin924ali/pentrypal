@@ -3,12 +3,12 @@
 // ========================================
 
 import React, {
+  type FC,
+  type PropsWithChildren,
   createContext,
   useContext,
   useEffect,
   useState,
-  type PropsWithChildren,
-  type FC,
 } from 'react';
 import NetInfo, { type NetInfoState } from '@react-native-community/netinfo';
 

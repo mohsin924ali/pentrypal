@@ -2,17 +2,18 @@
 // Shopping Lists Screen - List Management
 // ========================================
 
-import React, { useEffect, useCallback, useState } from 'react';
-import { View, FlatList, RefreshControl, Alert } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, FlatList, RefreshControl, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
 import {
-  CreateListModal,
   type CreateListFormData,
+  CreateListModal,
 } from '../../components/molecules/CreateListModal';
+import { ListCreationSuccessAnimation } from '../../components/molecules/ListCreationSuccessAnimation';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
@@ -20,16 +21,16 @@ import { useTheme } from '../../providers/ThemeProvider';
 // Redux
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  loadShoppingLists,
   createShoppingList,
-  setShowCreateListModal,
-  selectShoppingLists,
-  selectIsLoadingLists,
-  selectIsCreatingList,
-  selectShoppingListError,
+  loadShoppingLists,
   selectFilteredLists,
+  selectIsCreatingList,
+  selectIsLoadingLists,
+  selectShoppingListError,
   selectShoppingListStats,
+  selectShoppingLists,
   selectShowCreateListModal,
+  setShowCreateListModal,
 } from '../../../application/store/slices/shoppingListSlice';
 import { selectUser } from '../../../application/store/slices/authSlice';
 import type { AppDispatch } from '../../../application/store';
@@ -57,6 +58,9 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
   const error = useSelector(selectShoppingListError);
   const stats = useSelector(selectShoppingListStats);
   const showCreateListModal = useSelector(selectShowCreateListModal);
+
+  // Local state for success animation
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   // Debug: Log modal state changes
   useEffect(() => {
@@ -113,9 +117,12 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
         await dispatch(createShoppingList(formData)).unwrap();
 
         console.log('✅ Shopping list created successfully');
-        Alert.alert('Success', 'Shopping list created successfully!');
 
-        // Modal will be closed automatically by Redux state
+        // Close the create modal first
+        dispatch(setShowCreateListModal(false));
+
+        // Show success animation
+        setShowSuccessAnimation(true);
       } catch (error: any) {
         console.error('❌ Failed to create shopping list:', error);
 
@@ -125,6 +132,11 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
     },
     [dispatch]
   );
+
+  // Handle success animation completion
+  const handleSuccessAnimationComplete = useCallback(() => {
+    setShowSuccessAnimation(false);
+  }, []);
 
   // Handle list press
   const handleListPress = useCallback(
@@ -364,6 +376,12 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
         onCreateList={handleCreateListFromModal}
         isLoading={isCreatingList}
         error={error}
+      />
+
+      {/* List Creation Success Animation */}
+      <ListCreationSuccessAnimation
+        visible={showSuccessAnimation}
+        onAnimationComplete={handleSuccessAnimationComplete}
       />
     </SafeAreaView>
   );

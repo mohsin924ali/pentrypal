@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { EnhancedListsScreen, CreateListScreen } from '../screens/Lists';
+import { CreateListScreen, EnhancedListsScreen } from '../screens/Lists';
 import type { CreateListScreenProps } from '../screens/Lists';
 
 // Navigation types

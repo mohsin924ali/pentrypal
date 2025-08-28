@@ -2,8 +2,8 @@
 // Form Hook - Secure Form Management with Validation
 // ========================================
 
-import { useState, useCallback, useRef, useEffect } from 'react';
-import type { ZodSchema, ZodError } from 'zod';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ZodError, ZodSchema } from 'zod';
 
 // Form field state
 interface FormFieldState<T> {
@@ -224,7 +224,7 @@ export function useForm<T extends Record<string, any>>({
           const fieldKey = key as keyof T;
           newFields[fieldKey] = {
             ...newFields[fieldKey],
-            error: errors[key as string],
+            error: errors[key],
           };
         });
         return newFields;

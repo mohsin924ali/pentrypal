@@ -2,7 +2,7 @@
 // Auth Provider - Authentication context (placeholder)
 // ========================================
 
-import React, { type PropsWithChildren, type FC } from 'react';
+import React, { type FC, type PropsWithChildren } from 'react';
 
 /**
  * Auth Provider Component (Placeholder)

@@ -2,19 +2,19 @@
 // Shop Screen - Shopping Mode for Lists
 // ========================================
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  View,
-  ScrollView,
-  ViewStyle,
-  TouchableOpacity,
-  SafeAreaView,
-  FlatList,
   Alert,
-  Image,
-  TextInput,
   Animated,
+  FlatList,
+  Image,
   RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
 
 // Components
@@ -30,12 +30,12 @@ import { getAvatarProps, getFallbackAvatar } from '../../../shared/utils/avatarU
 // Redux
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  loadShoppingLists,
-  updateShoppingItem,
   archiveShoppingList,
+  loadShoppingLists,
   selectFilteredLists,
   selectIsLoadingLists,
   selectShoppingListError,
+  updateShoppingItem,
 } from '../../../application/store/slices/shoppingListSlice';
 import { selectUser } from '../../../application/store/slices/authSlice';
 import type { AppDispatch } from '../../../application/store';

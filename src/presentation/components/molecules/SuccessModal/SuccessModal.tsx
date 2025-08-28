@@ -3,7 +3,8 @@
 // ========================================
 
 import React, { type FC } from 'react';
-import { View, Modal, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { Dimensions, Modal, Platform, TouchableOpacity, View } from 'react-native';
+import LottieView from 'lottie-react-native';
 import { Typography } from '../../atoms/Typography/Typography';
 import { Button } from '../../atoms/Button/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
@@ -24,7 +25,6 @@ export interface SuccessModalProps {
   readonly onPrimaryPress: () => void;
   readonly onSecondaryPress?: () => void;
   readonly onDismiss?: () => void;
-  readonly icon?: string; // Unicode emoji or icon
   readonly showCloseButton?: boolean;
   readonly testID?: string;
 }
@@ -44,7 +44,6 @@ export const SuccessModal: FC<SuccessModalProps> = ({
   onPrimaryPress,
   onSecondaryPress,
   onDismiss,
-  icon = '✅',
   showCloseButton = true,
   testID = 'success-modal',
 }) => {
@@ -84,7 +83,7 @@ export const SuccessModal: FC<SuccessModalProps> = ({
         style={[
           styles.backdrop,
           {
-            backgroundColor: theme.colors.neutral[900] + '80', // 50% opacity
+            backgroundColor: `${theme.colors.neutral[900]}80`, // 50% opacity
           },
         ]}
         activeOpacity={1}
@@ -123,18 +122,21 @@ export const SuccessModal: FC<SuccessModalProps> = ({
               </TouchableOpacity>
             )}
 
-            {/* Icon */}
-            <View style={styles.iconContainer}>
-              <Typography variant='h2' style={styles.icon}>
-                {icon}
-              </Typography>
+            {/* Success Animation */}
+            <View style={styles.animationContainer}>
+              <LottieView
+                source={require('../../../../assets/animations/Success.json')}
+                autoPlay
+                loop={false}
+                style={styles.animation}
+              />
             </View>
 
             {/* Content */}
             <View style={styles.content}>
               {/* Title */}
               <Typography
-                variant='h3'
+                variant='h4'
                 color={theme.colors.text.primary}
                 align='center'
                 weight='bold'
@@ -144,7 +146,7 @@ export const SuccessModal: FC<SuccessModalProps> = ({
 
               {/* Message */}
               <Typography
-                variant='body2'
+                variant='body1'
                 color={theme.colors.text.secondary}
                 align='center'
                 style={styles.message}>
@@ -234,22 +236,25 @@ const styles = {
     fontSize: 14,
     lineHeight: 14,
   },
-  iconContainer: {
+  animationContainer: {
     alignItems: 'center' as const,
     marginBottom: 20,
+    height: 200,
+    width: '100%',
   },
-  icon: {
-    fontSize: 36,
-    lineHeight: 36,
+  animation: {
+    width: 200,
+    height: 200,
   },
   content: {
-    marginBottom: 28,
+    marginBottom: 32,
   },
   title: {
-    marginBottom: 10,
+    marginBottom: 12,
   },
   message: {
-    lineHeight: 20,
+    lineHeight: 22,
+    paddingHorizontal: 8,
   },
   actions: {
     alignItems: 'center' as const,

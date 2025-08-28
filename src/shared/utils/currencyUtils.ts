@@ -34,7 +34,10 @@ export const formatCurrency = (
   const currency = CURRENCY_INFO[currencyCode];
 
   if (!currency) {
-    console.warn(`Unknown currency code: ${currencyCode}`);
+    // Log warning for development - in production, use proper error tracking
+    if (__DEV__) {
+      console.warn(`Unknown currency code: ${currencyCode}`);
+    }
     return amount.toString();
   }
 
@@ -61,7 +64,10 @@ export const formatCurrency = (
 
     return formatted;
   } catch (error) {
-    console.error('Error formatting currency:', error);
+    // Log error for development - in production, use proper error tracking
+    if (__DEV__) {
+      console.error('Error formatting currency:', error);
+    }
     // Fallback formatting
     const symbol = showSymbol ? currency.symbol : '';
     const code = showCode ? ` ${currencyCode}` : '';
@@ -78,7 +84,10 @@ export const parseCurrency = (
 ): number => {
   const currency = CURRENCY_INFO[currencyCode];
   if (!currency) {
-    console.warn(`Unknown currency code: ${currencyCode}`);
+    // Log warning for development - in production, use proper error tracking
+    if (__DEV__) {
+      console.warn(`Unknown currency code: ${currencyCode}`);
+    }
     return 0;
   }
 
@@ -140,6 +149,9 @@ export const convertCurrency = (
     return amount * exchangeRate;
   }
 
-  console.warn('Currency conversion requires exchange rate');
+  // Log warning for development - in production, use proper error tracking
+  if (__DEV__) {
+    console.warn('Currency conversion requires exchange rate');
+  }
   return amount;
 };

@@ -4,13 +4,13 @@
 
 import { apiClient } from './apiClient';
 import type {
+  ApiResponse,
+  BackendItemCategory,
   BackendPantryItem,
+  BackendPantryItemConsume,
   BackendPantryItemCreate,
   BackendPantryItemUpdate,
-  BackendPantryItemConsume,
   BackendPantryStats,
-  BackendItemCategory,
-  ApiResponse,
 } from '../../shared/types/backend';
 
 // ========================================

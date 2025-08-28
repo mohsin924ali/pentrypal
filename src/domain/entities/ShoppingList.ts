@@ -2,13 +2,13 @@
 // Shopping List Entity - Domain Model
 // ========================================
 
-import type { 
-  BaseEntity, 
-  ShoppingListItem, 
-  Collaborator, 
-  User, 
-  ShoppingListStatus, 
-  ShoppingListMetadata 
+import type {
+  BaseEntity,
+  Collaborator,
+  ShoppingListItem,
+  ShoppingListMetadata,
+  ShoppingListStatus,
+  User,
 } from '@/types';
 
 export class ShoppingList implements BaseEntity {
@@ -100,7 +100,7 @@ export class ShoppingList implements BaseEntity {
    */
   public updateItem(itemId: string, updates: Partial<ShoppingListItem>): ShoppingList {
     const itemIndex = this.items.findIndex(item => item.id === itemId);
-    
+
     if (itemIndex === -1) {
       throw new Error('Item not found in shopping list');
     }
@@ -124,7 +124,7 @@ export class ShoppingList implements BaseEntity {
    */
   public removeItem(itemId: string): ShoppingList {
     const filteredItems = this.items.filter(item => item.id !== itemId);
-    
+
     if (filteredItems.length === this.items.length) {
       throw new Error('Item not found in shopping list');
     }
@@ -163,9 +163,7 @@ export class ShoppingList implements BaseEntity {
    */
   public addCollaborator(collaborator: Collaborator): ShoppingList {
     // Check if user is already a collaborator
-    const existingCollaborator = this.collaborators.find(
-      c => c.user.id === collaborator.user.id
-    );
+    const existingCollaborator = this.collaborators.find(c => c.user.id === collaborator.user.id);
 
     if (existingCollaborator) {
       throw new Error('User is already a collaborator');
@@ -182,9 +180,7 @@ export class ShoppingList implements BaseEntity {
    * Removes a collaborator from the shopping list
    */
   public removeCollaborator(userId: string): ShoppingList {
-    const filteredCollaborators = this.collaborators.filter(
-      c => c.user.id !== userId
-    );
+    const filteredCollaborators = this.collaborators.filter(c => c.user.id !== userId);
 
     if (filteredCollaborators.length === this.collaborators.length) {
       throw new Error('Collaborator not found');
@@ -201,12 +197,10 @@ export class ShoppingList implements BaseEntity {
    * Updates collaborator permissions
    */
   public updateCollaboratorPermissions(
-    userId: string, 
+    userId: string,
     permissions: Partial<Collaborator['permissions']>
   ): ShoppingList {
-    const collaboratorIndex = this.collaborators.findIndex(
-      c => c.user.id === userId
-    );
+    const collaboratorIndex = this.collaborators.findIndex(c => c.user.id === userId);
 
     if (collaboratorIndex === -1) {
       throw new Error('Collaborator not found');
@@ -329,7 +323,7 @@ export class ShoppingList implements BaseEntity {
    */
   public get completionPercentage(): number {
     if (this.items.length === 0) return 0;
-    
+
     const completedItems = this.items.filter(item => item.completed);
     return Math.round((completedItems.length / this.items.length) * 100);
   }
@@ -446,7 +440,7 @@ export class ShoppingList implements BaseEntity {
    */
   public static create(data: CreateShoppingListData): ShoppingList {
     const now = new Date();
-    
+
     return new ShoppingList({
       id: data.id,
       name: data.name,
