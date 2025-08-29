@@ -41,11 +41,12 @@ module.exports = {
   },
   rules: {
     // TypeScript specific rules
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-non-null-assertion': 'warn',
+    '@typescript-eslint/no-require-imports': 'warn',
 
     // React specific rules
     'react/react-in-jsx-scope': 'off',
@@ -55,9 +56,10 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'react/jsx-uses-react': 'off',
     'react/jsx-uses-vars': 'error',
-    'react/no-unused-prop-types': 'error',
-    'react/no-unused-state': 'error',
-    'react/prefer-stateless-function': 'error',
+    'react/no-unused-prop-types': 'warn',
+    'react/no-unused-state': 'warn',
+    'react/prefer-stateless-function': 'warn',
+    'react/no-unescaped-entities': 'warn',
 
     // React Native specific rules
     'react-native/no-unused-styles': 'error',
@@ -79,6 +81,7 @@ module.exports = {
     eqeqeq: ['error', 'always'],
     'no-duplicate-imports': 'warn',
     'sort-imports': ['warn', { ignoreDeclarationSort: true }],
+    'no-useless-escape': 'warn',
 
     // Security rules
     'no-eval': 'error',

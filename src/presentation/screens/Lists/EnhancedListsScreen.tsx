@@ -105,7 +105,16 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     : {
         colors: {
           primary: { '500': '#22c55e' },
-          text: { primary: '#000000', secondary: '#666666', tertiary: '#999999' },
+          text: {
+            primary: '#000000',
+            secondary: '#666666',
+            tertiary: '#999999',
+            onPrimary: '#ffffff',
+            onSecondary: '#000000',
+            onSurface: '#000000',
+            disabled: '#9ca3af',
+            inverse: '#ffffff',
+          },
           background: { primary: '#ffffff' },
           surface: { background: '#ffffff', secondary: '#f5f5f5' },
           border: { primary: '#e5e5e5' },
@@ -134,7 +143,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     if (typeof user?.id === 'string' && user.id.length > 0) {
       shoppingLogger.debug('🛒 Enhanced Lists - Loading shopping lists for user:', user.id);
       // Load both active and archived lists - PRODUCTION SAFE
-      void dispatch(loadShoppingLists({ limit: 100 })).catch(loadError => {
+      dispatch(loadShoppingLists({ limit: 100 })).catch(loadError => {
         console.error('Failed to load shopping lists:', loadError);
       });
     }
@@ -147,7 +156,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       // Import and dispatch logout - PRODUCTION SAFE
       import('../../../application/store/slices/authSlice')
         .then(({ logoutUser }) => {
-          void dispatch(logoutUser()).catch(logoutError => {
+          dispatch(logoutUser()).catch(logoutError => {
             console.error('Logout failed:', logoutError);
           });
         })
@@ -164,8 +173,8 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     shoppingLogger.debug('🔄 Enhanced Lists - Refreshing shopping lists...');
     try {
       await dispatch(loadShoppingLists({ limit: 100 })).unwrap(); // Load all lists
-    } catch (error) {
-      shoppingLogger.error('Failed to refresh shopping lists:', error);
+    } catch (refreshError) {
+      shoppingLogger.error('Failed to refresh shopping lists:', refreshError);
     }
   }, [dispatch, user?.id]);
 
@@ -180,8 +189,8 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         setPreviousListCount(currentListCount);
 
         // PRODUCTION SAFE: Handle promise rejection
-        void dispatch(loadShoppingLists({ limit: 100 })).catch(error => {
-          console.error('Failed to load shopping lists on focus:', error);
+        dispatch(loadShoppingLists({ limit: 100 })).catch(focusError => {
+          console.error('Failed to load shopping lists on focus:', focusError);
         });
       }
     }, [dispatch, user?.id, shoppingLists?.length])
@@ -243,9 +252,9 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   useEffect(() => {
     // Safe access with type checking to prevent runtime crashes
     const userPrefs = user?.preferences;
-    const userCurrency = (userPrefs as { currency?: string })?.currency;
-    if (typeof userCurrency === 'string' && userCurrency.length > 0) {
-      setUserCurrency(userCurrency as CurrencyCode);
+    const preferredCurrency = (userPrefs as { currency?: string })?.currency;
+    if (typeof preferredCurrency === 'string' && preferredCurrency.length > 0) {
+      setUserCurrency(preferredCurrency as CurrencyCode);
     }
   }, [user]);
 
@@ -288,8 +297,8 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     if (showAddContributorModal) {
       shoppingLogger.debug('🤝 Loading friends for contributor modal');
       // PRODUCTION SAFE: Handle promise rejection
-      void dispatch(loadFriends()).catch(error => {
-        console.error('Failed to load friends:', error);
+      dispatch(loadFriends()).catch(friendsError => {
+        console.error('Failed to load friends:', friendsError);
       });
     }
   }, [showAddContributorModal, dispatch]);
@@ -322,8 +331,8 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         // Find the friend data from Redux state
         const friendUser = friends.find(friendship => {
           const isCurrentUserUser1 = friendship.user1Id === user?.id;
-          const friendUser = isCurrentUserUser1 ? friendship.user2 : friendship.user1;
-          return friendUser?.id === friendId;
+          const friendData = isCurrentUserUser1 ? friendship.user2 : friendship.user1;
+          return friendData?.id === friendId;
         });
 
         const friend = friendUser
@@ -392,10 +401,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         ]);
 
         // Refresh lists in background to sync with server (but UI already updated)
-        void dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
-      } catch (error: unknown) {
-        shoppingLogger.error('❌ Failed to add contributor:', error);
-        throw error; // Re-throw to let modal handle the error
+        dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
+      } catch (addError: unknown) {
+        shoppingLogger.error('❌ Failed to add contributor:', addError);
+        throw addError; // Re-throw to let modal handle the error
       }
     },
     [selectedListForContributor, dispatch, friends, user?.id]
@@ -433,15 +442,15 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         Alert.alert('Success', 'Contributor has been removed from the list.', [{ text: 'OK' }]);
 
         // Refresh lists in background to sync with server (but UI already updated)
-        void dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
-      } catch (error: unknown) {
-        shoppingLogger.error('❌ Failed to remove contributor:', error);
+        dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
+      } catch (removeError: unknown) {
+        shoppingLogger.error('❌ Failed to remove contributor:', removeError);
 
         // Revert optimistic update on failure - need to re-add the collaborator
         // For now, just refresh the lists to get the correct state
-        void dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
+        dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
 
-        throw error; // Re-throw to let modal handle the error
+        throw removeError; // Re-throw to let modal handle the error
       }
     },
     [selectedListForContributor, dispatch]
@@ -497,17 +506,18 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
       // Refresh lists to get updated data with a small delay to ensure DB transaction is committed
       setTimeout(() => {
-        void dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
+        dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
       }, 500);
 
       // Auto-hide success message
       setTimeout(hideSuccessModalWithAnimation, 2000);
-    } catch (error: unknown) {
-      shoppingLogger.error('Error assigning item:', error);
+    } catch (assignError: unknown) {
+      shoppingLogger.error('Error assigning item:', assignError);
       setErrorMessage('Assignment Failed');
-      const errorMessage =
-        (error as { message?: string })?.message ?? 'Failed to assign item. Please try again.';
-      setErrorSubtitle(errorMessage);
+      const assignErrorMessage =
+        (assignError as { message?: string })?.message ??
+        'Failed to assign item. Please try again.';
+      setErrorSubtitle(assignErrorMessage);
       showErrorModalWithAnimation();
       setTimeout(hideErrorModalWithAnimation, 3000);
     }
@@ -538,64 +548,71 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
       // Refresh lists to get updated data with a small delay to ensure DB transaction is committed
       setTimeout(() => {
-        void dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
+        dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
       }, 500);
 
       // Auto-hide success message
       setTimeout(hideSuccessModalWithAnimation, 2000);
-    } catch (error: unknown) {
-      shoppingLogger.error('Error unassigning item:', error);
+    } catch (unassignError: unknown) {
+      shoppingLogger.error('Error unassigning item:', unassignError);
       setErrorMessage('Unassignment Failed');
-      const errorMessage =
-        (error as { message?: string })?.message ?? 'Failed to unassign item. Please try again.';
-      setErrorSubtitle(errorMessage);
+      const unassignErrorMessage =
+        (unassignError as { message?: string })?.message ??
+        'Failed to unassign item. Please try again.';
+      setErrorSubtitle(unassignErrorMessage);
       showErrorModalWithAnimation();
       setTimeout(hideErrorModalWithAnimation, 3000);
     }
   };
 
-  const getUserName = (userId: string): string => {
-    if (userId === user?.id) return 'You';
+  const getUserName = useCallback(
+    (userId: string): string => {
+      if (userId === user?.id) return 'You';
 
-    // Look up in collaborators from all lists
-    for (const list of shoppingLists) {
-      const collaborator = list.collaborators.find(c => c.userId === userId);
-      if (collaborator) return collaborator.name;
-    }
-
-    // Look up in friends list
-    const friendship = friends.find(f => f.user1Id === userId || f.user2Id === userId);
-    if (friendship) {
-      const friend = friendship.user1Id === userId ? friendship.user1 : friendship.user2;
-      return friend?.name ?? 'Unknown User';
-    }
-
-    return 'Unknown User';
-  };
-
-  const getUserAvatar = (userId: string): AvatarType => {
-    // First check if it's the current user
-    if (user && user.id === userId) {
-      return user.avatar ?? getFallbackAvatar(user.name);
-    }
-
-    // Look up in collaborators from all lists
-    for (const list of shoppingLists) {
-      const collaborator = list.collaborators.find(c => c.userId === userId);
-      if (collaborator) {
-        return collaborator.avatar ?? getFallbackAvatar(collaborator.name);
+      // Look up in collaborators from all lists
+      for (const list of shoppingLists) {
+        const collaborator = list.collaborators.find(c => c.userId === userId);
+        if (collaborator) return collaborator.name;
       }
-    }
 
-    // Look up in friends list
-    const friendship = friends.find(f => f.user1Id === userId || f.user2Id === userId);
-    if (friendship) {
-      const friend = friendship.user1Id === userId ? friendship.user1 : friendship.user2;
-      return friend?.avatar ?? getFallbackAvatar(friend?.name ?? 'Unknown');
-    }
+      // Look up in friends list
+      const friendship = friends.find(f => f.user1Id === userId || f.user2Id === userId);
+      if (friendship) {
+        const friend = friendship.user1Id === userId ? friendship.user1 : friendship.user2;
+        return friend?.name ?? 'Unknown User';
+      }
 
-    return '👤';
-  };
+      return 'Unknown User';
+    },
+    [user?.id, shoppingLists, friends]
+  );
+
+  const getUserAvatar = useCallback(
+    (userId: string): AvatarType => {
+      // First check if it's the current user
+      if (user && user.id === userId) {
+        return user.avatar ?? getFallbackAvatar(user.name);
+      }
+
+      // Look up in collaborators from all lists
+      for (const list of shoppingLists) {
+        const collaborator = list.collaborators.find(c => c.userId === userId);
+        if (collaborator) {
+          return collaborator.avatar ?? getFallbackAvatar(collaborator.name);
+        }
+      }
+
+      // Look up in friends list
+      const friendship = friends.find(f => f.user1Id === userId || f.user2Id === userId);
+      if (friendship) {
+        const friend = friendship.user1Id === userId ? friendship.user1 : friendship.user2;
+        return friend?.avatar ?? getFallbackAvatar(friend?.name ?? 'Unknown');
+      }
+
+      return '👤';
+    },
+    [user, shoppingLists, friends]
+  );
 
   // Success modal animation functions
   const showSuccessModalWithAnimation = () => {
@@ -732,7 +749,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         case 'uri':
           return (
             <View style={containerStyle}>
-              <Image source={avatarProps.source} style={imageStyle} />
+              <Image source={avatarProps.source as any} style={imageStyle} />
             </View>
           );
 
@@ -750,8 +767,8 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
             </View>
           );
       }
-    } catch (error) {
-      shoppingLogger.error('Error in renderAvatar:', error);
+    } catch (renderError) {
+      shoppingLogger.error('Error in renderAvatar:', renderError);
       // Return a fallback avatar
       return (
         <View
@@ -1101,10 +1118,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   }, [archivedListDetail?.items]);
 
   // PERFORMANCE OPTIMIZED: Memoize spending by user calculation
-  const spendingByUser = useMemo(() => {
+  const spendingByUser = useMemo((): Record<string, { total: number; items: number }> => {
     if (!archivedListDetail?.items) return {};
 
-    const spending = {};
+    const spending: Record<string, { total: number; items: number }> = {};
     archivedListDetail.items
       .filter(item => item.completed)
       .forEach(item => {
@@ -1117,15 +1134,15 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
         const amount = purchasedAmount || actualPrice || estimatedPrice || 0;
         // If item is assigned, use assigned user; otherwise use the list owner
-        const user = item.assignedTo
+        const userName = item.assignedTo
           ? getUserName(item.assignedTo)
           : getUserName(archivedListDetail?.ownerId || '') || 'Unknown';
 
-        if (!spending[user]) {
-          spending[user] = { total: 0, items: 0 };
+        if (!spending[userName]) {
+          spending[userName] = { total: 0, items: 0 };
         }
-        spending[user].total += typeof amount === 'number' ? amount : 0;
-        spending[user].items += 1;
+        spending[userName]!.total += typeof amount === 'number' ? amount : 0;
+        spending[userName]!.items += 1;
       });
 
     return spending;
@@ -1292,10 +1309,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                 Spending Summary
               </Typography>
               {Object.keys(spendingByUser).length > 0 ? (
-                Object.entries(spendingByUser).map(([user, data]) => (
-                  <View key={user} style={styles.spendingRow}>
+                Object.entries(spendingByUser).map(([userName, data]) => (
+                  <View key={userName} style={styles.spendingRow}>
                     <Typography variant='body1' style={styles.spendingUser}>
-                      {user}
+                      {userName}
                     </Typography>
                     <View style={styles.spendingDetails}>
                       <Typography variant='body1' style={styles.spendingAmount}>

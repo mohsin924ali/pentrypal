@@ -203,7 +203,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       });
 
       // Construct international phone number if user data exists
-      let phone: string | undefined = undefined;
+      let phone: string | undefined;
       if (collaborator.user?.phone) {
         const countryCode = collaborator.user.country_code || 'PK';
         // Map country codes to international dialing codes
@@ -241,7 +241,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         setCompletedItems(completedItemIds);
       }
     }
-  }, [lists, selectedList?.id]);
+  }, [lists, selectedList]);
 
   // Use Redux lists or fallback to provided lists
   const displayLists = lists.length > 0 ? lists : shoppingLists;
@@ -253,8 +253,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
     console.log('🔄 Refreshing shopping lists...');
     try {
       await dispatch(loadShoppingLists({ status: 'active', limit: 50 })).unwrap();
-    } catch (error) {
-      console.error('Failed to refresh shopping lists:', error);
+    } catch (refreshError) {
+      console.error('Failed to refresh shopping lists:', refreshError);
       Alert.alert('Error', 'Failed to refresh shopping lists');
     }
   }, [dispatch, user?.id]);
@@ -387,8 +387,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             </View>
           );
       }
-    } catch (error) {
-      console.error('Error rendering avatar:', error);
+    } catch (avatarError) {
+      console.error('Error rendering avatar:', avatarError);
       return (
         <View
           style={{
@@ -518,12 +518,14 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         return listItem;
       });
 
-      const completedCount = updatedItems.filter(item => item.completed).length;
+      const completedCount = updatedItems.filter(listItem => listItem.completed).length;
       const progress = Math.round((completedCount / updatedItems.length) * 100);
 
       // Calculate total spent from all completed items with purchasedAmount
-      const totalSpent = updatedItems.reduce((total, item) => {
-        return total + (item.completed && item.purchasedAmount ? item.purchasedAmount : 0);
+      const totalSpent = updatedItems.reduce((total, listItem) => {
+        return (
+          total + (listItem.completed && listItem.purchasedAmount ? listItem.purchasedAmount : 0)
+        );
       }, 0);
 
       const updatedList = {
@@ -541,9 +543,13 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       }
 
       console.log('✅ Item updated successfully:', item.name);
-    } catch (error: any) {
-      console.error('❌ Error updating item:', error);
-      Alert.alert('Error', error.message || 'Failed to update item. Please try again.');
+    } catch (updateError: unknown) {
+      console.error('❌ Error updating item:', updateError);
+      const errorMessage =
+        updateError instanceof Error
+          ? updateError.message
+          : 'Failed to update item. Please try again.';
+      Alert.alert('Error', errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -568,10 +574,10 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
     // Check if all items are completed
     const remainingItems = selectedList.items.filter(item => !item.completed);
-    const completedItems = selectedList.items.filter(item => item.completed);
+    const currentCompletedItems = selectedList.items.filter(item => item.completed);
 
     // Calculate total spent from completed items
-    const totalSpent = completedItems.reduce((total, item) => {
+    const totalSpent = currentCompletedItems.reduce((total, item) => {
       const amount = item.purchasedAmount || item.actual_price || 0;
       return total + (typeof amount === 'number' ? amount : 0);
     }, 0);
@@ -648,12 +654,13 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       );
 
       console.log('✅ List archived successfully:', selectedList.name);
-    } catch (error: any) {
-      console.error('❌ Error archiving list:', error);
-      Alert.alert(
-        'Archive Failed',
-        error.message || 'Failed to archive the list. Please try again.'
-      );
+    } catch (archiveError: unknown) {
+      console.error('❌ Error archiving list:', archiveError);
+      const errorMessage =
+        archiveError instanceof Error
+          ? archiveError.message
+          : 'Failed to archive the list. Please try again.';
+      Alert.alert('Archive Failed', errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -715,7 +722,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             <Typography variant='h3' style={styles.emptyTitle}>
               Error Loading Lists
             </Typography>
-            <Typography variant='body' style={styles.emptyText}>
+            <Typography variant='body1' style={styles.emptyText}>
               {error}
             </Typography>
           </View>
@@ -724,7 +731,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             <Typography variant='h3' style={styles.emptyTitle}>
               {isLoadingLists ? 'Loading...' : 'No Active Shopping Lists'}
             </Typography>
-            <Typography variant='body' style={styles.emptyText}>
+            <Typography variant='body1' style={styles.emptyText}>
               {isLoadingLists
                 ? 'Please wait while we load your lists'
                 : 'Create a shopping list first to start shopping'}
@@ -767,7 +774,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                   </View>
 
                   <View style={styles.listActions}>
-                    <Typography variant='body' style={styles.shopButton}>
+                    <Typography variant='body1' style={styles.shopButton}>
                       Start Shopping →
                     </Typography>
                   </View>
@@ -784,7 +791,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBackToListSelection} style={styles.backButton}>
-          <Typography variant='body' style={styles.backIcon}>
+          <Typography variant='body1' style={styles.backIcon}>
             ←
           </Typography>
         </TouchableOpacity>
@@ -890,7 +897,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                 </Typography>
                 <View style={styles.itemInfo}>
                   <Typography
-                    variant='body'
+                    variant='body1'
                     color={safeTheme?.colors?.text?.primary || '#000000'}
                     style={[
                       styles.itemName,
@@ -949,7 +956,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                   </Typography>
                   <View style={styles.amountInputWrapper}>
                     <Typography
-                      variant='body'
+                      variant='body1'
                       color={safeTheme?.colors?.text?.primary || '#000000'}
                       style={styles.currencySymbol}>
                       $

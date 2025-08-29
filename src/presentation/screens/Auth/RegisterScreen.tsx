@@ -16,6 +16,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import * as LocalAuthentication from 'expo-local-authentication';
 
+// Images
+const loginImage = require('../../../assets/images/login.png');
+
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
@@ -92,34 +95,24 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
   });
 
   // Form management
-  const {
-    fields,
-    isValid,
-    isSubmitting,
-    hasErrors,
-    getFieldProps,
-    handleSubmit,
-    validateForm,
-    setError,
-    resetForm,
-    setValue,
-  } = useForm<RegisterFormData>({
-    initialValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      countryCode: 'US',
-      phoneNumber: '',
-      password: '',
-      confirmPassword: '',
-      gender: '' as any,
-      acceptTerms: false,
-      marketingConsent: false,
-    },
-    validationSchema: registerSchema,
-    validateOnBlur: true,
-    validateOnChange: false,
-  });
+  const { fields, isValid, hasErrors, getFieldProps, handleSubmit, setError, resetForm, setValue } =
+    useForm<RegisterFormData>({
+      initialValues: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        countryCode: 'US',
+        phoneNumber: '',
+        password: '',
+        confirmPassword: '',
+        gender: '' as 'male' | 'female' | 'other' | 'prefer-not-to-say' | '',
+        acceptTerms: false,
+        marketingConsent: false,
+      },
+      validationSchema: registerSchema,
+      validateOnBlur: true,
+      validateOnChange: false,
+    });
 
   // ========================================
   // Biometric Setup
@@ -187,7 +180,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
   // Registration Completion Handler
   // ========================================
 
-  const handleRegistrationComplete = (email: string) => {
+  const handleRegistrationComplete = (_email: string) => {
     // Ask user if they want to enable biometric authentication
     if (isBiometricAvailable) {
       Alert.alert(
@@ -252,9 +245,10 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
         });
         setShowSuccessModal(true);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle specific error cases
-      if (error.code === 'EMAIL_ALREADY_EXISTS') {
+      const errorWithCode = error as { code?: string; message?: string };
+      if (errorWithCode.code === 'EMAIL_ALREADY_EXISTS') {
         setError('email', 'An account with this email already exists');
         Alert.alert(
           'Email Already Registered',
@@ -264,11 +258,11 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
             { text: 'OK', style: 'cancel' },
           ]
         );
-      } else if (error.code === 'WEAK_PASSWORD') {
+      } else if (errorWithCode.code === 'WEAK_PASSWORD') {
         setError('password', 'Password does not meet security requirements');
-      } else if (error.code === 'INVALID_EMAIL') {
+      } else if (errorWithCode.code === 'INVALID_EMAIL') {
         setError('email', 'Please enter a valid email address');
-      } else if (error.code === 'REGISTRATION_BLOCKED') {
+      } else if (errorWithCode.code === 'REGISTRATION_BLOCKED') {
         Alert.alert(
           'Registration Blocked',
           'Your registration has been blocked for security reasons. Please contact support if you believe this is an error.',
@@ -628,7 +622,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                         },
                       ]}
                       onPress={() => {
-                        setValue('gender', option.value as any);
+                        setValue('gender', option.value);
                         setShowGenderDropdown(false);
                       }}
                       testID={`gender-option-${option.value}`}>
@@ -847,7 +841,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                   Errors:{' '}
                   {Object.entries(fields)
                     .filter(([key, field]) => field.error)
-                    .map(([key, field]) => `${key}: ${field.error}`)
+                    .map(([fieldKey, field]) => `${fieldKey}: ${field.error}`)
                     .join(', ')}
                 </Typography>
               )}
@@ -859,7 +853,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                 style={{ marginTop: theme.spacing.md, padding: 10, backgroundColor: '#f0f0f0' }}>
                 <Typography variant='caption' color='#666'>
                   Debug: isValid={isValid.toString()}, acceptTerms=
-                  {fields.acceptTerms.value.toString()}, gender="{fields.gender.value}"
+                  {fields.acceptTerms.value.toString()}, gender=&quot;{fields.gender.value}&quot;
                 </Typography>
               </View>
             )}
@@ -897,7 +891,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
               fullWidth
               leftIcon={{
                 type: 'image',
-                source: require('../../../assets/images/login.png'),
+                source: loginImage,
                 size: 18,
               }}
               onPress={handleLoginNavigation}
@@ -917,7 +911,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
         primaryButtonText='Go to Login'
         primaryButtonIcon={{
           type: 'image',
-          source: require('../../../assets/images/login.png'),
+          source: loginImage,
           size: 16,
         }}
         onPrimaryPress={handleSuccessModalClose}

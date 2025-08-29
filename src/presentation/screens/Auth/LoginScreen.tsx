@@ -39,7 +39,7 @@ import {
 import type { AppDispatch, RootState } from '../../../application/store';
 
 // Types
-import type { DeviceInfo } from '../../../infrastructure/services/IAuthService';
+import type { DeviceInfo } from '../../../shared/types/auth';
 
 // ========================================
 // Props Interface
@@ -194,10 +194,11 @@ export const LoginScreen: FC<LoginScreenProps> = ({
 
   const getDeviceInfo = (): DeviceInfo => ({
     deviceId: `device_${Math.random().toString(36).substr(2, 9)}`,
-    platform: Platform.OS,
+    deviceName: Platform.OS === 'ios' ? 'iPhone/iPad' : 'Android Device',
+    platform: Platform.OS as 'ios' | 'android',
     osVersion: Platform.Version.toString(),
     appVersion: '1.0.0',
-    userAgent: `PentryPal/1.0.0 (${Platform.OS} ${Platform.Version})`,
+    biometricCapable: isBiometricAvailable,
   });
 
   // ========================================
@@ -278,6 +279,71 @@ export const LoginScreen: FC<LoginScreenProps> = ({
     }
   });
 
+  // Extracted biometric functions to avoid no-inner-declarations
+  const proceedWithDemo = async (storedEmail: string) => {
+    console.log('🧪 Demo biometric login');
+
+    const deviceInfo = getDeviceInfo();
+    const signature = `demo_biometric_${Date.now()}_${Math.random()}`;
+
+    try {
+      const biometricResult = await dispatch(
+        loginWithBiometric({
+          userId: storedEmail,
+          signature,
+          deviceInfo,
+        })
+      ).unwrap();
+
+      if (biometricResult.success) {
+        onLoginSuccess();
+      }
+    } catch (error) {
+      console.log('Demo biometric failed, this is expected:', error);
+      Alert.alert(
+        'Demo Complete',
+        'Biometric authentication demo completed. In a real app, this would authenticate with your backend.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const proceedWithBiometric = async (storedEmail: string) => {
+    // Authenticate with biometrics
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: `Login with ${biometricType}`,
+      fallbackLabel: 'Use Password',
+      cancelLabel: 'Cancel',
+      disableDeviceFallback: false,
+    });
+
+    if (result.success) {
+      const deviceInfo = getDeviceInfo();
+      const signature = `biometric_${Date.now()}_${Math.random()}`;
+
+      const biometricResult = await dispatch(
+        loginWithBiometric({
+          userId: storedEmail,
+          signature,
+          deviceInfo,
+        })
+      ).unwrap();
+
+      if (biometricResult.success) {
+        onLoginSuccess();
+      }
+    } else if (result.error === 'user_cancel') {
+      // User cancelled biometric auth, do nothing
+      return;
+    } else {
+      Alert.alert(
+        'Authentication Failed',
+        'Biometric authentication failed. Please try again or use email and password.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   const handleBiometricLogin = async () => {
     if (!isBiometricAvailable) {
       Alert.alert(
@@ -300,7 +366,10 @@ export const LoginScreen: FC<LoginScreenProps> = ({
           `To use ${biometricType}, you need to set it up in your device settings first.\n\nFor demo purposes, would you like to simulate biometric authentication?`,
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Demo Login', onPress: () => proceedWithDemo() },
+            {
+              text: 'Demo Login',
+              onPress: () => proceedWithDemo(lastLoginEmail || 'demo@example.com'),
+            },
             {
               text: 'Open Settings',
               onPress: () => {
@@ -320,77 +389,13 @@ export const LoginScreen: FC<LoginScreenProps> = ({
           "You need to login with email and password first to enable biometric authentication.\n\nFor demo purposes, we'll simulate biometric login.",
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Demo Login', onPress: () => proceedWithDemo() },
+            { text: 'Demo Login', onPress: () => proceedWithDemo(storedEmail) },
           ]
         );
         return;
       }
 
-      await proceedWithBiometric();
-
-      async function proceedWithDemo() {
-        console.log('🧪 Demo biometric login');
-
-        const deviceInfo = getDeviceInfo();
-        const signature = `demo_biometric_${Date.now()}_${Math.random()}`;
-
-        try {
-          const biometricResult = await dispatch(
-            loginWithBiometric({
-              userId: storedEmail,
-              signature,
-              deviceInfo,
-            })
-          ).unwrap();
-
-          if (biometricResult.success) {
-            onLoginSuccess();
-          }
-        } catch (error) {
-          console.log('Demo biometric failed, this is expected:', error);
-          Alert.alert(
-            'Demo Complete',
-            'Biometric authentication demo completed. In a real app, this would authenticate with your backend.',
-            [{ text: 'OK' }]
-          );
-        }
-      }
-
-      async function proceedWithBiometric() {
-        // Authenticate with biometrics
-        const result = await LocalAuthentication.authenticateAsync({
-          promptMessage: `Login with ${biometricType}`,
-          fallbackLabel: 'Use Password',
-          cancelLabel: 'Cancel',
-          disableDeviceFallback: false,
-        });
-
-        if (result.success) {
-          const deviceInfo = getDeviceInfo();
-          const signature = `biometric_${Date.now()}_${Math.random()}`;
-
-          const biometricResult = await dispatch(
-            loginWithBiometric({
-              userId: storedEmail,
-              signature,
-              deviceInfo,
-            })
-          ).unwrap();
-
-          if (biometricResult.success) {
-            onLoginSuccess();
-          }
-        } else if (result.error === 'user_cancel') {
-          // User cancelled biometric auth, do nothing
-          return;
-        } else {
-          Alert.alert(
-            'Authentication Failed',
-            'Biometric authentication failed. Please try again or use email and password.',
-            [{ text: 'OK' }]
-          );
-        }
-      }
+      await proceedWithBiometric(storedEmail);
     } catch (error: any) {
       console.error('Biometric authentication error:', error);
       Alert.alert(
@@ -422,10 +427,10 @@ export const LoginScreen: FC<LoginScreenProps> = ({
 
   // Navigate on successful login
   useEffect(() => {
-    if (auth.isAuthenticated && !auth.hasPendingTwoFactorVerification) {
+    if (auth.isAuthenticated) {
       onLoginSuccess();
     }
-  }, [auth.isAuthenticated, auth.hasPendingTwoFactorVerification, onLoginSuccess]);
+  }, [auth.isAuthenticated, onLoginSuccess]);
 
   // Show loading screen during authentication
   if (auth.isLoggingIn) {

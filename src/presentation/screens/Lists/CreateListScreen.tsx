@@ -4,10 +4,9 @@
  * Exact implementation matching the old project's user experience
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  Animated,
   Dimensions,
   SafeAreaView,
   ScrollView,
@@ -27,8 +26,10 @@ import { Button } from '../../components/atoms/Button/Button';
 import { useTheme } from '../../providers/ThemeProvider';
 
 // Services
-import groceryItemsService from '../../../infrastructure/services/groceryItemsService';
-import type { Category, GroceryItem } from '../../../infrastructure/services/groceryItemsService';
+import groceryItemsService, {
+  type Category,
+  type GroceryItem,
+} from '../../../infrastructure/services/groceryItemsService';
 
 // Redux
 import {
@@ -48,7 +49,7 @@ import type { CreateListFormData } from '../../components/molecules/CreateListMo
 
 type NavigationProp = StackNavigationProp<ListsStackParamList, 'CreateList'>;
 
-const { height: screenHeight } = Dimensions.get('window');
+// Screen dimensions are available but not currently used in this component
 
 export interface CreateListScreenProps {
   onBackPress: () => void;
@@ -69,7 +70,7 @@ interface SelectedItemData {
 }
 
 export const CreateListScreen: React.FC<CreateListScreenProps> = ({
-  onBackPress,
+  onBackPress: _onBackPress,
   onCreateList,
   onUpdateList,
   editMode = false,
@@ -82,7 +83,8 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
   // Redux selectors
   const isCreatingList = useSelector(selectIsCreatingList);
-  const shoppingListError = useSelector(selectShoppingListError);
+  // Shopping list error state is available but not displayed in this component
+  // const shoppingListError = useSelector(selectShoppingListError);
 
   // Form state
   const [listName, setListName] = useState('');
@@ -98,7 +100,6 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   const [selectedUnit, setSelectedUnit] = useState('');
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [customItemName, setCustomItemName] = useState('');
-  const [customItemCategory, setCustomItemCategory] = useState('custom');
   const [customItemQuantity, setCustomItemQuantity] = useState('1');
   const [customItemUnit, setCustomItemUnit] = useState('pieces');
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
@@ -592,7 +593,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
   const renderListNameInput = () => (
     <View style={styles.inputSection}>
-      <Typography variant='body' color={safeTheme.colors.text.primary} style={styles.inputLabel}>
+      <Typography variant='body1' color={safeTheme.colors.text.primary} style={styles.inputLabel}>
         List Name
       </Typography>
       <TextInput
@@ -607,7 +608,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
   const renderSearchInput = () => (
     <View style={styles.inputSection}>
-      <Typography variant='body' color={safeTheme.colors.text.primary} style={styles.inputLabel}>
+      <Typography variant='body1' color={safeTheme.colors.text.primary} style={styles.inputLabel}>
         Search & Add Items
       </Typography>
       <TextInput
@@ -646,11 +647,11 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                     setSearchQuery('');
                     setSearchResults([]);
                   }}>
-                  <Typography variant='body' style={styles.searchItemIcon}>
+                  <Typography variant='body1' style={styles.searchItemIcon}>
                     {item.icon}
                   </Typography>
                   <Typography
-                    variant='body'
+                    variant='body1'
                     color={safeTheme.colors.text.primary}
                     style={styles.searchItemName}>
                     {item.name}
@@ -662,11 +663,11 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
               <TouchableOpacity
                 style={styles.searchResultItem}
                 onPress={() => handleCreateFromSearch(searchQuery.trim())}>
-                <Typography variant='body' style={styles.searchItemIcon}>
+                <Typography variant='body1' style={styles.searchItemIcon}>
                   ➕
                 </Typography>
                 <Typography
-                  variant='body'
+                  variant='body1'
                   color={safeTheme.colors.primary.main}
                   style={styles.searchItemName}>
                   Add "{searchQuery.trim()}" as custom item
@@ -739,12 +740,12 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         accessibilityRole='button'
         accessibilityLabel={`${isSelected ? 'Remove' : 'Add'} ${item.name}`}>
         <View style={styles.itemLeft}>
-          <Typography variant='body' style={styles.itemIcon}>
+          <Typography variant='body1' style={styles.itemIcon}>
             {item.icon}
           </Typography>
           <View style={styles.itemInfo}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.primary}
               style={styles.itemName}>
               {item.name}
@@ -767,7 +768,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                     }}
                     accessibilityRole='button'
                     accessibilityLabel={`Decrease quantity for ${item.name}`}>
-                    <Typography variant='body' style={styles.quantityButtonText}>
+                    <Typography variant='body1' style={styles.quantityButtonText}>
                       -
                     </Typography>
                   </TouchableOpacity>
@@ -791,7 +792,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                     }}
                     accessibilityRole='button'
                     accessibilityLabel={`Increase quantity for ${item.name}`}>
-                    <Typography variant='body' style={styles.quantityButtonText}>
+                    <Typography variant='body1' style={styles.quantityButtonText}>
                       +
                     </Typography>
                   </TouchableOpacity>
@@ -817,7 +818,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             }}
             accessibilityRole='button'
             accessibilityLabel={`Remove ${item.name} from list`}>
-            <Typography variant='body' color='#ffffff' style={styles.removeButtonText}>
+            <Typography variant='body1' color='#ffffff' style={styles.removeButtonText}>
               ✕
             </Typography>
           </TouchableOpacity>
@@ -852,7 +853,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
           <View style={styles.quantitySection}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.primary}
               style={styles.modalLabel}>
               Quantity
@@ -869,7 +870,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
           <View style={styles.unitSection}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.primary}
               style={styles.modalLabel}>
               Unit
@@ -907,7 +908,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 setShowQuantityModal(false);
                 setCurrentItem(null);
               }}>
-              <Typography variant='body' color={safeTheme.colors.text.secondary}>
+              <Typography variant='body1' color={safeTheme.colors.text.secondary}>
                 Cancel
               </Typography>
             </TouchableOpacity>
@@ -917,7 +918,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 { backgroundColor: safeTheme.colors.primary['500'] },
               ]}
               onPress={handleAddItemWithQuantity}>
-              <Typography variant='body' color='#ffffff'>
+              <Typography variant='body1' color='#ffffff'>
                 Add Item
               </Typography>
             </TouchableOpacity>
@@ -937,14 +938,14 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
           <View style={styles.duplicateMessage}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.primary}
               style={styles.duplicateText}>
               {duplicateItemData.existingItem.name} with {duplicateItemData.existingItem.quantity}{' '}
               {duplicateItemData.existingItem.unit} is already in your list.
             </Typography>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.primary}
               style={styles.duplicateText}>
               Do you really want to add {duplicateItemData.newQuantity} {duplicateItemData.newUnit}{' '}
@@ -959,7 +960,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 { backgroundColor: safeTheme.colors.surface.secondary },
               ]}
               onPress={handleDuplicateCancel}>
-              <Typography variant='body' color={safeTheme.colors.text.secondary}>
+              <Typography variant='body1' color={safeTheme.colors.text.secondary}>
                 Cancel
               </Typography>
             </TouchableOpacity>
@@ -969,7 +970,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 { backgroundColor: safeTheme.colors.primary['500'] },
               ]}
               onPress={handleDuplicateConfirm}>
-              <Typography variant='body' color='#ffffff'>
+              <Typography variant='body1' color='#ffffff'>
                 Add More
               </Typography>
             </TouchableOpacity>
@@ -988,7 +989,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
           <View style={styles.quantitySection}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.primary}
               style={styles.modalLabel}>
               Item Name
@@ -1005,7 +1006,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
           <View style={styles.quantitySection}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.primary}
               style={styles.modalLabel}>
               Quantity
@@ -1022,7 +1023,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
           <View style={styles.quantitySection}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.primary}
               style={styles.modalLabel}>
               Unit
@@ -1077,7 +1078,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 setCustomItemQuantity('1');
                 setCustomItemUnit('pieces');
               }}>
-              <Typography variant='body' color={safeTheme.colors.text.secondary}>
+              <Typography variant='body1' color={safeTheme.colors.text.secondary}>
                 Cancel
               </Typography>
             </TouchableOpacity>
@@ -1087,7 +1088,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 { backgroundColor: safeTheme.colors.primary['500'] },
               ]}
               onPress={handleAddCustomItem}>
-              <Typography variant='body' color='#ffffff'>
+              <Typography variant='body1' color='#ffffff'>
                 Add Item
               </Typography>
             </TouchableOpacity>
@@ -1112,7 +1113,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         {isLoading && (
           <View style={styles.loadingContainer}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.secondary}
               style={styles.loadingText}>
               Loading grocery items...
@@ -1134,7 +1135,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             ) : (
               <View style={styles.emptyState}>
                 <Typography
-                  variant='body'
+                  variant='body1'
                   color={safeTheme.colors.text.secondary}
                   style={styles.emptyStateText}>
                   Start searching to add items to your list
@@ -1154,7 +1155,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
               🛒 Ready to create your list?
             </Typography>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme.colors.text.secondary}
               style={styles.initialStateDescription}>
               1. Give your list a name above{'\n'}

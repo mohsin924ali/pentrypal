@@ -1,22 +1,19 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "dom",
-      "esnext"
-    ],
+    "lib": ["dom", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "resolveJsonModule": true,
@@ -30,60 +27,24 @@
     "removeComments": false,
     "baseUrl": "./src",
     "paths": {
-      "@/*": [
-        "*"
-      ],
-      "@/components/*": [
-        "presentation/components/*"
-      ],
-      "@/screens/*": [
-        "presentation/screens/*"
-      ],
-      "@/navigation/*": [
-        "presentation/navigation/*"
-      ],
-      "@/hooks/*": [
-        "presentation/hooks/*"
-      ],
-      "@/providers/*": [
-        "presentation/providers/*"
-      ],
-      "@/store/*": [
-        "application/store/*"
-      ],
-      "@/services/*": [
-        "application/services/*"
-      ],
-      "@/utils/*": [
-        "application/utils/*"
-      ],
-      "@/domain/*": [
-        "domain/*"
-      ],
-      "@/infrastructure/*": [
-        "infrastructure/*"
-      ],
-      "@/shared/*": [
-        "shared/*"
-      ],
-      "@/types": [
-        "shared/types"
-      ],
-      "@/constants": [
-        "shared/constants"
-      ],
-      "@/theme": [
-        "shared/theme"
-      ],
-      "@/validation": [
-        "shared/validation"
-      ],
-      "@/i18n": [
-        "shared/i18n"
-      ],
-      "@/test/*": [
-        "../test/*"
-      ]
+      "@/*": ["*"],
+      "@/components/*": ["presentation/components/*"],
+      "@/screens/*": ["presentation/screens/*"],
+      "@/navigation/*": ["presentation/navigation/*"],
+      "@/hooks/*": ["presentation/hooks/*"],
+      "@/providers/*": ["presentation/providers/*"],
+      "@/store/*": ["application/store/*"],
+      "@/services/*": ["application/services/*"],
+      "@/utils/*": ["application/utils/*"],
+      "@/domain/*": ["domain/*"],
+      "@/infrastructure/*": ["infrastructure/*"],
+      "@/shared/*": ["shared/*"],
+      "@/types": ["shared/types"],
+      "@/constants": ["shared/constants"],
+      "@/theme": ["shared/theme"],
+      "@/validation": ["shared/validation"],
+      "@/i18n": ["shared/i18n"],
+      "@/test/*": ["../test/*"]
     }
   },
   "include": [

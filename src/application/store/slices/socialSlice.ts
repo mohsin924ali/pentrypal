@@ -98,8 +98,24 @@ export const loadFriends = createAsyncThunk(
         }
 
         // Extract user data from backend response (now includes user objects)
-        const user1 = (backendFriendship.user1 as { name?: string; email?: string; phone?: string; avatar_url?: string; created_at?: string; updated_at?: string }) ?? {};
-        const user2 = (backendFriendship.user2 as { name?: string; email?: string; phone?: string; avatar_url?: string; created_at?: string; updated_at?: string }) ?? {};
+        const user1 =
+          (backendFriendship.user1 as {
+            name?: string;
+            email?: string;
+            phone?: string;
+            avatar_url?: string;
+            created_at?: string;
+            updated_at?: string;
+          }) ?? {};
+        const user2 =
+          (backendFriendship.user2 as {
+            name?: string;
+            email?: string;
+            phone?: string;
+            avatar_url?: string;
+            created_at?: string;
+            updated_at?: string;
+          }) ?? {};
 
         return {
           id: backendFriendship.id,
@@ -122,8 +138,8 @@ export const loadFriends = createAsyncThunk(
             avatar: user2.avatar_url,
             createdAt: user2.created_at ?? '',
             updatedAt: user2.updated_at ?? '',
-          } as any,
-          status: backendFriendship.status as any,
+          },
+          status: backendFriendship.status,
           initiatedBy: backendFriendship.initiated_by,
           sharedListsCount: 0, // Will be calculated
           createdAt: backendFriendship.created_at, // Keep as ISO string
@@ -134,7 +150,7 @@ export const loadFriends = createAsyncThunk(
       });
 
       return friendships;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue({
         code: 'NETWORK_ERROR',
         message: error.message || 'Failed to load friends',
@@ -189,7 +205,7 @@ export const loadFriendRequests = createAsyncThunk(
             avatar: fromUser.avatar_url,
             createdAt: fromUser.created_at || '',
             updatedAt: fromUser.updated_at || '',
-          } as any,
+          },
           toUser: {
             id: backendRequest.to_user_id,
             name: toUser.name || 'You',
@@ -198,7 +214,7 @@ export const loadFriendRequests = createAsyncThunk(
             avatar: toUser.avatar_url,
             createdAt: toUser.created_at || '',
             updatedAt: toUser.updated_at || '',
-          } as any,
+          },
           status: backendRequest.status,
           message: backendRequest.message,
           createdAt: backendRequest.created_at, // Keep as ISO string
@@ -212,7 +228,7 @@ export const loadFriendRequests = createAsyncThunk(
         received: response.data.received.map(convertRequest),
         sent: response.data.sent.map(convertRequest),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('🎯 Redux loadFriendRequests error:', error);
 
       // Check if it's an authentication error
@@ -276,10 +292,10 @@ export const searchUsers = createAsyncThunk(
           avatar: backendUser.avatar_url,
           createdAt: backendUser.created_at,
           updatedAt: backendUser.updated_at,
-        } as any,
+        },
         mutualFriendsCount: 0, // Will be calculated
         mutualFriends: [],
-        relationshipStatus: 'none' as any, // Will be determined by other calls
+        relationshipStatus: 'none', // Will be determined by other calls
         canSendRequest: true,
         lastSeen: undefined,
       }));
@@ -290,7 +306,7 @@ export const searchUsers = createAsyncThunk(
         totalCount: searchResults.length,
         hasMore: false,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue({
         code: 'NETWORK_ERROR',
         message: error.message || 'Failed to search users',
@@ -333,9 +349,9 @@ export const sendFriendRequest = createAsyncThunk(
         id: backendRequest.id,
         fromUserId: backendRequest.from_user_id,
         toUserId: backendRequest.to_user_id,
-        fromUser: { id: backendRequest.from_user_id, name: 'You', email: '' } as any, // Will be populated by other calls
-        toUser: { id: backendRequest.to_user_id, name: 'Friend', email: '' } as any,
-        status: backendRequest.status as any,
+        fromUser: { id: backendRequest.from_user_id, name: 'You', email: '' }, // Will be populated by other calls
+        toUser: { id: backendRequest.to_user_id, name: 'Friend', email: '' },
+        status: backendRequest.status,
         message: backendRequest.message,
         createdAt: backendRequest.created_at, // Keep as ISO string
         updatedAt: backendRequest.updated_at, // Keep as ISO string
@@ -348,7 +364,7 @@ export const sendFriendRequest = createAsyncThunk(
         friendRequest: frontendRequest,
         message: 'Friend request sent successfully',
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('🎯 Redux sendFriendRequest error:', error);
 
       // Check if it's an authentication error
@@ -407,7 +423,7 @@ export const respondToFriendRequest = createAsyncThunk(
         success: true,
         message: 'Friend request response successful',
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('🔍 Redux respondToFriendRequest error:', error);
 
       // Check if it's an authentication error
@@ -456,7 +472,7 @@ export const cancelFriendRequest = createAsyncThunk(
       }
 
       return { requestId, message: 'Friend request cancelled successfully' };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue({
         code: 'NETWORK_ERROR',
         message: error.message || 'Failed to cancel friend request',
@@ -501,7 +517,7 @@ const socialSlice = createSlice({
       state.searchQuery = action.payload;
     },
 
-    setSearchFilters: (state, action: PayloadAction<any>) => {
+    setSearchFilters: (state, action: PayloadAction<unknown>) => {
       state.searchFilters = action.payload;
     },
 
