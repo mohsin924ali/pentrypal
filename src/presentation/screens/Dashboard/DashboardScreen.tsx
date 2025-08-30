@@ -774,7 +774,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               </View>
             ))}
 
-            {statistics.userTotalSpent > 0 && (
+            {statistics.userTotalSpent > 0 && categorySpending.length > 0 && (
               <View
                 style={[
                   styles.categoryInsightCard,
@@ -790,9 +790,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     color={theme.colors.primary[500]}
                     style={{ fontWeight: '600' }}>
                     {categorySpending[0]?.name}
-                  </Typography>{' '}
-                  at ${categorySpending[0]?.amount.toFixed(2)} (
-                  {categorySpending[0]?.percentage.toFixed(0)}% of total)
+                  </Typography>
+                  {' at $'}
+                  <Typography variant='body2' color={theme.colors.text.secondary}>
+                    {categorySpending[0]?.amount.toFixed(2)}
+                  </Typography>
+                  {' ('}
+                  <Typography variant='body2' color={theme.colors.text.secondary}>
+                    {categorySpending[0]?.percentage.toFixed(0)}
+                  </Typography>
+                  {'% of total)'}
                 </Typography>
               </View>
             )}

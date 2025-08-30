@@ -37,7 +37,7 @@ services:
     ports:
       - '8000:8000'
     environment:
-      - DATABASE_URL=postgresql://pentrypal_user:pentrypal_password@postgres:5432/pentrypal_db
+      - DATABASE_URL=postgresql+psycopg://pentrypal_user:pentrypal_password@postgres:5432/pentrypal_db
       - REDIS_URL=redis://redis:6379/0
       - DEBUG=True
     depends_on:

@@ -1,0 +1,36 @@
+{
+  "_description": "PentryPal Database Cleanup Configuration",
+  "_note": "All time values are in days unless otherwise specified",
+
+  "activity_log_retention_days": 90,
+  "friend_request_expiry_days": 30,
+  "completed_list_archive_days": 365,
+  "inactive_user_days": 730,
+  "expired_biometric_keys_days": 180,
+
+  "cleanup_orphaned_items": true,
+  "cleanup_orphaned_collaborators": true,
+  "cleanup_orphaned_preferences": true,
+
+  "test_email_patterns": [
+    "test@example.com",
+    "%@test.com",
+    "test_%@%",
+    "%+test@%",
+    "demo@%",
+    "%@testmail.%"
+  ],
+
+  "test_name_patterns": [
+    "Test User%",
+    "test%",
+    "Test %",
+    "Demo %",
+    "Testing %",
+    "%Test%"
+  ],
+
+  "max_records_per_batch": 1000,
+  "enable_foreign_key_checks": true,
+  "create_backup": true
+}

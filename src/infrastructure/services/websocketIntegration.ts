@@ -267,10 +267,10 @@ export class WebSocketIntegration {
         } as any,
         status: requestData.status,
         message: requestData.message,
-        createdAt: new Date(requestData.created_at || Date.now()),
-        updatedAt: new Date(requestData.created_at || Date.now()),
+        createdAt: new Date(requestData.created_at || Date.now()).toISOString(),
+        updatedAt: new Date(requestData.created_at || Date.now()).toISOString(),
         respondedAt: undefined,
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
       } as any;
 
       // Handle different friend request actions
@@ -290,8 +290,8 @@ export class WebSocketIntegration {
           status: 'active' as any,
           initiatedBy: requestData.from_user_id,
           sharedListsCount: 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           lastInteractionAt: undefined,
           mutedUntil: undefined,
         } as any;

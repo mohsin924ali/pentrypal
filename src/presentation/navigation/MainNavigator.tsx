@@ -7,7 +7,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTheme } from '../providers/ThemeProvider';
-import { Typography } from '../components/atoms/Typography/Typography';
 import { selectFriendRequests } from '../../application/store/slices/socialSlice';
 
 // Screens
@@ -39,6 +38,29 @@ export type MainTabParamList = {
 // Create tab navigator
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
+// Tab bar icon component - MINIMAL VERSION TO DEBUG
+const TabIcon: FC<{
+  iconSource: number;
+  focused: boolean;
+  color: string;
+  size: number;
+  badgeCount?: number;
+}> = ({ iconSource, focused, color, size }) => {
+  return (
+    <View style={{ width: size, height: size }}>
+      <Image
+        source={iconSource}
+        style={{
+          width: size,
+          height: size,
+          tintColor: color,
+        }}
+        resizeMode='contain'
+      />
+    </View>
+  );
+};
+
 /**
  * Main Navigator Component
  *
@@ -54,16 +76,11 @@ export const MainNavigator: FC = () => {
   const { theme } = useTheme();
   const friendRequests = useSelector(selectFriendRequests);
 
-  // Calculate pending requests count
-  const pendingRequestsCount = friendRequests?.received?.length || 0;
-  console.log(
-    '🔍 MainNavigator - friendRequests:',
-    friendRequests,
-    'pendingRequestsCount:',
-    pendingRequestsCount,
-    'type:',
-    typeof pendingRequestsCount
-  );
+  // Calculate pending requests count - defensive approach
+  const pendingRequestsCount = React.useMemo(() => {
+    const count = friendRequests?.received?.length || 0;
+    return typeof count === 'number' ? count : 0;
+  }, [friendRequests?.received?.length]);
 
   // Ensure theme colors are available with robust fallback
   const safeTheme = theme?.colors
@@ -75,61 +92,16 @@ export const MainNavigator: FC = () => {
           surface: { background: '#ffffff' },
           border: { primary: '#e5e5e5' },
         },
+        shadows: {
+          sm: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 2,
+          },
+        },
       };
-
-  // Tab bar icon component
-  const TabIcon: FC<{
-    iconSource: any;
-    focused: boolean;
-    color: string;
-    size: number;
-    badgeCount?: number;
-  }> = ({ iconSource, focused, color, size, badgeCount }) => (
-    <View
-      style={{
-        width: size + 4,
-        height: size + 4,
-        justifyContent: 'center',
-        alignItems: 'center',
-        transform: [{ scale: focused ? 1.1 : 1 }],
-        position: 'relative',
-      }}>
-      <Image
-        source={iconSource}
-        style={{
-          width: size,
-          height: size,
-          tintColor: color, // This applies the theme color
-        }}
-        resizeMode='contain'
-      />
-      {badgeCount && badgeCount > 0 && (
-        <View
-          style={{
-            position: 'absolute',
-            top: -4,
-            right: -4,
-            backgroundColor: '#ef4444',
-            borderRadius: 10,
-            minWidth: 20,
-            height: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingHorizontal: 6,
-          }}>
-          <Text
-            style={{
-              fontSize: 12,
-              fontWeight: 'bold',
-              lineHeight: 16,
-              color: '#FFFFFF',
-            }}>
-            {badgeCount?.toString() || '0'}
-          </Text>
-        </View>
-      )}
-    </View>
-  );
 
   return (
     <Tab.Navigator
@@ -144,7 +116,7 @@ export const MainNavigator: FC = () => {
           paddingTop: 8,
           paddingBottom: 24,
           height: 85,
-          ...theme.shadows.sm,
+          ...safeTheme.shadows.sm,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -200,16 +172,16 @@ export const MainNavigator: FC = () => {
           ),
           tabBarAccessibilityLabel: 'Shopping mode',
         }}>
-        {props => (
+        {({ navigation }) => (
           <ShopScreen
-            {...({
-              ...props,
-              onScanBarcode: () => console.log('Scan barcode'),
-              onManualEntry: () => console.log('Manual entry'),
-              onCompleteItem: (item: any) => console.log('Complete item:', item.name),
-              onUndoItem: (item: any) => console.log('Undo item:', item.name),
-              onFinishShopping: () => console.log('Finish shopping'),
-            } as any)}
+            onBackPress={() => navigation.goBack()}
+            onNavigationTabPress={(tab: string) => {
+              if (tab === 'Dashboard') navigation.navigate('Dashboard');
+              else if (tab === 'Lists') navigation.navigate('Lists');
+              else if (tab === 'Pantry') navigation.navigate('Pantry');
+              else if (tab === 'Social') navigation.navigate('Social');
+              else if (tab === 'Profile') navigation.navigate('Profile');
+            }}
           />
         )}
       </Tab.Screen>

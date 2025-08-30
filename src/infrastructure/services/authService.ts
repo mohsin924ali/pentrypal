@@ -364,8 +364,8 @@ class AuthServiceImpl implements IAuthService {
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
-          createdAt: new Date(user.created_at),
-          updatedAt: new Date(user.updated_at),
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
           preferences: {
             theme: 'system',
             language: 'en',
@@ -455,8 +455,8 @@ class AuthServiceImpl implements IAuthService {
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
-          createdAt: new Date(user.created_at),
-          updatedAt: new Date(user.updated_at),
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
           preferences: {
             theme: 'system',
             language: 'en',
@@ -535,8 +535,8 @@ class AuthServiceImpl implements IAuthService {
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
-          createdAt: new Date(user.created_at),
-          updatedAt: new Date(user.updated_at),
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
           preferences: {
             theme: 'system',
             language: 'en',

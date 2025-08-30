@@ -335,6 +335,19 @@ export const logoutUser = createAsyncThunk(
       const { clearApiAuthentication } = await import('../../../infrastructure/api');
       clearApiAuthentication();
 
+      // Clear persisted state to prevent auto-login on restart
+      try {
+        const { persistor } = await import('../index');
+        await persistor.purge();
+        if (__DEV__) {
+          console.log('✅ Redux persist storage purged');
+        }
+      } catch (persistError) {
+        if (__DEV__) {
+          console.warn('⚠️ Failed to purge persist storage:', persistError);
+        }
+      }
+
       if (__DEV__) {
         console.log('✅ Logout process completed successfully');
       }
@@ -351,6 +364,19 @@ export const logoutUser = createAsyncThunk(
         clearApiAuthentication();
       } catch (apiClearError) {
         console.warn('Failed to clear API authentication:', apiClearError);
+      }
+
+      // Clear persisted state even on error to prevent auto-login
+      try {
+        const { persistor } = await import('../index');
+        await persistor.purge();
+        if (__DEV__) {
+          console.log('✅ Redux persist storage purged (error case)');
+        }
+      } catch (persistError) {
+        if (__DEV__) {
+          console.warn('⚠️ Failed to purge persist storage on error:', persistError);
+        }
       }
 
       return { success: true }; // Always return success to clear local state
@@ -459,6 +485,21 @@ const authSlice = createSlice({
         console.log('🚨 Force logout triggered - clearing all auth state');
       }
       Object.assign(state, initialState);
+
+      // Clear persisted state asynchronously (don't await in reducer)
+      setTimeout(async () => {
+        try {
+          const { persistor } = await import('../index');
+          await persistor.purge();
+          if (__DEV__) {
+            console.log('✅ Redux persist storage purged (force logout)');
+          }
+        } catch (error) {
+          if (__DEV__) {
+            console.warn('⚠️ Failed to purge persist storage on force logout:', error);
+          }
+        }
+      }, 0);
     },
 
     // Update user profile
