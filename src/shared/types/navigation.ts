@@ -5,6 +5,7 @@
 import type { NavigatorScreenParams, RouteProp } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { TwoFactorMethod } from './auth';
 
 // ========================================
 // Root Navigation Stack
@@ -65,11 +66,7 @@ export type AuthStackParamList = {
   };
 };
 
-export interface TwoFactorMethod {
-  type: 'sms' | 'email' | 'authenticator';
-  enabled: boolean;
-  masked?: string; // masked phone/email
-}
+// TwoFactorMethod moved to auth.ts to avoid duplicate export
 
 // ========================================
 // Main Tab Navigation

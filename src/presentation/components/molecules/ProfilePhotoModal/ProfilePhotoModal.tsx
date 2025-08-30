@@ -131,7 +131,7 @@ export const ProfilePhotoModal: React.FC<ProfilePhotoModalProps> = ({ visible, o
         Alert.alert('Success', 'Profile photo updated successfully!');
         onClose();
       } else {
-        throw new Error(result.payload?.message || 'Upload failed');
+        throw new Error((result.payload as any)?.message || 'Upload failed');
       }
     } catch (error: any) {
       console.error('❌ Error uploading photo:', error);
@@ -156,7 +156,7 @@ export const ProfilePhotoModal: React.FC<ProfilePhotoModalProps> = ({ visible, o
               Alert.alert('Success', 'Profile photo removed successfully!');
               onClose();
             } else {
-              throw new Error(result.payload?.message || 'Remove failed');
+              throw new Error((result.payload as any)?.message || 'Remove failed');
             }
           } catch (error: any) {
             console.error('Error removing photo:', error);
@@ -173,7 +173,7 @@ export const ProfilePhotoModal: React.FC<ProfilePhotoModalProps> = ({ visible, o
   const safeTheme = {
     colors: {
       background: {
-        primary: theme?.colors?.background?.primary || '#ffffff',
+        primary: (theme?.colors as any)?.background?.primary || '#ffffff',
       },
       text: {
         primary: theme?.colors?.text?.primary || '#000000',

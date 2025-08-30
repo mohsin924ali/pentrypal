@@ -59,7 +59,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
   // Avatar display function
   const renderAvatar = (userId: string, size: number = 40) => {
     const avatar = getUserAvatar?.(userId);
-    const avatarProps = getAvatarProps(avatar);
+    const avatarProps = getAvatarProps(avatar || 'default');
 
     const containerStyle = {
       width: size,
@@ -80,7 +80,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
     const textStyle = {
       fontSize: size * 0.4,
       fontWeight: '600' as const,
-      color: safeTheme?.colors?.background?.primary || '#ffffff',
+      color: (safeTheme?.colors as any)?.background?.primary || '#ffffff',
     };
 
     switch (avatarProps.type) {
@@ -88,7 +88,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
       case 'uri':
         return (
           <View style={containerStyle}>
-            <Image source={avatarProps.source} style={imageStyle} />
+            <Image source={avatarProps.source as any} style={imageStyle as any} />
           </View>
         );
 
@@ -173,7 +173,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
             {item.assignedTo && (
               <View style={styles.currentAssignmentSection}>
                 <Typography
-                  variant='body'
+                  variant='body1'
                   color={safeTheme?.colors?.text?.secondary || '#666666'}
                   style={styles.sectionLabel}>
                   Currently assigned to:
@@ -181,7 +181,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
                 <View style={styles.assignedUserCard}>
                   {renderAvatar(item.assignedTo, 32)}
                   <Typography
-                    variant='body'
+                    variant='body1'
                     color={safeTheme?.colors?.text?.primary || '#000000'}
                     style={styles.assignedUserName}>
                     {getUserName(item.assignedTo)}
@@ -201,7 +201,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
           {/* Collaborators List */}
           <ScrollView style={styles.modalContent}>
             <Typography
-              variant='body'
+              variant='body1'
               color={safeTheme?.colors?.text?.secondary || '#666666'}
               style={styles.sectionLabel}>
               {item.assignedTo ? 'Reassign to:' : 'Assign to:'}
@@ -217,7 +217,10 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
                     key={collaborator.userId}
                     style={[
                       styles.collaboratorItem,
-                      { backgroundColor: safeTheme?.colors?.surface?.secondary || '#f5f5f5' },
+                      {
+                        backgroundColor:
+                          (safeTheme?.colors?.surface as any)?.secondary || '#f5f5f5',
+                      },
                       isSelected && {
                         backgroundColor: safeTheme?.colors?.primary?.['100'] || '#dcfce7',
                         borderColor: safeTheme?.colors?.primary?.['500'] || '#22c55e',
@@ -229,7 +232,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
                       {renderAvatar(collaborator.userId)}
                       <View style={styles.collaboratorDetails}>
                         <Typography
-                          variant='body'
+                          variant='body1'
                           color={safeTheme?.colors?.text?.primary || '#000000'}
                           style={styles.collaboratorName}>
                           {collaborator.name} {isCurrentUser && '(You)'}
@@ -250,7 +253,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
                         ]}>
                         <Typography
                           variant='caption'
-                          color={safeTheme?.colors?.background?.primary || '#ffffff'}>
+                          color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}>
                           ✓
                         </Typography>
                       </View>
@@ -261,7 +264,7 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
             ) : (
               <View style={styles.emptyContainer}>
                 <Typography
-                  variant='body'
+                  variant='body1'
                   color={safeTheme?.colors?.text?.secondary || '#666666'}
                   style={styles.emptyText}>
                   No other collaborators available for assignment.

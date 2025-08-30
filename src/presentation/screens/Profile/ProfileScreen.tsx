@@ -226,12 +226,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
             title={item.value ? '✅' : '☐'}
             variant='ghost'
             size='sm'
-            onPress={item.onPress}
+            onPress={item.onPress || (() => {})}
           />
         )}
 
         {item.type === 'action' && (
-          <Button title='⚙️' variant='ghost' size='sm' onPress={item.onPress} />
+          <Button title='⚙️' variant='ghost' size='sm' onPress={item.onPress || (() => {})} />
         )}
       </View>
     </View>
@@ -275,7 +275,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
             style={[styles.avatar, { backgroundColor: theme.colors.primary[100] }]}
             onPress={() => setShowPhotoModal(true)}>
             {user?.avatar ? (
-              <Image source={{ uri: user.avatar }} style={styles.avatarImage} resizeMode='cover' />
+              <Image
+                source={{ uri: user.avatar }}
+                style={styles.avatarImage as any}
+                resizeMode='cover'
+              />
             ) : (
               <Typography variant='h3' color={theme.colors.primary[600]}>
                 {user?.name?.charAt(0) || 'U'}
@@ -300,7 +304,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
             </Typography>
 
             <Typography variant='caption' color={theme.colors.text.tertiary}>
-              Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString()}
+              Member since {new Date((user as any)?.createdAt || Date.now()).toLocaleDateString()}
             </Typography>
           </View>
 

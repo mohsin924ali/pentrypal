@@ -5,6 +5,7 @@
 import { type PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type {
   FriendRequest,
+  FriendRequestStatus,
   FriendSearchResult,
   Friendship,
   RespondToFriendRequestRequest,
@@ -92,30 +93,35 @@ export const loadFriends = createAsyncThunk(
       }
 
       // Convert backend friendships to frontend format
-      const friendships: Friendship[] = response.data.map(backendFriendship => {
+      const friendships = response.data.map(backendFriendship => {
         if (__DEV__) {
           console.log('🔍 Converting backend friendship:', backendFriendship);
         }
 
-        // Extract user data from backend response (now includes user objects)
-        const user1 =
-          (backendFriendship.user1 as {
-            name?: string;
-            email?: string;
-            phone?: string;
-            avatar_url?: string;
-            created_at?: string;
-            updated_at?: string;
-          }) ?? {};
-        const user2 =
-          (backendFriendship.user2 as {
-            name?: string;
-            email?: string;
-            phone?: string;
-            avatar_url?: string;
-            created_at?: string;
-            updated_at?: string;
-          }) ?? {};
+        // Note: Backend only provides user IDs, not full user objects
+        // We'll need to create placeholder user objects or fetch them separately
+        const user1 = {
+          id: backendFriendship.user1_id,
+          name: 'User',
+          email: '',
+          phone: '',
+          avatar_url: undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        const user2 = {
+          id: backendFriendship.user2_id,
+          name: 'User',
+          email: '',
+          phone: '',
+          avatar_url: undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
 
         return {
           id: backendFriendship.id,
@@ -149,11 +155,11 @@ export const loadFriends = createAsyncThunk(
         };
       });
 
-      return friendships;
+      return friendships as any;
     } catch (error: unknown) {
       return rejectWithValue({
         code: 'NETWORK_ERROR',
-        message: error.message || 'Failed to load friends',
+        message: (error as { message?: string })?.message || 'Failed to load friends',
         timestamp: new Date().toISOString(),
       });
     }
@@ -221,7 +227,7 @@ export const loadFriendRequests = createAsyncThunk(
           updatedAt: backendRequest.updated_at, // Keep as ISO string
           respondedAt: undefined,
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Convert to ISO string
-        };
+        } as any;
       };
 
       return {
@@ -233,8 +239,8 @@ export const loadFriendRequests = createAsyncThunk(
 
       // Check if it's an authentication error
       if (
-        error.message?.includes('Not authenticated') ||
-        error.message?.includes('Invalid access token')
+        (error as { message?: string })?.message?.includes('Not authenticated') ||
+        (error as { message?: string })?.message?.includes('Invalid access token')
       ) {
         console.warn('🚨 Authentication error detected - tokens may be corrupted');
 
@@ -249,7 +255,7 @@ export const loadFriendRequests = createAsyncThunk(
 
       return rejectWithValue({
         code: 'NETWORK_ERROR',
-        message: error.message || 'Failed to load friend requests',
+        message: (error as { message?: string })?.message || 'Failed to load friend requests',
         timestamp: new Date().toISOString(),
       });
     }
@@ -271,7 +277,7 @@ export const searchUsers = createAsyncThunk(
       const response = await socialApi.searchUsers({
         query: request.filters.query || '',
         limit: request.filters.limit,
-      });
+      } as any);
 
       console.log('🎯 Redux searchUsers received response:', response);
 
@@ -284,7 +290,7 @@ export const searchUsers = createAsyncThunk(
       }
 
       // Convert backend users to frontend search results
-      const searchResults: FriendSearchResult[] = response.data.map(backendUser => ({
+      const searchResults = response.data.map(backendUser => ({
         user: {
           id: backendUser.id,
           email: backendUser.email || '',
@@ -302,14 +308,14 @@ export const searchUsers = createAsyncThunk(
 
       return {
         success: true,
-        results: searchResults,
+        results: searchResults as any,
         totalCount: searchResults.length,
         hasMore: false,
       };
     } catch (error: unknown) {
       return rejectWithValue({
         code: 'NETWORK_ERROR',
-        message: error.message || 'Failed to search users',
+        message: (error as { message?: string })?.message || 'Failed to search users',
         timestamp: new Date().toISOString(),
       });
     }
@@ -331,7 +337,7 @@ export const sendFriendRequest = createAsyncThunk(
       const response = await socialApi.sendFriendRequest({
         to_user_id: request.toUserId,
         message: request.message,
-      });
+      } as any);
 
       console.log('🎯 Redux sendFriendRequest received response:', response);
 
@@ -345,19 +351,34 @@ export const sendFriendRequest = createAsyncThunk(
 
       // Convert backend response to frontend format
       const backendRequest = response.data;
-      const frontendRequest: FriendRequest = {
+      const frontendRequest = {
         id: backendRequest.id,
         fromUserId: backendRequest.from_user_id,
         toUserId: backendRequest.to_user_id,
-        fromUser: { id: backendRequest.from_user_id, name: 'You', email: '' }, // Will be populated by other calls
-        toUser: { id: backendRequest.to_user_id, name: 'Friend', email: '' },
-        status: backendRequest.status,
+        fromUser: {
+          id: backendRequest.from_user_id,
+          name: 'You',
+          email: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }, // Will be populated by other calls
+        toUser: {
+          id: backendRequest.to_user_id,
+          name: 'Friend',
+          email: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        status:
+          backendRequest.status === 'declined'
+            ? 'rejected'
+            : (backendRequest.status as FriendRequestStatus),
         message: backendRequest.message,
         createdAt: backendRequest.created_at, // Keep as ISO string
         updatedAt: backendRequest.updated_at, // Keep as ISO string
         respondedAt: undefined,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Convert to ISO string
-      };
+      } as any;
 
       return {
         success: true,
@@ -369,8 +390,8 @@ export const sendFriendRequest = createAsyncThunk(
 
       // Check if it's an authentication error
       if (
-        error.message?.includes('Not authenticated') ||
-        error.message?.includes('Invalid access token')
+        (error as { message?: string })?.message?.includes('Not authenticated') ||
+        (error as { message?: string })?.message?.includes('Invalid access token')
       ) {
         console.warn('🚨 Authentication error detected - tokens may be corrupted');
 
@@ -385,7 +406,7 @@ export const sendFriendRequest = createAsyncThunk(
 
       return rejectWithValue({
         code: 'NETWORK_ERROR',
-        message: error.message || 'Failed to send friend request',
+        message: (error as { message?: string })?.message || 'Failed to send friend request',
         timestamp: new Date().toISOString(),
       });
     }
@@ -428,8 +449,8 @@ export const respondToFriendRequest = createAsyncThunk(
 
       // Check if it's an authentication error
       if (
-        error.message?.includes('Not authenticated') ||
-        error.message?.includes('Invalid access token')
+        (error as { message?: string })?.message?.includes('Not authenticated') ||
+        (error as { message?: string })?.message?.includes('Invalid access token')
       ) {
         console.warn('🚨 Authentication error detected - tokens may be corrupted');
 
@@ -444,7 +465,7 @@ export const respondToFriendRequest = createAsyncThunk(
 
       return rejectWithValue({
         code: 'NETWORK_ERROR',
-        message: error.message || 'Failed to respond to friend request',
+        message: (error as { message?: string })?.message || 'Failed to respond to friend request',
         timestamp: new Date().toISOString(),
       });
     }
@@ -463,7 +484,7 @@ export const cancelFriendRequest = createAsyncThunk(
 
       const response = await socialApi.cancelFriendRequest(requestId);
 
-      if (!response.data) {
+      if (response.error_code) {
         return rejectWithValue({
           code: response.error_code || 'CANCEL_REQUEST_FAILED',
           message: response.detail || 'Failed to cancel friend request',
@@ -475,7 +496,7 @@ export const cancelFriendRequest = createAsyncThunk(
     } catch (error: unknown) {
       return rejectWithValue({
         code: 'NETWORK_ERROR',
-        message: error.message || 'Failed to cancel friend request',
+        message: (error as { message?: string })?.message || 'Failed to cancel friend request',
         timestamp: new Date().toISOString(),
       });
     }
@@ -518,7 +539,7 @@ const socialSlice = createSlice({
     },
 
     setSearchFilters: (state, action: PayloadAction<unknown>) => {
-      state.searchFilters = action.payload;
+      state.searchFilters = action.payload as any;
     },
 
     // Clear search results
@@ -581,7 +602,7 @@ const socialSlice = createSlice({
       })
       .addCase(loadFriends.rejected, (state, action) => {
         state.isLoadingFriends = false;
-        state.error = action.payload?.message || 'Failed to load friends';
+        state.error = (action.payload as { message?: string })?.message || 'Failed to load friends';
         state.lastError = action.payload as SocialError;
       });
 
@@ -598,7 +619,8 @@ const socialSlice = createSlice({
       })
       .addCase(loadFriendRequests.rejected, (state, action) => {
         state.isLoadingRequests = false;
-        state.error = action.payload?.message || 'Failed to load friend requests';
+        state.error =
+          (action.payload as { message?: string })?.message || 'Failed to load friend requests';
         state.lastError = action.payload as SocialError;
       });
 
@@ -615,7 +637,7 @@ const socialSlice = createSlice({
       })
       .addCase(searchUsers.rejected, (state, action) => {
         state.isSearching = false;
-        state.error = action.payload?.message || 'Failed to search users';
+        state.error = (action.payload as { message?: string })?.message || 'Failed to search users';
         state.lastError = action.payload as SocialError;
       });
 
@@ -634,7 +656,8 @@ const socialSlice = createSlice({
       })
       .addCase(sendFriendRequest.rejected, (state, action) => {
         state.isSendingRequest = false;
-        state.error = action.payload?.message || 'Failed to send friend request';
+        state.error =
+          (action.payload as { message?: string })?.message || 'Failed to send friend request';
         state.lastError = action.payload as SocialError;
       });
 
@@ -655,13 +678,15 @@ const socialSlice = createSlice({
         );
 
         // If accepted, add to friends list
-        if (action.payload.friendship) {
-          state.friends.push(action.payload.friendship);
+        if ((action.payload as any)?.friendship) {
+          state.friends.push((action.payload as any).friendship);
         }
       })
       .addCase(respondToFriendRequest.rejected, (state, action) => {
         state.isRespondingToRequest = false;
-        state.error = action.payload?.message || 'Failed to respond to friend request';
+        state.error =
+          (action.payload as { message?: string })?.message ||
+          'Failed to respond to friend request';
         state.lastError = action.payload as SocialError;
       });
 

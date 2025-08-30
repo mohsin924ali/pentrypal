@@ -1,15 +1,9 @@
 module.exports = {
   preset: 'jest-expo',
   roots: ['<rootDir>/src', '<rootDir>/__tests__'],
-  testMatch: [
-    '**/__tests__/**/*.(ts|tsx|js)',
-    '**/*.(test|spec).(ts|tsx|js)',
-  ],
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-  },
+  testMatch: ['**/__tests__/**/*.(ts|tsx|js)', '**/*.(test|spec).(ts|tsx|js)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/components/(.*)$': '<rootDir>/src/presentation/components/$1',
     '^@/screens/(.*)$': '<rootDir>/src/presentation/screens/$1',
@@ -29,10 +23,7 @@ module.exports = {
     '^@/i18n$': '<rootDir>/src/shared/i18n',
     '^@/test/(.*)$': '<rootDir>/test/$1',
   },
-  setupFilesAfterEnv: [
-    '@testing-library/jest-native/extend-expect',
-    '<rootDir>/test/setup.ts',
-  ],
+  setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect', '<rootDir>/test/setup.ts'],
   transformIgnorePatterns: [
     'node_modules/(?!(react-native|@react-native|@expo|expo|@expo/vector-icons|react-navigation|@react-navigation|@reduxjs/toolkit|react-redux|react-hook-form|zod)/)',
   ],

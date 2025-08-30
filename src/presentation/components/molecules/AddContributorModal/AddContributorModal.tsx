@@ -82,7 +82,7 @@ export const AddContributorModal: React.FC<AddContributorModalProps> = ({
         secondary: '#666666',
         tertiary: '#999999',
       },
-      background: theme?.colors?.background || { primary: '#ffffff' },
+      background: (theme?.colors as any)?.background || { primary: '#ffffff' },
       surface: theme?.colors?.surface || { background: '#ffffff', card: '#ffffff' },
       border: theme?.colors?.border || { primary: '#e5e5e5' },
       semantic: theme?.colors?.semantic || {
@@ -289,7 +289,7 @@ export const AddContributorModal: React.FC<AddContributorModalProps> = ({
               {friendUser.avatar ? (
                 <Image
                   source={{ uri: friendUser.avatar }}
-                  style={styles.friendAvatarImage}
+                  style={styles.friendAvatarImage as any}
                   resizeMode='cover'
                 />
               ) : (
@@ -438,13 +438,15 @@ export const AddContributorModal: React.FC<AddContributorModalProps> = ({
 
       {/* Modal Container */}
       <Animated.View
-        style={[
-          styles.modalContainer,
-          {
-            backgroundColor: safeTheme.colors.background.primary || '#ffffff',
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}>
+        style={
+          [
+            styles.modalContainer,
+            {
+              backgroundColor: safeTheme.colors.background.primary || '#ffffff',
+              transform: [{ translateY: slideAnim }],
+            },
+          ] as any
+        }>
         {/* Header */}
         <View
           style={[

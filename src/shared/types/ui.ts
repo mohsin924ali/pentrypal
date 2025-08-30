@@ -376,30 +376,8 @@ export interface InputProps extends BaseComponentProps {
 }
 
 // ========================================
-// Input Component Types
+// Input Component Types - Duplicate removed to fix interface conflicts
 // ========================================
-
-export interface InputProps extends BaseComponentProps {
-  readonly value: string;
-  readonly onChangeText: (text: string) => void;
-  readonly placeholder?: string;
-  readonly label?: string;
-  readonly helperText?: string;
-  readonly errorText?: string;
-  readonly disabled?: boolean;
-  readonly required?: boolean;
-  readonly multiline?: boolean;
-  readonly numberOfLines?: number;
-  readonly keyboardType?: KeyboardType;
-  readonly autoCapitalize?: AutoCapitalize;
-  readonly autoComplete?: AutoComplete;
-  readonly secureTextEntry?: boolean;
-  readonly leftIcon?: IconProps;
-  readonly rightIcon?: IconProps;
-  readonly clearable?: boolean;
-  readonly variant?: InputVariant;
-  readonly size?: InputSize;
-}
 
 export type KeyboardType = 'default' | 'numeric' | 'email-address' | 'phone-pad' | 'url';
 export type AutoCapitalize = 'none' | 'sentences' | 'words' | 'characters';

@@ -89,7 +89,7 @@ export const SuccessModal: FC<SuccessModalProps> = ({
         activeOpacity={1}
         onPress={handleBackdropPress}>
         {/* Modal Container */}
-        <View style={styles.modalContainer}>
+        <View style={styles.modalContainer as any}>
           <TouchableOpacity
             style={[
               styles.modalContent,
@@ -108,7 +108,7 @@ export const SuccessModal: FC<SuccessModalProps> = ({
                 style={[
                   styles.closeButton,
                   {
-                    backgroundColor: theme.colors.surface.secondary,
+                    backgroundColor: (theme.colors.surface as any).secondary,
                   },
                 ]}
                 onPress={handleClosePress}
@@ -123,7 +123,7 @@ export const SuccessModal: FC<SuccessModalProps> = ({
             )}
 
             {/* Success Animation */}
-            <View style={styles.animationContainer}>
+            <View style={styles.animationContainer as any}>
               <LottieView
                 source={require('../../../../assets/animations/Success.json')}
                 autoPlay
@@ -161,25 +161,29 @@ export const SuccessModal: FC<SuccessModalProps> = ({
                 {/* Secondary Button */}
                 {secondaryButtonText && onSecondaryPress && (
                   <Button
-                    title={secondaryButtonText}
-                    variant='outline'
-                    size='md'
-                    leftIcon={secondaryButtonIcon}
-                    onPress={onSecondaryPress}
-                    style={styles.button}
-                    testID={`${testID}-secondary-button`}
+                    {...({
+                      title: secondaryButtonText,
+                      variant: 'outline',
+                      size: 'md',
+                      leftIcon: secondaryButtonIcon,
+                      onPress: onSecondaryPress,
+                      style: styles.button,
+                      testID: `${testID}-secondary-button`,
+                    } as any)}
                   />
                 )}
 
                 {/* Primary Button */}
                 <Button
-                  title={primaryButtonText}
-                  variant='primary'
-                  size='md'
-                  leftIcon={primaryButtonIcon}
-                  onPress={onPrimaryPress}
-                  style={styles.button}
-                  testID={`${testID}-primary-button`}
+                  {...({
+                    title: primaryButtonText,
+                    variant: 'primary',
+                    size: 'md',
+                    leftIcon: primaryButtonIcon,
+                    onPress: onPrimaryPress,
+                    style: styles.button,
+                    testID: `${testID}-primary-button`,
+                  } as any)}
                 />
               </View>
             </View>

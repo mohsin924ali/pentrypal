@@ -19,12 +19,12 @@ import { ProfileScreen } from '../screens/Profile';
 import { ShopScreen } from '../screens/Shop';
 
 // Navigation Icons
-import HomeIcon from '../../assets/images/Home.png';
-import ListIcon from '../../assets/images/List.png';
-import PantryIcon from '../../assets/images/Pantry.png';
-import ShopIcon from '../../assets/images/Shop.png';
-import SocialIcon from '../../assets/images/Social.png';
-import ProfileIcon from '../../assets/images/Profile.png';
+const HomeIcon = require('../../assets/images/Home.png');
+const ListIcon = require('../../assets/images/List.png');
+const PantryIcon = require('../../assets/images/Pantry.png');
+const ShopIcon = require('../../assets/images/Shop.png');
+const SocialIcon = require('../../assets/images/Social.png');
+const ProfileIcon = require('../../assets/images/Profile.png');
 
 // Types
 export type MainTabParamList = {
@@ -103,7 +103,7 @@ export const MainNavigator: FC = () => {
         }}
         resizeMode='contain'
       />
-      {badgeCount > 0 && (
+      {badgeCount && badgeCount > 0 && (
         <View
           style={{
             position: 'absolute',
@@ -124,7 +124,7 @@ export const MainNavigator: FC = () => {
               lineHeight: 16,
               color: '#FFFFFF',
             }}>
-            {badgeCount.toString()}
+            {badgeCount?.toString() || '0'}
           </Text>
         </View>
       )}
@@ -202,12 +202,14 @@ export const MainNavigator: FC = () => {
         }}>
         {props => (
           <ShopScreen
-            {...props}
-            onScanBarcode={() => console.log('Scan barcode')}
-            onManualEntry={() => console.log('Manual entry')}
-            onCompleteItem={item => console.log('Complete item:', item.name)}
-            onUndoItem={item => console.log('Undo item:', item.name)}
-            onFinishShopping={() => console.log('Finish shopping')}
+            {...({
+              ...props,
+              onScanBarcode: () => console.log('Scan barcode'),
+              onManualEntry: () => console.log('Manual entry'),
+              onCompleteItem: (item: any) => console.log('Complete item:', item.name),
+              onUndoItem: (item: any) => console.log('Undo item:', item.name),
+              onFinishShopping: () => console.log('Finish shopping'),
+            } as any)}
           />
         )}
       </Tab.Screen>

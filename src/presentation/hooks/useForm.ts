@@ -136,7 +136,7 @@ export function useForm<T extends Record<string, any>>({
 
       try {
         const fieldValue = fields[field].value;
-        const fieldSchema = validationSchema.shape[field as string];
+        const fieldSchema = (validationSchema as any).shape[field as string];
 
         if (fieldSchema) {
           await fieldSchema.parseAsync(fieldValue);
@@ -196,7 +196,7 @@ export function useForm<T extends Record<string, any>>({
           newFields[fieldKey] = {
             ...newFields[fieldKey],
             error: undefined,
-          };
+          } as any;
         });
         return newFields;
       });
@@ -214,7 +214,7 @@ export function useForm<T extends Record<string, any>>({
         const path = err.path.join('.');
         errors[path] = err.message;
         console.log(`  - Field "${path}": ${err.message}`);
-        console.log(`    Code: ${err.code}, Value:`, err.input);
+        console.log(`    Code: ${err.code}, Value:`, (err as any).input);
       });
 
       // Set field errors
@@ -225,7 +225,7 @@ export function useForm<T extends Record<string, any>>({
           newFields[fieldKey] = {
             ...newFields[fieldKey],
             error: errors[key],
-          };
+          } as any;
         });
         return newFields;
       });
@@ -370,12 +370,13 @@ export function useForm<T extends Record<string, any>>({
 
   // Get field props for components
   const getFieldProps = useCallback(
-    <K extends keyof T>(field: K): FormFieldProps<T[K]> => ({
-      value: fields[field].value,
-      onChangeText: (value: T[K]) => setValue(field, value),
-      onBlur: () => setFieldTouched(field, true),
-      error: fields[field].touched ? fields[field].error : undefined,
-    }),
+    <K extends keyof T>(field: K): FormFieldProps<T[K]> =>
+      ({
+        value: fields[field].value,
+        onChangeText: (value: T[K]) => setValue(field, value),
+        onBlur: () => setFieldTouched(field, true),
+        error: fields[field].touched ? fields[field].error : undefined,
+      }) as any,
     [fields, setValue, setFieldTouched]
   );
 

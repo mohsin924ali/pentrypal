@@ -3,7 +3,7 @@
 // ========================================
 
 import type { IUserRepository } from '../../repositories/IUserRepository';
-import type { AuthTokens, LoginRequest, LoginResponse } from '@/types/auth';
+import type { AuthTokens, LoginRequest, LoginResponse } from '../../../shared/types/auth';
 import type { User } from '../../entities/User';
 
 export interface IAuthService {
@@ -101,7 +101,7 @@ export class LoginUseCase {
       // Validate credentials
       const isValidPassword = await this.authService.verifyPassword(
         request.password,
-        user.password // This would be stored in a separate auth entity
+        (user as any).password // This would be stored in a separate auth entity
       );
 
       if (!isValidPassword) {
@@ -127,7 +127,7 @@ export class LoginUseCase {
       await this.logSuccessfulLogin(updatedUser, request);
 
       return {
-        user: this.sanitizeUserForResponse(updatedUser),
+        user: this.sanitizeUserForResponse(updatedUser) as any,
         tokens,
         requiresTwoFactor: false,
       };
@@ -193,13 +193,13 @@ export class LoginUseCase {
    */
   private async handleTwoFactorRequired(user: User, request: LoginRequest): Promise<LoginResponse> {
     // Generate session token for two-factor flow
-    const sessionTokens = await this.authService.generateSessionTokens(user);
+    const sessionTokens = await this.authService.generateTokens(user);
 
     // Get available two-factor methods
     const twoFactorMethods = await this.getTwoFactorMethods(user);
 
     return {
-      user: this.sanitizeUserForResponse(user),
+      user: this.sanitizeUserForResponse(user) as any,
       tokens: sessionTokens,
       requiresTwoFactor: true,
       twoFactorMethods,
@@ -249,7 +249,7 @@ export class LoginUseCase {
     reason: string,
     userId?: string
   ): Promise<void> {
-    const securityEvent: SecurityEvent = {
+    const securityEvent = {
       type: 'login_failed',
       userId: userId ?? 'unknown',
       deviceInfo: request.deviceInfo,
@@ -258,7 +258,7 @@ export class LoginUseCase {
         email: request.email,
         timestamp: new Date().toISOString(),
       },
-    };
+    } as SecurityEvent;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -287,7 +287,7 @@ export class LoginUseCase {
    * Logs successful login
    */
   private async logSuccessfulLogin(user: User, request: LoginRequest): Promise<void> {
-    const securityEvent: SecurityEvent = {
+    const securityEvent = {
       type: 'login_success',
       userId: user.id,
       deviceInfo: request.deviceInfo,
@@ -295,7 +295,7 @@ export class LoginUseCase {
         timestamp: new Date().toISOString(),
         rememberMe: request.rememberMe,
       },
-    };
+    } as SecurityEvent;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -304,7 +304,7 @@ export class LoginUseCase {
    * Logs login attempt
    */
   private async logLoginAttempt(request: LoginRequest): Promise<void> {
-    const securityEvent: SecurityEvent = {
+    const securityEvent = {
       type: 'login_attempt',
       userId: 'unknown',
       deviceInfo: request.deviceInfo,
@@ -312,7 +312,7 @@ export class LoginUseCase {
         email: request.email,
         timestamp: new Date().toISOString(),
       },
-    };
+    } as SecurityEvent;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -321,7 +321,7 @@ export class LoginUseCase {
    * Logs login errors
    */
   private async logLoginError(request: LoginRequest, error: unknown): Promise<void> {
-    const securityEvent: SecurityEvent = {
+    const securityEvent = {
       type: 'login_failed',
       userId: 'unknown',
       deviceInfo: request.deviceInfo,
@@ -330,7 +330,7 @@ export class LoginUseCase {
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
-    };
+    } as SecurityEvent;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -356,12 +356,7 @@ export interface TwoFactorMethod {
   readonly lastUsed?: Date;
 }
 
-// Extend auth service interface
-declare module './IAuthService' {
-  interface IAuthService {
-    generateSessionTokens(user: User): Promise<AuthTokens>;
-  }
-}
+// The auth service interface is already defined above with the correct methods
 
 // Extend user preferences
 declare module '@/types' {

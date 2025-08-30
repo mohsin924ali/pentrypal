@@ -30,7 +30,7 @@ import { selectUser } from '../../../application/store/slices/authSlice';
 import type { AppDispatch } from '../../../application/store';
 
 // Icons
-import AddFriendIcon from '../../../assets/images/addFriend.png';
+const AddFriendIcon = require('../../../assets/images/addFriend.png');
 
 // Types
 import type { FriendRequest } from '../../../shared/types/social';
@@ -199,7 +199,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
           {item.fromUser?.avatar ? (
             <Image
               source={{ uri: item.fromUser.avatar }}
-              style={styles.avatarImage}
+              style={styles.avatarImage as any}
               resizeMode='cover'
             />
           ) : (
@@ -271,7 +271,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
             {friendUser?.avatar ? (
               <Image
                 source={{ uri: friendUser.avatar }}
-                style={styles.avatarImage}
+                style={styles.avatarImage as any}
                 resizeMode='cover'
               />
             ) : (
@@ -393,21 +393,23 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
           variant='primary'
           size='sm'
           onPress={handleAddFriendPress}
-          leftIcon={{
-            component: ({ size, color }) => (
-              <Image
-                source={AddFriendIcon}
-                style={{
-                  width: size,
-                  height: size,
-                  tintColor: '#FFFFFF', // White color for visibility on primary button
-                }}
-                resizeMode='contain'
-              />
-            ),
-            name: 'add-friend',
-            size: 16,
-          }}
+          leftIcon={
+            {
+              component: ({ size, color }: { size: number; color: string }) => (
+                <Image
+                  source={AddFriendIcon}
+                  style={{
+                    width: size,
+                    height: size,
+                    tintColor: '#FFFFFF', // White color for visibility on primary button
+                  }}
+                  resizeMode='contain'
+                />
+              ),
+              name: 'add-friend',
+              size: 16,
+            } as any
+          }
         />
       </View>
 

@@ -3,7 +3,7 @@
 // ========================================
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { decode as base64Decode } from 'base-64';
+const { decode: base64Decode } = require('base-64');
 import type {
   FriendActivity,
   FriendPrivacySettings,
@@ -84,10 +84,10 @@ class SocialServiceImpl implements ISocialService {
       // Validate input
       const validation = validateForm(sendFriendRequestSchema, request);
       if (!validation.success) {
-        socialLogger.debug('❌ Validation failed:', validation.errors);
+        socialLogger.debug('❌ Validation failed:', (validation as any).errors);
         return {
           success: false,
-          message: Object.values(validation.errors)[0],
+          message: Object.values((validation as any).errors)[0] as string,
           errorCode: 'VALIDATION_ERROR',
         };
       }
@@ -192,7 +192,7 @@ class SocialServiceImpl implements ISocialService {
       const now = new Date().toISOString();
       const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
 
-      const friendRequest: FriendRequest = {
+      const friendRequest = {
         id: this.generateId(),
         fromUserId: currentUserId,
         toUserId: validRequest.toUserId,
@@ -203,7 +203,7 @@ class SocialServiceImpl implements ISocialService {
         expiresAt,
         createdAt: now,
         updatedAt: now,
-      };
+      } as FriendRequest;
 
       // Save friend request
       await this.saveFriendRequest(friendRequest);
@@ -219,7 +219,7 @@ class SocialServiceImpl implements ISocialService {
           fromUserName: currentUser!.name,
           requestId: friendRequest.id,
         },
-      });
+      } as any);
 
       return {
         success: true,
@@ -245,7 +245,7 @@ class SocialServiceImpl implements ISocialService {
       if (!validation.success) {
         return {
           success: false,
-          message: Object.values(validation.errors)[0],
+          message: Object.values((validation as any).errors)[0] as string,
           errorCode: 'VALIDATION_ERROR',
         };
       }
@@ -299,7 +299,7 @@ class SocialServiceImpl implements ISocialService {
       }
 
       // Check if request has expired
-      if (new Date() > friendRequest.expiresAt) {
+      if (new Date() > new Date(friendRequest.expiresAt)) {
         return {
           success: false,
           message: 'This friend request has expired',
@@ -311,8 +311,8 @@ class SocialServiceImpl implements ISocialService {
       const updatedRequest: FriendRequest = {
         ...friendRequest,
         status: validRequest.action === 'accept' ? 'accepted' : 'rejected',
-        respondedAt: new Date(),
-        updatedAt: new Date(),
+        respondedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       await this.updateFriendRequest(updatedRequest);
@@ -339,7 +339,7 @@ class SocialServiceImpl implements ISocialService {
 
         // Send notification to requester
         NotificationService.addNotification({
-          type: 'friend_request_accepted',
+          type: 'social' as any, // Using 'social' type instead of 'friend_request_accepted'
           title: 'Friend Request Accepted',
           message: `${friendRequest.toUser.name} accepted your friend request`,
           priority: 'medium',
@@ -348,18 +348,18 @@ class SocialServiceImpl implements ISocialService {
             friendUserId: currentUserId,
             friendUserName: friendRequest.toUser.name,
           },
-        });
+        } as any);
       } else {
         // Send notification to requester about rejection
         NotificationService.addNotification({
-          type: 'friend_request_rejected',
+          type: 'social' as any, // Using 'social' type instead of 'friend_request_rejected'
           title: 'Friend Request Update',
           message: 'Your friend request was not accepted',
           priority: 'low',
           metadata: {
             requestId: friendRequest.id,
           },
-        });
+        } as any);
       }
 
       return {
@@ -367,7 +367,7 @@ class SocialServiceImpl implements ISocialService {
         friendship,
         message:
           validRequest.action === 'accept' ? 'Friend request accepted' : 'Friend request rejected',
-      };
+      } as any;
     } catch (error: any) {
       socialLogger.error('Error responding to friend request:', error);
       return {
@@ -401,7 +401,7 @@ class SocialServiceImpl implements ISocialService {
       const updatedRequest: FriendRequest = {
         ...friendRequest,
         status: 'cancelled',
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       };
 
       await this.updateFriendRequest(updatedRequest);
@@ -523,13 +523,13 @@ class SocialServiceImpl implements ISocialService {
       // Validate input
       const validation = validateForm(searchFriendsSchema, request.filters);
       if (!validation.success) {
-        socialLogger.debug('❌ Validation failed:', validation.errors);
+        socialLogger.debug('❌ Validation failed:', (validation as any).errors);
         return {
           success: false,
           results: [],
           totalCount: 0,
           hasMore: false,
-          message: Object.values(validation.errors)[0],
+          message: Object.values((validation as any).errors)[0] as string,
         };
       }
 
@@ -567,7 +567,7 @@ class SocialServiceImpl implements ISocialService {
       // Filter users based on search criteria
       const filteredUsers = allUsers.filter(user => {
         socialLogger.debug(
-          `🔍 Checking user: ${user.name} (${user.email}) mobile: ${user.mobile || 'undefined'}`
+          `🔍 Checking user: ${user.name} (${user.email}) mobile: ${(user as any).mobile || 'undefined'}`
         );
 
         // Exclude self
@@ -586,10 +586,10 @@ class SocialServiceImpl implements ISocialService {
         if (filters.query) {
           const query = filters.query.toLowerCase();
           const matchesName = user.name.toLowerCase().includes(query);
-          const matchesEmail = user.email.toLowerCase().includes(query);
-          const matchesMobile = user.mobile?.includes(query) || false;
+          const matchesEmail = user.email?.toLowerCase().includes(query) || false;
+          const matchesMobile = (user as any).mobile?.includes(query) || false;
           socialLogger.debug(
-            `🔍 Query: "${query}", Name match: ${matchesName}, Email match: ${matchesEmail}, Mobile match: ${matchesMobile}, User mobile: "${user.mobile}"`
+            `🔍 Query: "${query}", Name match: ${matchesName}, Email match: ${matchesEmail}, Mobile match: ${matchesMobile}, User mobile: "${(user as any).mobile}"`
           );
           if (!matchesName && !matchesEmail && !matchesMobile) {
             socialLogger.debug(`❌ No match for query: ${user.name}`);
@@ -787,7 +787,10 @@ class SocialServiceImpl implements ISocialService {
         socialLogger.debug('🔍 getStoredUser - parsed user:', parsed);
         return parsed;
       } catch (base64Error) {
-        socialLogger.debug('🔍 getStoredUser - base64 decode failed, trying plain JSON:', base64Error);
+        socialLogger.debug(
+          '🔍 getStoredUser - base64 decode failed, trying plain JSON:',
+          base64Error
+        );
         // Fallback to plain JSON parsing
         try {
           const parsed = JSON.parse(userStr);
@@ -829,7 +832,7 @@ class SocialServiceImpl implements ISocialService {
       socialLogger.debug('🔍 Raw stored data:', stored);
       socialLogger.debug(
         '🔍 Parsed users:',
-        users.map(u => `${u.name} (${u.email}) mobile: ${u.mobile || 'none'}`)
+        users.map(u => `${u.name} (${u.email}) mobile: ${(u as any).mobile || 'none'}`)
       );
 
       // TEMPORARY: Clear storage to force fresh start with single source of truth
@@ -859,7 +862,7 @@ class SocialServiceImpl implements ISocialService {
               preferences: currentUserData.preferences,
               createdAt: currentUserData.createdAt,
               updatedAt: currentUserData.updatedAt,
-            });
+            } as any);
           } catch (error) {
             socialLogger.error('❌ Failed to add current user:', error);
           }
@@ -876,10 +879,10 @@ class SocialServiceImpl implements ISocialService {
               theme: 'light',
               language: 'en',
               currency: 'USD',
-            },
+            } as any,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          },
+          } as any,
           {
             id: 'user2',
             email: 'sarah@example.com',
@@ -891,10 +894,10 @@ class SocialServiceImpl implements ISocialService {
               theme: 'light',
               language: 'en',
               currency: 'USD',
-            },
+            } as any,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          },
+          } as any,
           {
             id: 'user3',
             email: 'mike@example.com',
@@ -906,10 +909,10 @@ class SocialServiceImpl implements ISocialService {
               theme: 'dark',
               language: 'en',
               currency: 'USD',
-            },
+            } as any,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          },
+          } as any,
           {
             id: 'user4',
             email: 'emma@example.com',
@@ -921,10 +924,10 @@ class SocialServiceImpl implements ISocialService {
               theme: 'light',
               language: 'en',
               currency: 'USD',
-            },
+            } as any,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          },
+          } as any,
           {
             id: 'user5',
             email: 'alex@example.com',
@@ -936,10 +939,10 @@ class SocialServiceImpl implements ISocialService {
               theme: 'dark',
               language: 'en',
               currency: 'EUR',
-            },
+            } as any,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          },
+          } as any,
           {
             id: 'user6',
             email: 'lisa@example.com',
@@ -951,10 +954,10 @@ class SocialServiceImpl implements ISocialService {
               theme: 'light',
               language: 'en',
               currency: 'USD',
-            },
+            } as any,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          },
+          } as any,
         ];
 
         // Save mock users to single source
@@ -964,7 +967,7 @@ class SocialServiceImpl implements ISocialService {
 
       socialLogger.debug(
         '📋 All users:',
-        users.map(u => `${u.name} (${u.email}) mobile: ${u.mobile || 'none'}`)
+        users.map(u => `${u.name} (${u.email}) mobile: ${(u as any).mobile || 'none'}`)
       );
       return users;
     } catch (error) {

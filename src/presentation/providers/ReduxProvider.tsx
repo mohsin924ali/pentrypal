@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
 // Store
-import { persistor, store } from '@/store';
+import { persistor, store } from '../../application/store';
 
 // Components
 import { LoadingScreen } from '@/components/atoms/LoadingScreen/LoadingScreen';

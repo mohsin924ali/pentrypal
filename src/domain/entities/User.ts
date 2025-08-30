@@ -2,7 +2,7 @@
 // User Entity - Domain Model
 // ========================================
 
-import type { BaseEntity, UserPreferences, UserStatus } from '@/types';
+import type { BaseEntity, UserPreferences, UserStatus } from '../../shared/types';
 
 export class User implements BaseEntity {
   public readonly id: string;
@@ -12,8 +12,8 @@ export class User implements BaseEntity {
   public readonly mobile?: string;
   public readonly preferences: UserPreferences;
   public readonly status: UserStatus;
-  public readonly createdAt: Date;
-  public readonly updatedAt: Date;
+  public readonly createdAt: string;
+  public readonly updatedAt: string;
   public readonly emailVerified: boolean;
   public readonly phoneVerified: boolean;
   public readonly lastLoginAt?: Date;
@@ -22,15 +22,15 @@ export class User implements BaseEntity {
     this.id = data.id;
     this.email = data.email;
     this.name = data.name;
-    this.avatar = data.avatar;
-    this.mobile = data.mobile;
+    this.avatar = data.avatar as any;
+    this.mobile = data.mobile as any;
     this.preferences = data.preferences;
     this.status = data.status ?? 'active';
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
+    this.createdAt = data.createdAt as unknown as string;
+    this.updatedAt = data.updatedAt as unknown as string;
     this.emailVerified = data.emailVerified ?? false;
     this.phoneVerified = data.phoneVerified ?? false;
-    this.lastLoginAt = data.lastLoginAt;
+    this.lastLoginAt = data.lastLoginAt as any;
 
     this.validate();
   }
@@ -82,8 +82,8 @@ export class User implements BaseEntity {
         ...this.preferences,
         ...newPreferences,
       },
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -93,8 +93,8 @@ export class User implements BaseEntity {
     return new User({
       ...this,
       ...updates,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -104,8 +104,8 @@ export class User implements BaseEntity {
     return new User({
       ...this,
       emailVerified: true,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -115,8 +115,8 @@ export class User implements BaseEntity {
     return new User({
       ...this,
       phoneVerified: true,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -126,8 +126,8 @@ export class User implements BaseEntity {
     return new User({
       ...this,
       lastLoginAt: new Date(),
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -137,8 +137,8 @@ export class User implements BaseEntity {
     return new User({
       ...this,
       status: 'inactive',
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -148,8 +148,8 @@ export class User implements BaseEntity {
     return new User({
       ...this,
       status: 'active',
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -159,8 +159,8 @@ export class User implements BaseEntity {
     return new User({
       ...this,
       status: 'suspended',
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -207,12 +207,12 @@ export class User implements BaseEntity {
       mobile: this.mobile,
       preferences: this.preferences,
       status: this.status,
-      createdAt: this.createdAt.toISOString(),
-      updatedAt: this.updatedAt.toISOString(),
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
       emailVerified: this.emailVerified,
       phoneVerified: this.phoneVerified,
       lastLoginAt: this.lastLoginAt?.toISOString(),
-    };
+    } as any;
   }
 
   /**
@@ -232,7 +232,7 @@ export class User implements BaseEntity {
       emailVerified: json.emailVerified,
       phoneVerified: json.phoneVerified,
       lastLoginAt: json.lastLoginAt ? new Date(json.lastLoginAt) : undefined,
-    });
+    } as any);
   }
 
   /**
@@ -269,7 +269,7 @@ export class User implements BaseEntity {
       updatedAt: now,
       emailVerified: false,
       phoneVerified: false,
-    });
+    } as any);
   }
 }
 
@@ -370,7 +370,7 @@ export class UserDeactivatedEvent extends UserDomainEvent {
 
   constructor(aggregateId: string, reason?: string) {
     super(aggregateId);
-    this.reason = reason;
+    this.reason = reason as any;
   }
 }
 

@@ -86,7 +86,7 @@ export class RegisterUseCase {
       }
 
       // Check for suspicious activity
-      const securityCheck = await this.securityService.checkRegistrationSecurity(request);
+      const securityCheck = await (this.securityService as any).checkRegistrationSecurity(request);
       if (securityCheck.isBlocked) {
         await this.logSecurityBlock(request, securityCheck);
         throw new RegisterError(
@@ -212,7 +212,7 @@ export class RegisterUseCase {
         email: request.email,
         timestamp: new Date().toISOString(),
       },
-    };
+    } as any;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -231,7 +231,7 @@ export class RegisterUseCase {
         reason,
         timestamp: new Date().toISOString(),
       },
-    };
+    } as any;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -249,7 +249,7 @@ export class RegisterUseCase {
         email: user.email,
         timestamp: new Date().toISOString(),
       },
-    };
+    } as any;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -268,7 +268,7 @@ export class RegisterUseCase {
         reason: securityCheck.reason,
         timestamp: new Date().toISOString(),
       },
-    };
+    } as any;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -287,7 +287,7 @@ export class RegisterUseCase {
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
-    };
+    } as any;
 
     await this.securityService.logSecurityEvent(securityEvent);
   }
@@ -312,7 +312,7 @@ export class RegisterError extends Error {
     this.name = 'RegisterError';
     this.code = code;
     this.statusCode = statusCode;
-    this.validationErrors = validationErrors;
+    this.validationErrors = validationErrors as any;
   }
 }
 

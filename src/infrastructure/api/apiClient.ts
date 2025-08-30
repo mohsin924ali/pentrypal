@@ -201,7 +201,7 @@ export class ApiClient {
         headers,
         body: config.data ? JSON.stringify(config.data) : undefined,
         signal: controller.signal,
-      });
+      } as any);
 
       clearTimeout(timeoutId);
 
@@ -213,7 +213,7 @@ export class ApiClient {
           detail: responseData.detail || `HTTP ${response.status}`,
           error_code: responseData.error_code,
           timestamp: new Date().toISOString(),
-        };
+        } as any;
       }
 
       return {
@@ -333,7 +333,7 @@ export class ApiClient {
         url,
         params,
         requiresAuth: true,
-      },
+      } as any,
       options
     );
   }
@@ -428,7 +428,7 @@ export class ApiClient {
         url,
         params,
         requiresAuth: false,
-      },
+      } as any,
       options
     );
   }
@@ -487,7 +487,7 @@ export class ApiClient {
         detail: responseData.detail || `HTTP ${response.status}`,
         error_code: responseData.error_code,
         timestamp: new Date().toISOString(),
-      };
+      } as any;
     }
 
     return {

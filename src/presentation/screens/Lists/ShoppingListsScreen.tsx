@@ -47,7 +47,7 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
   onListPress,
   onCreateList,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const dispatch = useDispatch<AppDispatch>();
 
   // Redux selectors
@@ -160,8 +160,8 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
           padding: theme.spacing.md,
           marginHorizontal: theme.spacing.md,
           marginVertical: theme.spacing.xs,
-          borderRadius: theme.borderRadius.md,
-          shadowColor: theme.colors.shadow,
+          borderRadius: (theme as any).borderRadius.md,
+          shadowColor: (theme.colors as any).shadow,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
@@ -176,7 +176,7 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
           <View style={{ flex: 1 }}>
             <Typography
               variant='h3'
-              style={{ color: theme.colors.text.primary.primary, marginBottom: theme.spacing.xs }}>
+              style={{ color: theme.colors.text.primary, marginBottom: theme.spacing.xs }}>
               {item.name}
             </Typography>
 
@@ -219,7 +219,7 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
             </View>
 
             {item.budget && (
-              <Typography variant='caption' style={{ color: theme.colors.text.primary.secondary }}>
+              <Typography variant='caption' style={{ color: theme.colors.text.secondary }}>
                 Budget: {item.budget.currency} {item.budget.total} • Spent: {item.budget.currency}{' '}
                 {item.totalSpent}
               </Typography>
@@ -235,7 +235,7 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
                     : theme.colors.text.secondary,
                 paddingHorizontal: theme.spacing.sm,
                 paddingVertical: theme.spacing.xs,
-                borderRadius: theme.borderRadius.sm,
+                borderRadius: (theme as any).borderRadius.sm,
                 marginBottom: theme.spacing.xs,
               }}>
               <Typography
@@ -339,7 +339,7 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
             <Typography variant='h1' style={{ color: theme.colors.text.primary }}>
               Shopping Lists
             </Typography>
-            <Typography variant='body2' style={{ color: theme.colors.text.primary.secondary }}>
+            <Typography variant='body2' style={{ color: theme.colors.text.secondary }}>
               {stats.totalLists} lists • {stats.activeLists} active
             </Typography>
           </View>

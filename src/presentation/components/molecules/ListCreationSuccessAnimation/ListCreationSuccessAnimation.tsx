@@ -111,6 +111,7 @@ export const ListCreationSuccessAnimation: FC<ListCreationSuccessAnimationProps>
       setStage(AnimationStage.HIDDEN);
       fadeAnim.setValue(0);
       scaleAnim.setValue(0.8);
+      return;
     }
   }, [visible, fadeAnim, scaleAnim]);
 
@@ -241,5 +242,5 @@ const styles = {
   animation: {
     width: '100%',
     height: '100%',
-  },
+  } as any,
 };

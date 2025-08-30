@@ -74,7 +74,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
 }) => {
   const { theme } = useTheme();
   const dispatch = useDispatch<AppDispatch>();
-  const auth = useSelector((state: RootState) => selectAuth(state));
+  const auth = useSelector(selectAuth);
 
   // Local state
   const [showPassword, setShowPassword] = useState(false);
@@ -105,7 +105,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
         phoneNumber: '',
         password: '',
         confirmPassword: '',
-        gender: '' as 'male' | 'female' | 'other' | 'prefer-not-to-say' | '',
+        gender: 'other' as 'male' | 'female' | 'other' | 'prefer-not-to-say',
         acceptTerms: false,
         marketingConsent: false,
       },
@@ -157,7 +157,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
     const password = fields.password.value;
     if (password) {
       const strength = getPasswordStrength(password);
-      setPasswordStrength(strength);
+      setPasswordStrength(strength as any);
       setShowPasswordStrength(true);
     } else {
       setShowPasswordStrength(false);
@@ -228,13 +228,17 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
         return;
       }
 
-      const deviceInfo = getDeviceInfo();
+      const deviceInfo = {
+        ...getDeviceInfo(),
+        deviceName: 'Unknown Device',
+        biometricCapable: false,
+      } as any;
 
       const result = await dispatch(
         registerUser({
           ...values,
           deviceInfo,
-        })
+        } as any)
       ).unwrap();
 
       if (result.success) {
@@ -271,7 +275,8 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
       } else {
         Alert.alert(
           'Registration Failed',
-          error.message || 'An unexpected error occurred. Please try again.',
+          (error as { message?: string })?.message ||
+            'An unexpected error occurred. Please try again.',
           [{ text: 'OK' }]
         );
       }
@@ -537,18 +542,19 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                 Phone Number *
               </Typography>
               <PhoneNumberInput
-                countryCode={fields.countryCode.value}
-                phoneNumber={fields.phoneNumber.value}
-                onChangeCountry={handleCountryChange}
-                onChangePhoneNumber={handlePhoneNumberChange}
-                placeholder='Enter your phone number'
-                error={
-                  fields.phoneNumber.error && fields.phoneNumber.touched
-                    ? fields.phoneNumber.error
-                    : undefined
-                }
-                testID='register-phone-input'
-                accessibilityLabel='Phone number input'
+                {...({
+                  countryCode: fields.countryCode.value,
+                  phoneNumber: fields.phoneNumber.value,
+                  onChangeCountry: handleCountryChange,
+                  onChangePhoneNumber: handlePhoneNumberChange,
+                  placeholder: 'Enter your phone number',
+                  error:
+                    fields.phoneNumber.error && fields.phoneNumber.touched
+                      ? fields.phoneNumber.error
+                      : undefined,
+                  testID: 'register-phone-input',
+                  accessibilityLabel: 'Phone number input',
+                } as any)}
               />
             </View>
 
@@ -622,7 +628,10 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                         },
                       ]}
                       onPress={() => {
-                        setValue('gender', option.value);
+                        setValue(
+                          'gender',
+                          option.value as 'male' | 'female' | 'other' | 'prefer-not-to-say'
+                        );
                         setShowGenderDropdown(false);
                       }}
                       testID={`gender-option-${option.value}`}>
@@ -782,15 +791,15 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
             {/* Marketing Consent */}
             <View style={styles.checkboxContainer}>
               <TouchableOpacity
-                onPress={() => setValue('marketingConsent', !fields.marketingConsent.value)}
+                onPress={() => setValue('marketingConsent', !fields.marketingConsent?.value)}
                 style={styles.checkboxWrapper}
                 testID='marketing-consent-checkbox'>
                 <View
                   style={[
                     styles.checkbox,
-                    fields.marketingConsent.value && styles.checkboxChecked,
+                    fields.marketingConsent?.value && styles.checkboxChecked,
                   ]}>
-                  {fields.marketingConsent.value && (
+                  {fields.marketingConsent?.value && (
                     <Typography
                       variant='body2'
                       color={theme.colors.surface.background}

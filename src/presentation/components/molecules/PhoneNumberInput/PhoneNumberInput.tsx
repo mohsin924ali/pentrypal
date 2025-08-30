@@ -328,7 +328,7 @@ export const PhoneNumberInput: FC<PhoneNumberInputProps> = ({
 
   // State management
   const [selectedCountry, setSelectedCountry] = useState<Country>(() => {
-    return sortedCountries.find(country => country.code === countryCode) || sortedCountries[0];
+    return sortedCountries.find(country => country.code === countryCode) ?? sortedCountries[0]!;
   });
   const [inputValue, setInputValue] = useState(phoneNumber);
   const [isCountryPickerVisible, setIsCountryPickerVisible] = useState(false);
@@ -522,7 +522,7 @@ export const PhoneNumberInput: FC<PhoneNumberInputProps> = ({
               style={[
                 styles.searchInput,
                 {
-                  backgroundColor: theme.colors.surface.secondary,
+                  backgroundColor: (theme.colors.surface as any).secondary,
                   color: theme.colors.text.primary,
                 },
               ]}

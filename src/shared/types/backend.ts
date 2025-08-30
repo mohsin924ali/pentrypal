@@ -276,6 +276,12 @@ export interface BackendPantryItemConsume {
 // Social Features Types
 // ========================================
 
+export interface BackendUserSearch {
+  readonly query: string;
+  readonly limit?: number;
+  readonly skip?: number;
+}
+
 export interface BackendFriendship {
   readonly id: string;
   readonly user1_id: string;

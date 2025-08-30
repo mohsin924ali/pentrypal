@@ -69,7 +69,7 @@ export const ConsultContributorsModal: FC<ConsultContributorsModalProps> = ({
         secondary: '#666666',
         tertiary: '#999999',
       },
-      background: theme?.colors?.background || { primary: '#ffffff' },
+      background: (theme?.colors as any)?.background || { primary: '#ffffff' },
       surface: theme?.colors?.surface || { background: '#ffffff', card: '#ffffff' },
       border: theme?.colors?.border || { primary: '#e5e5e5' },
       semantic: theme?.colors?.semantic || {
@@ -183,7 +183,7 @@ export const ConsultContributorsModal: FC<ConsultContributorsModalProps> = ({
             {contributor.avatar ? (
               <Image
                 source={{ uri: contributor.avatar }}
-                style={styles.contributorAvatarImage}
+                style={styles.contributorAvatarImage as any}
                 resizeMode='cover'
               />
             ) : (
@@ -281,13 +281,15 @@ export const ConsultContributorsModal: FC<ConsultContributorsModalProps> = ({
 
       {/* Modal Container */}
       <Animated.View
-        style={[
-          styles.modalContainer,
-          {
-            backgroundColor: safeTheme.colors.background.primary,
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}>
+        style={
+          [
+            styles.modalContainer,
+            {
+              backgroundColor: safeTheme.colors.background.primary,
+              transform: [{ translateY: slideAnim }],
+            },
+          ] as any
+        }>
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: safeTheme.colors.border.primary }]}>
           <View style={styles.headerContent}>

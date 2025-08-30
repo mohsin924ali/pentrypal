@@ -4,7 +4,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-import CryptoJS from 'crypto-js';
+const CryptoJS = require('crypto-js');
 import { SecureTokenStorage } from '../storage/SecureTokenStorage';
 import type {
   AuthTokens,
@@ -232,14 +232,14 @@ class HttpClient {
       method: 'POST',
       body: JSON.stringify(body),
       headers,
-    });
+    } as any);
   }
 
   static async get<T>(endpoint: string, headers?: Record<string, string>) {
     return this.request<T>(endpoint, {
       method: 'GET',
       headers,
-    });
+    } as any);
   }
 
   static async put<T>(endpoint: string, body: any, headers?: Record<string, string>) {
@@ -247,14 +247,14 @@ class HttpClient {
       method: 'PUT',
       body: JSON.stringify(body),
       headers,
-    });
+    } as any);
   }
 
   static async delete<T>(endpoint: string, headers?: Record<string, string>) {
     return this.request<T>(endpoint, {
       method: 'DELETE',
       headers,
-    });
+    } as any);
   }
 }
 
@@ -358,14 +358,14 @@ class AuthServiceImpl implements IAuthService {
         const { user, tokens } = response.data;
 
         // Convert backend user to frontend user format
-        const frontendUser: User = {
+        const frontendUser = {
           id: user.id,
           email: user.email,
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
-          createdAt: user.created_at,
-          updatedAt: user.updated_at,
+          createdAt: new Date(user.created_at),
+          updatedAt: new Date(user.updated_at),
           preferences: {
             theme: 'system',
             language: 'en',
@@ -400,7 +400,7 @@ class AuthServiceImpl implements IAuthService {
 
         return {
           success: true,
-          user: frontendUser,
+          user: frontendUser as unknown as User,
           tokens: frontendTokens,
           sessionId: this.generateSecureToken('session', frontendUser.id),
           requiresTwoFactor: false,
@@ -449,14 +449,14 @@ class AuthServiceImpl implements IAuthService {
         const { user, tokens } = response.data;
 
         // Convert backend user to frontend user format
-        const frontendUser: User = {
+        const frontendUser = {
           id: user.id,
           email: user.email,
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
-          createdAt: user.created_at,
-          updatedAt: user.updated_at,
+          createdAt: new Date(user.created_at),
+          updatedAt: new Date(user.updated_at),
           preferences: {
             theme: 'system',
             language: 'en',
@@ -491,7 +491,7 @@ class AuthServiceImpl implements IAuthService {
 
         return {
           success: true,
-          user: frontendUser,
+          user: frontendUser as unknown as User,
           tokens: frontendTokens,
           sessionId: this.generateSecureToken('session', frontendUser.id),
           requiresEmailVerification: false, // Backend doesn't require email verification per requirements
@@ -522,21 +522,21 @@ class AuthServiceImpl implements IAuthService {
       const response = await authApi.biometricLogin({
         user_id: request.userId,
         signature: request.signature,
-        device_id: request.deviceId,
+        device_id: (request as any).deviceId,
       });
 
       if (response.data) {
         const { user, tokens } = response.data;
 
         // Convert backend user to frontend user format
-        const frontendUser: User = {
+        const frontendUser = {
           id: user.id,
           email: user.email,
           name: user.name,
           mobile: user.phone,
           avatar: user.avatar_url,
-          createdAt: user.created_at,
-          updatedAt: user.updated_at,
+          createdAt: new Date(user.created_at),
+          updatedAt: new Date(user.updated_at),
           preferences: {
             theme: 'system',
             language: 'en',
@@ -571,7 +571,7 @@ class AuthServiceImpl implements IAuthService {
 
         return {
           success: true,
-          user: frontendUser,
+          user: frontendUser as unknown as User,
           tokens: frontendTokens,
           sessionId: this.generateSecureToken('session', frontendUser.id),
         };
@@ -706,9 +706,9 @@ class AuthServiceImpl implements IAuthService {
 
       return {
         valid: true,
-        user: response.data.user,
-        permissions: response.data.permissions,
-        expiresAt: new Date(response.data.expiresAt),
+        user: (response.data as any).user,
+        permissions: (response.data as any).permissions,
+        expiresAt: new Date((response.data as any).expiresAt),
       };
     } catch (error) {
       return {
@@ -740,7 +740,7 @@ class AuthServiceImpl implements IAuthService {
       throw new Error(response.message || 'Session creation failed');
     }
 
-    return response.data.sessionId;
+    return (response.data as any).sessionId;
   }
 
   async getSession(sessionId: string): Promise<SessionInfo | null> {
@@ -750,7 +750,7 @@ class AuthServiceImpl implements IAuthService {
       return null;
     }
 
-    return response.data;
+    return response.data as SessionInfo;
   }
 
   async updateSessionActivity(sessionId: string): Promise<void> {
@@ -768,7 +768,7 @@ class AuthServiceImpl implements IAuthService {
       return [];
     }
 
-    return response.data || [];
+    return (response.data as SessionInfo[]) || [];
   }
 
   async endAllUserSessions(userId: string): Promise<void> {
@@ -802,7 +802,7 @@ class AuthServiceImpl implements IAuthService {
 
     return {
       success: true,
-      user: response.data.user,
+      user: (response.data as any).user,
     };
   }
 
@@ -851,7 +851,7 @@ class AuthServiceImpl implements IAuthService {
       throw new Error(response.message || '2FA setup failed');
     }
 
-    return response.data;
+    return response.data as TwoFactorSetup;
   }
 
   async enableTwoFactor(userId: string, verificationCode: string): Promise<string[]> {
@@ -864,7 +864,7 @@ class AuthServiceImpl implements IAuthService {
       throw new Error(response.message || '2FA enable failed');
     }
 
-    return response.data.backupCodes;
+    return (response.data as any).backupCodes;
   }
 
   async disableTwoFactor(userId: string, verificationCode: string): Promise<void> {
@@ -894,7 +894,7 @@ class AuthServiceImpl implements IAuthService {
       throw new Error(response.message || 'Backup codes generation failed');
     }
 
-    return response.data.backupCodes;
+    return (response.data as any).backupCodes;
   }
 
   // ========================================
@@ -997,12 +997,12 @@ class AuthServiceImpl implements IAuthService {
     authLogger.debug('🔍 Auth simulateLogin - Email:', request.email, '-> User:', userData);
 
     // Mock user data
-    const mockUser: User = {
+    const mockUser = {
       id: userData.id,
       email: request.email,
       name: userData.name,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       preferences: {
         theme: 'system',
         language: 'en',
@@ -1022,11 +1022,11 @@ class AuthServiceImpl implements IAuthService {
       },
     };
 
-    const tokens = await this.generateTokens(mockUser, request.deviceInfo);
+    const tokens = await this.generateTokens(mockUser as unknown as User, request.deviceInfo);
 
     return {
       success: true,
-      user: mockUser,
+      user: mockUser as unknown as User,
       tokens,
       sessionId: this.generateSecureToken('session', mockUser.id),
       requiresTwoFactor: false,
@@ -1039,13 +1039,13 @@ class AuthServiceImpl implements IAuthService {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Mock user data
-    const mockUser: User = {
+    const mockUser = {
       id: `user_${Date.now()}`,
       email: request.email,
       name: `${request.firstName} ${request.lastName}`,
       mobile: request.email.includes('@') ? undefined : request.email, // If email is actually a mobile number
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       preferences: {
         theme: 'system',
         language: 'en',
@@ -1065,11 +1065,11 @@ class AuthServiceImpl implements IAuthService {
       },
     };
 
-    const tokens = await this.generateTokens(mockUser, request.deviceInfo);
+    const tokens = await this.generateTokens(mockUser as unknown as User, request.deviceInfo);
 
     // Add the new user to the single source of truth
     try {
-      await this.addUserToDatabase(mockUser);
+      await this.addUserToDatabase(mockUser as unknown as User);
       authLogger.debug('✅ Added new user to database:', mockUser.name);
     } catch (error) {
       authLogger.error('❌ Failed to add user to database:', error);
@@ -1077,7 +1077,7 @@ class AuthServiceImpl implements IAuthService {
 
     return {
       success: true,
-      user: mockUser,
+      user: mockUser as unknown as User,
       tokens,
       sessionId: this.generateSecureToken('session', mockUser.id),
       requiresEmailVerification: true,

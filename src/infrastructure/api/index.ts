@@ -3,7 +3,7 @@
 // ========================================
 
 // Core API Client
-import { apiClient } from './apiClient';
+import { apiClient, handleApiError } from './apiClient';
 export { apiClient, handleApiError, isValidationError, isBackendError } from './apiClient';
 
 // Domain-specific API Services
@@ -72,7 +72,7 @@ export const forceResetAuthentication = async (): Promise<void> => {
     // Clear tokens using both methods to ensure complete cleanup
     await SecureTokenStorage.clearAllTokens();
     await AsyncStorage.default.removeItem(STORAGE_KEYS.authTokens);
-    await AsyncStorage.default.removeItem(STORAGE_KEYS.user);
+    await AsyncStorage.default.removeItem(STORAGE_KEYS.userProfile);
     await AsyncStorage.default.removeItem('@pentrypal_session');
 
     // Clear from API services

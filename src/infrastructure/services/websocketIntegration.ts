@@ -225,7 +225,7 @@ export class WebSocketIntegration {
         icon: undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      };
+      } as any;
 
       // Dispatch based on action type
       if (itemData.action === 'created') {
@@ -271,7 +271,7 @@ export class WebSocketIntegration {
         updatedAt: new Date(requestData.created_at || Date.now()),
         respondedAt: undefined,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-      };
+      } as any;
 
       // Handle different friend request actions
       if (requestData.action === 'sent') {
@@ -294,7 +294,7 @@ export class WebSocketIntegration {
           updatedAt: new Date(),
           lastInteractionAt: undefined,
           mutedUntil: undefined,
-        };
+        } as any;
 
         store.dispatch(addFriendship(friendship));
       } else if (requestData.action === 'declined') {
@@ -323,8 +323,9 @@ export class WebSocketIntegration {
       }
 
       // Import notification service
-      import('../../../infrastructure/services/notificationService')
-        .then(({ notificationService }) => {
+      import('./notificationService')
+        .then(notificationModule => {
+          const notificationService = (notificationModule as any).notificationService;
           // Handle different notification types
           switch (notificationData.type) {
             case 'list_shared':

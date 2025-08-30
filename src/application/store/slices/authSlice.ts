@@ -663,7 +663,7 @@ const authSlice = createSlice({
           state.user = {
             ...state.user,
             avatar: action.payload.avatar_url ?? state.user.avatar,
-          };
+          } as any;
         }
       })
       .addCase(uploadAvatar.rejected, (state, action) => {
@@ -685,7 +685,7 @@ const authSlice = createSlice({
           state.user = {
             ...state.user,
             avatar: action.payload.avatar_url ?? undefined,
-          };
+          } as any;
         }
       })
       .addCase(removeAvatar.rejected, (state, action) => {

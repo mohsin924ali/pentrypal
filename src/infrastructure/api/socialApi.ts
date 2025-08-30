@@ -119,7 +119,7 @@ export class SocialApi {
           detail: 'Failed to load friend requests',
           error_code: 'FRIEND_REQUESTS_FAILED',
           timestamp: new Date().toISOString(),
-        };
+        } as any;
       }
 
       // Combine the results
@@ -136,7 +136,7 @@ export class SocialApi {
         detail: error.message || 'Failed to load friend requests',
         error_code: 'NETWORK_ERROR',
         timestamp: new Date().toISOString(),
-      };
+      } as any;
     }
   }
 
@@ -177,7 +177,7 @@ export class SocialApi {
    * Decline a friend request
    */
   async declineFriendRequest(requestId: string): Promise<ApiResponse<BackendFriendRequest>> {
-    return this.respondToFriendRequest(requestId, { status: 'declined' });
+    return this.respondToFriendRequest(requestId, { status: 'rejected' });
   }
 
   // ========================================

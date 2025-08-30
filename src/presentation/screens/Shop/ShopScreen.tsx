@@ -41,7 +41,12 @@ import { selectUser } from '../../../application/store/slices/authSlice';
 import type { AppDispatch } from '../../../application/store';
 
 // Types
-import type { AvatarType } from '../../../shared/types/lists';
+import type {
+  AvatarType,
+  Collaborator,
+  ShoppingItem,
+  ShoppingList,
+} from '../../../shared/types/lists';
 
 export interface ShopScreenProps {
   onBackPress: () => void;
@@ -51,43 +56,7 @@ export interface ShopScreenProps {
   onListUpdate?: () => void;
 }
 
-// Mock types - same as ListsScreen for consistency
-interface ShoppingItem {
-  id: string;
-  name: string;
-  quantity: number;
-  unit: string;
-  icon: string;
-  category: { name: string };
-  completed: boolean;
-  assignedTo?: string;
-  price?: number;
-  purchasedAmount?: number;
-}
-
-interface Collaborator {
-  id: string;
-  userId: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role: 'owner' | 'editor';
-}
-
-interface ShoppingList {
-  id: string;
-  name: string;
-  items: ShoppingItem[];
-  itemsCount: number;
-  completedCount: number;
-  progress: number;
-  totalSpent: number;
-  createdAt: string;
-  status: 'active' | 'archived';
-  ownerId: string;
-  ownerName: string;
-  collaborators: Collaborator[];
-}
+// Note: Using imported types from shared/types/lists instead of local definitions
 
 type ShopMode = 'select-list' | 'shopping';
 
@@ -220,7 +189,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         avatar: collaborator.avatar,
         role: collaborator.role,
       };
-    });
+    }) as any;
   };
 
   // Check if list has contributors (excluding current user)
@@ -293,12 +262,12 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   ];
 
   const getCollaboratorColor = (userId: string): string => {
-    if (!selectedList) return collaboratorColors[0];
+    if (!selectedList) return collaboratorColors[0] || '#4F46E5';
 
     const collaboratorIndex = selectedList.collaborators.findIndex(c => c.userId === userId);
-    if (collaboratorIndex === -1) return collaboratorColors[0];
+    if (collaboratorIndex === -1) return collaboratorColors[0] || '#4F46E5';
 
-    return collaboratorColors[collaboratorIndex % collaboratorColors.length];
+    return collaboratorColors[collaboratorIndex % collaboratorColors.length] || '#4F46E5';
   };
 
   const getUserAvatar = (userId: string): AvatarType => {
@@ -352,7 +321,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         case 'uri':
           return (
             <View style={containerStyle}>
-              <Image source={avatarProps.source} style={imageStyle} />
+              <Image source={avatarProps.source as any} style={imageStyle} />
             </View>
           );
 
@@ -493,7 +462,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
           updates: {
             completed: newCompleted,
             actual_price: newCompleted ? purchasedAmount : undefined,
-          },
+          } as any,
         })
       ).unwrap();
 
@@ -534,7 +503,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         completedCount,
         progress,
         totalSpent,
-      };
+      } as any;
 
       setSelectedList(updatedList);
 
@@ -578,7 +547,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
     // Calculate total spent from completed items
     const totalSpent = currentCompletedItems.reduce((total, item) => {
-      const amount = item.purchasedAmount || item.actual_price || 0;
+      const amount = item.purchasedAmount || 0;
       return total + (typeof amount === 'number' ? amount : 0);
     }, 0);
 
@@ -593,13 +562,13 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             text: 'Finish Anyway',
             style: 'destructive',
             onPress: () =>
-              showArchiveConfirmation(totalSpent, completedItems.length, selectedList.items.length),
+              showArchiveConfirmation(totalSpent, completedItems.size, selectedList.items.length),
           },
         ]
       );
     } else {
       // All items completed - show archive confirmation
-      showArchiveConfirmation(totalSpent, completedItems.length, selectedList.items.length);
+      showArchiveConfirmation(totalSpent, completedItems.size, selectedList.items.length);
     }
   };
 
@@ -833,7 +802,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                   ]}>
                   <Typography
                     variant='caption'
-                    color={safeTheme?.colors?.background?.primary || '#ffffff'}
+                    color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}
                     style={styles.stackedAvatarText}>
                     +{selectedList.collaborators.length - 4}
                   </Typography>
@@ -870,15 +839,17 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         renderItem={({ item }) => (
           <View style={styles.shoppingItemContainer}>
             <TouchableOpacity
-              style={[
-                styles.shoppingItem,
-                completedItems.has(item.id) && styles.shoppingItemCompleted,
-                item.assignedTo && styles.shoppingItemAssigned,
-                item.assignedTo && {
-                  borderLeftColor: getCollaboratorColor(item.assignedTo),
-                  borderLeftWidth: 4,
-                },
-              ]}
+              style={
+                [
+                  styles.shoppingItem,
+                  completedItems.has(item.id) && styles.shoppingItemCompleted,
+                  item.assignedTo && styles.shoppingItemAssigned,
+                  item.assignedTo && {
+                    borderLeftColor: getCollaboratorColor(item.assignedTo),
+                    borderLeftWidth: 4,
+                  },
+                ] as any
+              }
               onPress={() => handleToggleItem(item)}>
               <View style={styles.itemLeft}>
                 <View
@@ -931,7 +902,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                     {/* Permission indicator */}
                     {item.assignedTo &&
                       item.assignedTo !== user?.id &&
-                      selectedList.ownerId !== user?.id && (
+                      selectedList!.ownerId !== user?.id && (
                         <Typography
                           variant='caption'
                           color={safeTheme?.colors?.text?.tertiary || '#999999'}
@@ -986,7 +957,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                     onPress={() => handleAmountConfirm(item)}>
                     <Typography
                       variant='caption'
-                      color={safeTheme?.colors?.background?.primary || '#ffffff'}>
+                      color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}>
                       Mark as Purchased
                     </Typography>
                   </TouchableOpacity>

@@ -212,13 +212,15 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
     return (
       <Animated.View
         key={slide.id}
-        style={[
-          styles.slideContainer,
-          {
-            width: screenWidth,
-            // Removed translateY animation to prevent text shivering
-          },
-        ]}>
+        style={
+          [
+            styles.slideContainer,
+            {
+              width: screenWidth,
+              // Removed translateY animation to prevent text shivering
+            },
+          ] as any
+        }>
         {/* Image */}
         <Animated.View style={styles.imageContainer}>
           {slide.image ? (

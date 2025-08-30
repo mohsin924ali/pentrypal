@@ -27,7 +27,7 @@ import { useTheme } from '../../providers/ThemeProvider';
 import { useNetwork } from '../../providers/NetworkProvider';
 
 // Icons
-import CreateListIcon from '../../../assets/images/createList.png';
+const CreateListIcon = require('../../../assets/images/createList.png');
 
 // Store
 import type { AppDispatch, RootState } from '../../../application/store';
@@ -59,7 +59,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   const { isConnected } = useNetwork();
   const dispatch = useDispatch<AppDispatch>();
 
-  const user = useSelector((state: RootState) => selectUser(state));
+  const user = useSelector(selectUser);
   const lists = useSelector(selectFilteredLists);
   const isLoadingLists = useSelector(selectIsLoadingLists);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -251,7 +251,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         if (item.completed && item.purchasedAmount) {
           const userId = item.assignedTo || list.ownerId;
           if (userId === user?.id) {
-            const amount = parseFloat(item.purchasedAmount) || 0;
+            const amount =
+              (typeof item.purchasedAmount === 'number'
+                ? item.purchasedAmount
+                : parseFloat(String(item.purchasedAmount))) || 0;
             userTotalSpent += amount;
 
             // Check if this item was purchased this month
@@ -314,8 +317,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             userSpending[userId] = { name: userName, amount: 0, itemCount: 0 };
           }
 
-          userSpending[userId].amount += parseFloat(item.purchasedAmount) || 0;
-          userSpending[userId].itemCount += 1;
+          userSpending[userId]!.amount +=
+            (typeof item.purchasedAmount === 'number'
+              ? item.purchasedAmount
+              : parseFloat(String(item.purchasedAmount))) || 0;
+          userSpending[userId]!.itemCount += 1;
         }
       });
     });
@@ -357,7 +363,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         if (item.completed && item.purchasedAmount) {
           const userId = item.assignedTo || list.ownerId;
           if (userId === user?.id) {
-            const amount = parseFloat(item.purchasedAmount) || 0;
+            const amount =
+              (typeof item.purchasedAmount === 'number'
+                ? item.purchasedAmount
+                : parseFloat(String(item.purchasedAmount))) || 0;
             // Get category from item or default to 'other'
             const categoryId = item.category?.id || 'other';
             const categoryData =
@@ -372,8 +381,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               };
             }
 
-            categoryMap[categoryId].amount += amount;
-            categoryMap[categoryId].itemCount += 1;
+            categoryMap[categoryId]!.amount += amount;
+            categoryMap[categoryId]!.itemCount += 1;
           }
         }
       });
@@ -621,17 +630,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       { backgroundColor: theme.colors.border.primary },
                     ]}>
                     <View
-                      style={[
-                        styles.budgetProgressFill,
-                        {
-                          backgroundColor: statistics.isOverBudget
-                            ? theme.colors.semantic.error[500]
-                            : statistics.isNearBudgetLimit
-                              ? theme.colors.semantic.warning[500]
-                              : theme.colors.semantic.success[500],
-                          width: `${Math.min(statistics.budgetPercentage, 100)}%`,
-                        },
-                      ]}
+                      style={
+                        [
+                          styles.budgetProgressFill,
+                          {
+                            backgroundColor: statistics.isOverBudget
+                              ? theme.colors.semantic.error[500]
+                              : statistics.isNearBudgetLimit
+                                ? theme.colors.semantic.warning[500]
+                                : theme.colors.semantic.success[500],
+                            width: `${Math.min(statistics.budgetPercentage, 100)}%` as any,
+                          },
+                        ] as any
+                      }
                     />
                   </View>
                   <Typography variant='caption' color={theme.colors.text.secondary}>
@@ -680,14 +691,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       { backgroundColor: theme.colors.border.primary },
                     ]}>
                     <View
-                      style={[
-                        styles.userProgressFill,
-                        {
-                          backgroundColor:
-                            index === 0 ? theme.colors.primary[500] : theme.colors.secondary[400],
-                          width: `${userSpending.percentage}%`,
-                        },
-                      ]}
+                      style={
+                        [
+                          styles.userProgressFill,
+                          {
+                            backgroundColor:
+                              index === 0 ? theme.colors.primary[500] : theme.colors.secondary[400],
+                            width: `${userSpending.percentage}%` as any,
+                          },
+                        ] as any
+                      }
                     />
                   </View>
                 </View>
@@ -741,18 +754,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       { backgroundColor: theme.colors.border.primary },
                     ]}>
                     <View
-                      style={[
-                        styles.categoryProgressFill,
-                        {
-                          backgroundColor:
-                            index === 0
-                              ? theme.colors.primary[500]
-                              : index === 1
-                                ? theme.colors.secondary[400]
-                                : theme.colors.accent[400],
-                          width: `${category.percentage}%`,
-                        },
-                      ]}
+                      style={
+                        [
+                          styles.categoryProgressFill,
+                          {
+                            backgroundColor:
+                              index === 0
+                                ? theme.colors.primary[500]
+                                : index === 1
+                                  ? theme.colors.secondary[400]
+                                  : theme.colors.accent[400],
+                            width: `${category.percentage}%` as any,
+                          },
+                        ] as any
+                      }
                     />
                   </View>
                 </View>
@@ -797,17 +812,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               size='md'
               onPress={() => console.log('Navigate to create list')}
               style={styles.actionButton}
-              leftIcon={{
-                component: ({ size, color }) => (
-                  <Image
-                    source={CreateListIcon}
-                    style={{ width: size, height: size, tintColor: color }}
-                    resizeMode='contain'
-                  />
-                ),
-                name: 'add',
-                size: 18,
-              }}
+              leftIcon={
+                {
+                  component: ({ size, color }: { size: number; color: string }) => (
+                    <Image
+                      source={CreateListIcon}
+                      style={{ width: size, height: size, tintColor: color }}
+                      resizeMode='contain'
+                    />
+                  ),
+                  name: 'add',
+                  size: 18,
+                } as any
+              }
             />
 
             <Button
@@ -816,15 +833,17 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               size='md'
               onPress={() => console.log('Navigate to lists')}
               style={styles.actionButton}
-              leftIcon={{
-                component: ({ size, color }) => (
-                  <Typography variant='h6' style={{ fontSize: size, color }}>
-                    📋
-                  </Typography>
-                ),
-                name: 'list',
-                size: 18,
-              }}
+              leftIcon={
+                {
+                  component: ({ size, color }: { size: number; color: string }) => (
+                    <Typography variant='h6' style={{ fontSize: size, color }}>
+                      📋
+                    </Typography>
+                  ),
+                  name: 'list',
+                  size: 18,
+                } as any
+              }
             />
           </View>
 
@@ -835,15 +854,17 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               size='md'
               onPress={() => console.log('Navigate to shop')}
               style={styles.actionButton}
-              leftIcon={{
-                component: ({ size, color }) => (
-                  <Typography variant='h6' style={{ fontSize: size, color }}>
-                    🛒
-                  </Typography>
-                ),
-                name: 'shop',
-                size: 18,
-              }}
+              leftIcon={
+                {
+                  component: ({ size, color }: { size: number; color: string }) => (
+                    <Typography variant='h6' style={{ fontSize: size, color }}>
+                      🛒
+                    </Typography>
+                  ),
+                  name: 'shop',
+                  size: 18,
+                } as any
+              }
             />
 
             <Button
@@ -852,15 +873,17 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               size='md'
               onPress={() => console.log('Navigate to social')}
               style={styles.actionButton}
-              leftIcon={{
-                component: ({ size, color }) => (
-                  <Typography variant='h6' style={{ fontSize: size, color }}>
-                    👥
-                  </Typography>
-                ),
-                name: 'people',
-                size: 18,
-              }}
+              leftIcon={
+                {
+                  component: ({ size, color }: { size: number; color: string }) => (
+                    <Typography variant='h6' style={{ fontSize: size, color }}>
+                      👥
+                    </Typography>
+                  ),
+                  name: 'people',
+                  size: 18,
+                } as any
+              }
             />
           </View>
         </View>
@@ -931,17 +954,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               variant='primary'
               size='lg'
               onPress={() => console.log('Navigate to create list')}
-              leftIcon={{
-                component: ({ size, color }) => (
-                  <Image
-                    source={CreateListIcon}
-                    style={{ width: size, height: size, tintColor: color }}
-                    resizeMode='contain'
-                  />
-                ),
-                name: 'add',
-                size: 20,
-              }}
+              leftIcon={
+                {
+                  component: ({ size, color }: { size: number; color: string }) => (
+                    <Image
+                      source={CreateListIcon}
+                      style={{ width: size, height: size, tintColor: color }}
+                      resizeMode='contain'
+                    />
+                  ),
+                  name: 'add',
+                  size: 20,
+                } as any
+              }
             />
           </View>
         )}
@@ -957,7 +982,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         animationType='fade'
         onRequestClose={() => setShowBudgetModal(false)}>
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface.card }]}>
+          <View
+            style={[styles.modalContent, { backgroundColor: theme.colors.surface.card }] as any}>
             <Typography variant='h4' color={theme.colors.text.primary} style={styles.modalTitle}>
               Set Monthly Budget
             </Typography>

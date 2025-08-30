@@ -22,9 +22,10 @@ export type TypographyVariant =
   | 'button';
 
 // Typography Props
-export interface TypographyProps extends BaseTextProps, Omit<RNTextProps, 'style'> {
+export interface TypographyProps extends Omit<RNTextProps, 'style'> {
   readonly variant?: TypographyVariant;
   readonly color?: string;
+  readonly style?: any;
   readonly align?: 'left' | 'center' | 'right' | 'justify';
   readonly weight?:
     | 'thin'
@@ -105,7 +106,7 @@ export const Typography: FC<TypographyProps> = ({
     if (strikethrough) textDecorationLine.push('line-through');
 
     if (textDecorationLine.length > 0) {
-      baseStyle.textDecorationLine = textDecorationLine.join(' ');
+      baseStyle.textDecorationLine = textDecorationLine.join(' ') as any;
     }
 
     if (italic) {
@@ -130,7 +131,7 @@ export const Typography: FC<TypographyProps> = ({
 
   return (
     <Text
-      style={[textStyle, style]}
+      style={[textStyle, style] as any}
       numberOfLines={truncate ? 1 : numberOfLines}
       ellipsizeMode={truncate ? 'tail' : undefined}
       {...rest}>

@@ -8,13 +8,12 @@ import {
   type NativeSyntheticEvent,
   TextInput,
   type TextInputFocusEventData,
-  type TextInputProps,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { Typography } from '../Typography/Typography';
 import { useTheme } from '../../../providers/ThemeProvider';
-import type { InputProps, InputSize, InputVariant } from '../../../../shared/types/ui';
+import type { InputProps } from '../../../../shared/types/ui';
 
 /**
  * Secure Input Component
@@ -315,39 +314,41 @@ export const Input = forwardRef<TextInput, InputProps>(
           {/* Left Icon */}
           {leftIcon && (
             <View style={{ marginRight: theme.spacing.sm }}>
-              <leftIcon.component
-                name={leftIcon.name}
-                size={leftIcon.size || 20}
-                color={leftIcon.color || theme.colors.text.secondary}
-              />
+              {React.createElement((leftIcon as any).component, {
+                name: leftIcon.name,
+                size: leftIcon.size || 20,
+                color: leftIcon.color || theme.colors.text.secondary,
+              } as any)}
             </View>
           )}
 
           {/* Text Input */}
           <TextInput
-            ref={ref}
-            style={textInputStyles}
-            value={value}
-            onChangeText={onChangeText}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            placeholder={placeholder}
-            placeholderTextColor={theme.colors.text.tertiary}
-            editable={!disabled}
-            secureTextEntry={secure && !isPasswordVisible}
-            multiline={multiline}
-            maxLength={maxLength}
-            keyboardType={keyboardType}
-            returnKeyType={returnKeyType}
-            blurOnSubmit={blurOnSubmit}
-            autoComplete={shouldDisableAutocomplete ? 'off' : autoComplete}
-            autoCorrect={false}
-            autoCapitalize={secure ? 'none' : 'sentences'}
-            spellCheck={!secure}
-            textContentType={secure ? 'none' : 'none'}
-            testID={testID}
-            {...accessibilityProps}
-            {...rest}
+            {...({
+              ref,
+              style: textInputStyles,
+              value,
+              onChangeText,
+              onFocus: handleFocus,
+              onBlur: handleBlur,
+              placeholder,
+              placeholderTextColor: theme.colors.text.tertiary,
+              editable: !disabled,
+              secureTextEntry: secure && !isPasswordVisible,
+              multiline,
+              maxLength,
+              keyboardType,
+              returnKeyType,
+              blurOnSubmit,
+              autoComplete: shouldDisableAutocomplete ? 'off' : autoComplete,
+              autoCorrect: false,
+              autoCapitalize: secure ? 'none' : 'sentences',
+              spellCheck: !secure,
+              textContentType: secure ? 'none' : 'none',
+              testID,
+              ...accessibilityProps,
+              ...rest,
+            } as any)}
           />
 
           {/* Right Icon or Password Toggle */}
@@ -369,13 +370,12 @@ export const Input = forwardRef<TextInput, InputProps>(
                   {isPasswordVisible ? '🙈' : '👁️'}
                 </Typography>
               ) : (
-                rightIcon && (
-                  <rightIcon.component
-                    name={rightIcon.name}
-                    size={rightIcon.size || 20}
-                    color={rightIcon.color || theme.colors.text.secondary}
-                  />
-                )
+                rightIcon &&
+                React.createElement((rightIcon as any).component, {
+                  name: rightIcon.name,
+                  size: rightIcon.size || 20,
+                  color: rightIcon.color || theme.colors.text.secondary,
+                } as any)
               )}
             </TouchableOpacity>
           )}

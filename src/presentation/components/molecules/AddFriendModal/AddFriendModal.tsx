@@ -72,7 +72,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({
       searchQuery,
       isSearching,
       searchResultsCount: searchResults.length,
-      searchResults: searchResults.map(r => r.name),
+      searchResults: searchResults.map(r => (r as any).name),
       socialError,
     });
   }, [searchQuery, isSearching, searchResults, socialError]);
@@ -151,9 +151,13 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({
       }, 500);
 
       return () => clearTimeout(timeoutId);
-    } else if (searchQuery.length === 0) {
+    }
+
+    if (searchQuery.length === 0) {
       dispatch(clearSearchResults());
     }
+
+    return; // Explicit return for all other paths
   }, [searchQuery, dispatch]);
 
   // ========================================
@@ -194,7 +198,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({
       const request = {
         toUserId: selectedUser.user.id,
         message: message.trim() || undefined,
-      };
+      } as any;
 
       // Use Redux action
       const resultAction = await dispatch(sendFriendRequest(request));
@@ -206,7 +210,8 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({
         ]);
       } else {
         // Error handled by Redux
-        const errorMessage = resultAction.payload?.message || 'Failed to send friend request';
+        const errorMessage =
+          (resultAction.payload as any)?.message || 'Failed to send friend request';
         Alert.alert('Error', errorMessage);
       }
     } catch (error: any) {
@@ -322,7 +327,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({
         style={[
           styles.searchInputContainer,
           {
-            backgroundColor: safeTheme?.colors?.surface?.secondary || '#f5f5f5',
+            backgroundColor: (safeTheme?.colors?.surface as any)?.secondary || '#f5f5f5',
             borderColor: safeTheme?.colors?.border?.primary || '#e5e5e5',
           },
         ]}>
@@ -375,7 +380,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({
         style={[
           styles.selectedUserCard,
           {
-            backgroundColor: safeTheme?.colors?.surface?.secondary || '#f5f5f5',
+            backgroundColor: (safeTheme?.colors?.surface as any)?.secondary || '#f5f5f5',
             borderColor: safeTheme?.colors?.border?.primary || '#e5e5e5',
           },
         ]}>
@@ -479,7 +484,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({
         style={[
           styles.modalContainer,
           {
-            backgroundColor: safeTheme?.colors?.background?.primary || '#ffffff',
+            backgroundColor: (safeTheme?.colors as any)?.background?.primary || '#ffffff',
             transform: [{ translateX: slideAnim }],
           },
         ]}>

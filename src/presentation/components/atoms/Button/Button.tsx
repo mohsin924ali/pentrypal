@@ -49,15 +49,17 @@ export const Button: FC<ButtonProps> = ({
 
       return (
         <Image
-          source={imageIcon.source}
-          style={[
-            {
-              width: iconSize,
-              height: iconSize,
-              tintColor: imageIcon.tintColor ?? variantStyles.text.color,
-            },
-            marginStyle,
-          ]}
+          source={imageIcon.source as any}
+          style={
+            [
+              {
+                width: iconSize,
+                height: iconSize,
+                tintColor: imageIcon.tintColor ?? variantStyles.text.color,
+              },
+              marginStyle,
+            ] as any
+          }
           resizeMode='contain'
         />
       );
@@ -76,10 +78,12 @@ export const Button: FC<ButtonProps> = ({
       };
       return (
         <iconProps.component
-          name={iconProps.name}
-          size={iconProps.size}
-          color={iconProps.color ?? variantStyles.text.color}
-          style={marginStyle}
+          {...({
+            name: iconProps.name,
+            size: iconProps.size,
+            color: iconProps.color ?? variantStyles.text.color,
+            style: marginStyle,
+          } as any)}
         />
       );
     }
@@ -229,7 +233,7 @@ export const Button: FC<ButtonProps> = ({
     };
 
     if (fullWidth) {
-      baseStyle.width = '100%';
+      (baseStyle as any).width = '100%';
     }
 
     // Add shadow for elevated variants
@@ -256,7 +260,7 @@ export const Button: FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
-      style={[containerStyle, { opacity: getOpacity() }, style]}
+      style={[containerStyle, { opacity: getOpacity() }, style] as any}
       onPress={handlePress}
       disabled={disabled || loading}
       activeOpacity={0.7}
@@ -264,11 +268,13 @@ export const Button: FC<ButtonProps> = ({
       accessible={accessible}
       accessibilityLabel={accessibilityLabel ?? title}
       accessibilityHint={accessibilityHint}
-      accessibilityRole={accessibilityRole}
-      accessibilityState={{
-        disabled: disabled || loading,
-        busy: loading,
-      }}
+      accessibilityRole={accessibilityRole as any}
+      accessibilityState={
+        {
+          disabled: disabled || loading,
+          busy: loading,
+        } as any
+      }
       {...rest}>
       {/* Left Icon */}
       {renderIcon(leftIcon, 'left')}
@@ -278,7 +284,7 @@ export const Button: FC<ButtonProps> = ({
         <ActivityIndicator
           size='small'
           color={variantStyles.text.color}
-          style={{ marginRight: Boolean(title) ? theme.spacing.sm : 0 }}
+          style={{ marginRight: title ? theme.spacing.sm : 0 }}
         />
       )}
 

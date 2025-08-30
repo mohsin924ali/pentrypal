@@ -6,12 +6,12 @@ echo "🔍 Running pre-commit checks..."
 # Run lint-staged
 npx lint-staged
 
-# Run type checking - TEMPORARILY DISABLED FOR LINTER FIXES COMMIT
-# echo "🔬 Type checking..."
-# npm run type-check
+# Run type checking
+echo "🔬 Type checking..."
+npm run type-check
 
-# Run tests - TEMPORARILY DISABLED FOR LINTER FIXES COMMIT
-# echo "🧪 Running tests..."
-# npm run test:ci
+# Run tests
+echo "🧪 Running tests..."
+npm run test:ci
 
 echo "✅ Pre-commit checks passed!"

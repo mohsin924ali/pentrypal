@@ -62,7 +62,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   };
 
   private handleRetry = (): void => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined } as any);
   };
 
   private handleReload = (): void => {
@@ -80,9 +80,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       return (
         <ErrorFallback
-          error={this.state.error}
-          onRetry={this.handleRetry}
-          onReload={this.handleReload}
+          {...({
+            error: this.state.error,
+            onRetry: this.handleRetry,
+            onReload: this.handleReload,
+          } as any)}
         />
       );
     }
@@ -135,13 +137,15 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onRetry, onReload 
         {/* Error Details (only in development) */}
         {__DEV__ && error && (
           <View
-            style={[
-              styles.errorDetails,
-              {
-                backgroundColor: theme.colors.neutral[50],
-                borderColor: theme.colors.border.primary,
-              },
-            ]}>
+            style={
+              [
+                styles.errorDetails,
+                {
+                  backgroundColor: theme.colors.neutral[50],
+                  borderColor: theme.colors.border.primary,
+                },
+              ] as any
+            }>
             <Typography
               variant='caption'
               color={theme.colors.text.tertiary}
@@ -158,14 +162,14 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onRetry, onReload 
         )}
 
         {/* Action Buttons */}
-        <View style={styles.actions}>
+        <View style={styles.actions as any}>
           <Button
             title='Try Again'
             variant='primary'
             size='lg'
             fullWidth
             onPress={onRetry}
-            style={{ marginBottom: theme.spacing.md }}
+            style={{ marginBottom: theme.spacing.md } as any}
           />
 
           <Button title='Restart App' variant='outline' size='md' fullWidth onPress={onReload} />

@@ -3,7 +3,7 @@
 // ========================================
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CryptoJS from 'crypto-js';
+const CryptoJS = require('crypto-js');
 
 const ENCRYPTION_KEY = 'pentrypal_auth_key_2024'; // In production, use secure key management
 

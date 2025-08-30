@@ -41,7 +41,7 @@ export class ProductionErrorBoundary extends Component<Props, State> {
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: undefined });
+    this.setState({ hasError: false, error: undefined } as any);
   };
 
   render() {

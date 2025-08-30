@@ -10,7 +10,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import NetInfo, { type NetInfoState } from '@react-native-community/netinfo';
+import NetInfo, { type NetInfoState, NetInfoStateType } from '@react-native-community/netinfo';
 
 // Network Context Value
 interface NetworkContextValue {
@@ -121,11 +121,11 @@ export const NetworkProvider: FC<PropsWithChildren> = ({ children }) => {
 
     // Default based on connection type
     switch (state.type) {
-      case 'wifi':
+      case NetInfoStateType.wifi:
         return 'good';
-      case 'cellular':
+      case 'cellular' as any:
         return 'moderate';
-      case 'ethernet':
+      case NetInfoStateType.ethernet:
         return 'excellent';
       default:
         return 'unknown';

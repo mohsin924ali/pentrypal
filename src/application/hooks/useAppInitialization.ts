@@ -51,11 +51,13 @@ export const useAppInitialization = () => {
       if (__DEV__) {
         console.log('🔐 User not authenticated, disconnecting WebSocket...');
       }
-      disconnectWebSocket().catch(error => {
+      try {
+        disconnectWebSocket();
+      } catch (error: unknown) {
         if (__DEV__) {
           console.error('Failed to disconnect WebSocket:', error);
         }
-      });
+      }
     }
   }, [isAuthenticated, user]);
 

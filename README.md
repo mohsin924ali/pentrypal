@@ -1,10 +1,13 @@
 # PentryPal Next - Rock Solid React Native Architecture
 
-A production-ready React Native application for collaborative grocery and pantry management, built with enterprise-grade architecture and industry best practices.
+A production-ready React Native application for collaborative grocery and pantry
+management, built with enterprise-grade architecture and industry best
+practices.
 
 ## 🏗️ Architecture Overview
 
-This project follows **Clean Architecture** principles with strict separation of concerns:
+This project follows **Clean Architecture** principles with strict separation of
+concerns:
 
 ```
 📱 Presentation Layer    → UI Components, Screens, Navigation
@@ -40,23 +43,27 @@ This project follows **Clean Architecture** principles with strict separation of
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd pentrypal-next
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Setup environment**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
 4. **iOS Setup** (iOS only)
+
    ```bash
    cd ios && pod install && cd ..
    ```
@@ -162,18 +169,21 @@ npm run analyze:bundle
 ## 🏛️ Architecture Principles
 
 ### 1. Clean Architecture
+
 - **Dependencies flow inward** - outer layers depend on inner layers
 - **Domain layer is independent** - no external dependencies
 - **Use cases encapsulate business logic** - single responsibility
 - **Repository pattern** - abstraction over data sources
 
 ### 2. Type Safety
+
 - **Strict TypeScript configuration** - no implicit any
 - **Comprehensive type definitions** - every interface documented
 - **Runtime validation** - Zod schemas for API responses
 - **Type-safe navigation** - parameterized routes
 
 ### 3. Performance Optimization
+
 - **Lazy loading** - screens and components
 - **Memoization** - React.memo, useMemo, useCallback
 - **Virtual scrolling** - large lists
@@ -181,6 +191,7 @@ npm run analyze:bundle
 - **Bundle splitting** - feature-based chunks
 
 ### 4. Security Best Practices
+
 - **Input validation** - all user inputs sanitized
 - **Authentication tokens** - secure storage
 - **API security** - rate limiting, CORS, headers
@@ -188,6 +199,7 @@ npm run analyze:bundle
 - **Audit logging** - security events tracked
 
 ### 5. Testing Strategy
+
 - **Unit tests** - individual functions and components
 - **Integration tests** - feature workflows
 - **E2E tests** - complete user journeys
@@ -227,12 +239,14 @@ REACTOTRON_ENABLED=true
 ## 📊 State Management
 
 ### Redux Toolkit Setup
+
 - **Slices** - feature-based state organization
 - **RTK Query** - efficient data fetching
 - **Middleware** - offline, persistence, analytics
 - **DevTools** - development debugging
 
 ### State Structure
+
 ```typescript
 interface RootState {
   auth: AuthState;
@@ -247,6 +261,7 @@ interface RootState {
 ## 🎨 Design System
 
 ### Theme Configuration
+
 - **Colors** - semantic color palette
 - **Typography** - consistent text styles
 - **Spacing** - standardized measurements
@@ -254,6 +269,7 @@ interface RootState {
 - **Animations** - smooth transitions
 
 ### Component Library
+
 - **Atomic Design** - scalable component hierarchy
 - **Accessibility** - WCAG 2.1 AA compliance
 - **Responsive** - adaptive layouts
@@ -262,14 +278,16 @@ interface RootState {
 ## 🌐 Internationalization
 
 ### Supported Languages
+
 - English (en)
-- Spanish (es) 
+- Spanish (es)
 - French (fr)
 - German (de)
 - Italian (it)
 - Portuguese (pt)
 
 ### Implementation
+
 - **react-i18next** - translation management
 - **Namespace separation** - feature-based translations
 - **Pluralization** - language-specific rules
@@ -278,12 +296,14 @@ interface RootState {
 ## 🔒 Security Features
 
 ### Authentication
+
 - **JWT tokens** - stateless authentication
 - **Refresh tokens** - secure token renewal
 - **Biometric auth** - fingerprint/face ID
 - **2FA support** - multi-factor authentication
 
 ### Data Protection
+
 - **Encryption at rest** - sensitive data encrypted
 - **Secure storage** - Keychain/Keystore
 - **Network security** - TLS/SSL, certificate pinning
@@ -292,12 +312,14 @@ interface RootState {
 ## 📈 Monitoring & Analytics
 
 ### Performance Monitoring
+
 - **React Native Performance** - render times, memory
 - **Network monitoring** - API response times
 - **Crash reporting** - error tracking and reporting
 - **User analytics** - usage patterns and flows
 
 ### Development Tools
+
 - **Flipper** - debugging and profiling
 - **Reactotron** - state inspection
 - **Metro** - bundler optimization
@@ -306,6 +328,7 @@ interface RootState {
 ## 🚀 Deployment
 
 ### Build Process
+
 1. **Code quality checks** - linting, formatting, types
 2. **Test execution** - unit, integration, E2E
 3. **Security scanning** - vulnerability assessment
@@ -313,6 +336,7 @@ interface RootState {
 5. **Asset processing** - image compression, icon generation
 
 ### Release Management
+
 - **Semantic versioning** - automated version bumping
 - **Changelog generation** - automated release notes
 - **App store deployment** - Fastlane integration
@@ -321,6 +345,7 @@ interface RootState {
 ## 🤝 Contributing
 
 ### Development Guidelines
+
 1. **Follow clean architecture** - respect layer boundaries
 2. **Write tests** - maintain 90%+ coverage
 3. **Document changes** - update README and comments
@@ -328,6 +353,7 @@ interface RootState {
 5. **Review checklist** - security, performance, accessibility
 
 ### Code Review Process
+
 1. **Automated checks** - CI/CD pipeline validation
 2. **Peer review** - code quality and design
 3. **Security review** - vulnerability assessment
@@ -344,12 +370,14 @@ interface RootState {
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
 
 ## 🆘 Support
 
 - **Documentation**: [docs.pentrypal.app](https://docs.pentrypal.app)
-- **Issues**: [GitHub Issues](https://github.com/pentrypal/pentrypal-next/issues)
+- **Issues**:
+  [GitHub Issues](https://github.com/pentrypal/pentrypal-next/issues)
 - **Email**: support@pentrypal.app
 - **Discord**: [Community Server](https://discord.gg/pentrypal)
 

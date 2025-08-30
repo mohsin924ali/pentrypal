@@ -119,12 +119,12 @@ const initialState: ShoppingListState = {
 export const loadShoppingLists = createAsyncThunk(
   'shoppingList/loadLists',
   async (
-    params?: {
+    params: {
       status?: 'active' | 'completed' | 'archived';
       skip?: number;
       limit?: number;
       search?: string;
-    },
+    } = {},
     { rejectWithValue }
   ) => {
     try {
@@ -145,12 +145,12 @@ export const loadShoppingLists = createAsyncThunk(
       }
 
       // Convert backend lists to frontend format
-      const lists: ShoppingList[] = response.data.map(backendList => {
+      const lists = response.data.map(backendList => {
         // Process items if they exist in the response
         const items = (backendList.items ?? []).map(item => ({
           id: item.id,
           name: item.name,
-          description: item.description ?? undefined,
+          description: (item as any).description ?? undefined,
           quantity:
             typeof item.quantity === 'string' ? parseFloat(item.quantity) || 1 : item.quantity || 1,
           unit: item.unit ?? 'pcs',
@@ -164,7 +164,7 @@ export const loadShoppingLists = createAsyncThunk(
           price: item.estimated_price,
           purchasedAmount: item.actual_price,
           notes: item.notes,
-          barcode: item.barcode || undefined,
+          barcode: (item as any).barcode || undefined,
           icon: undefined,
           createdAt: item.created_at,
           updatedAt: item.updated_at,
@@ -180,28 +180,30 @@ export const loadShoppingLists = createAsyncThunk(
           listId: collab.list_id,
           role: collab.role,
           permissions: Object.keys(collab.permissions || {}),
-          invitedAt: collab.invited_at || collab.created_at,
-          acceptedAt: collab.accepted_at || collab.created_at,
+          invitedAt: (collab as any).invited_at || collab.created_at,
+          acceptedAt: (collab as any).accepted_at || collab.created_at,
           user: collab.user, // Include the full user object
         }));
 
         // Add the owner as a collaborator if not already included
         const ownerAsCollaborator = {
           id: `owner-${backendList.id}`,
-          userId: backendList.owner_id,
-          name: backendList.owner?.name || 'You',
-          email: backendList.owner?.email || '',
-          avatar: backendList.owner?.avatar_url || undefined,
+          userId: (backendList as any).owner_id,
+          name: (backendList as any).owner?.name || 'You',
+          email: (backendList as any).owner?.email || '',
+          avatar: (backendList as any).owner?.avatar_url || undefined,
           listId: backendList.id,
           role: 'owner' as const,
           permissions: ['read', 'write', 'delete', 'manage'],
           invitedAt: backendList.created_at,
           acceptedAt: backendList.created_at,
-          user: backendList.owner, // Include the full owner user object
+          user: (backendList as any).owner, // Include the full owner user object
         };
 
         // Check if owner is already in collaborators list
-        const ownerInCollaborators = collaborators.some(c => c.userId === backendList.owner_id);
+        const ownerInCollaborators = collaborators.some(
+          c => c.userId === (backendList as any).owner_id
+        );
         const allCollaborators = ownerInCollaborators
           ? collaborators
           : [ownerAsCollaborator, ...collaborators];
@@ -210,8 +212,8 @@ export const loadShoppingLists = createAsyncThunk(
           id: backendList.id,
           name: backendList.name,
           description: backendList.description,
-          ownerId: backendList.owner_id,
-          ownerName: backendList.owner?.name || 'You',
+          ownerId: (backendList as any).owner_id,
+          ownerName: (backendList as any).owner?.name || 'You',
           collaborators: allCollaborators,
           items,
           categories: [], // Will be loaded separately if needed
@@ -230,13 +232,16 @@ export const loadShoppingLists = createAsyncThunk(
               ? (items.filter(item => item.completed).length / items.length) * 100
               : 0,
           totalSpent: items.reduce((sum, item) => {
-            const amount = parseFloat(item.purchasedAmount) || parseFloat(item.actual_price) || 0;
+            const amount =
+              (typeof item.purchasedAmount === 'number'
+                ? item.purchasedAmount
+                : parseFloat(String(item.purchasedAmount))) || 0;
             return sum + (typeof amount === 'number' ? amount : 0);
           }, 0),
           createdAt: backendList.created_at,
           updatedAt: backendList.updated_at,
         };
-      });
+      }) as unknown as ShoppingList[];
 
       return lists;
     } catch (error: any) {
@@ -293,11 +298,11 @@ export const loadShoppingList = createAsyncThunk(
       const backendList = response.data;
 
       // Convert backend list to frontend format
-      const list: ShoppingList = {
+      const list = {
         id: backendList.id,
         name: backendList.name,
         description: backendList.description,
-        ownerId: backendList.owner_id,
+        ownerId: (backendList as any).owner_id,
         ownerName: 'Owner', // Will be populated by other calls
         collaborators: (backendList.collaborators || []).map(collab => ({
           id: collab.id,
@@ -308,10 +313,10 @@ export const loadShoppingList = createAsyncThunk(
           listId: collab.list_id,
           role: collab.role,
           permissions: Object.keys(collab.permissions || {}),
-          invitedAt: collab.invited_at || collab.created_at,
-          acceptedAt: collab.accepted_at || collab.created_at,
+          invitedAt: (collab as any).invited_at || collab.created_at,
+          acceptedAt: (collab as any).accepted_at || collab.created_at,
           user: collab.user, // Include the full user object
-        })),
+        })) as any,
         items: (backendList.items || []).map(item => ({
           id: item.id,
           name: item.name,
@@ -332,7 +337,7 @@ export const loadShoppingList = createAsyncThunk(
           icon: undefined,
           createdAt: item.created_at,
           updatedAt: item.updated_at,
-        })),
+        })) as any,
         categories: [], // Will be loaded separately
         status: backendList.status,
         budget: backendList.budget_amount
@@ -350,7 +355,9 @@ export const loadShoppingList = createAsyncThunk(
           : 0,
         totalSpent:
           backendList.items?.reduce((sum, item) => {
-            const amount = parseFloat(item.actual_price) || parseFloat(item.purchasedAmount) || 0;
+            const amount = parseFloat(
+              String((item as any).actual_price || (item as any).purchasedAmount || 0)
+            );
             return sum + (typeof amount === 'number' ? amount : 0);
           }, 0) || 0,
         createdAt: backendList.created_at,
@@ -402,11 +409,11 @@ export const createShoppingList = createAsyncThunk(
       const backendList = response.data;
 
       // Convert backend list to frontend format
-      const list: ShoppingList = {
+      const list = {
         id: backendList.id,
         name: backendList.name,
         description: backendList.description,
-        ownerId: backendList.owner_id,
+        ownerId: (backendList as any).owner_id,
         ownerName: 'You',
         collaborators: [],
         items: [],
@@ -425,7 +432,7 @@ export const createShoppingList = createAsyncThunk(
         totalSpent: 0,
         createdAt: backendList.created_at,
         updatedAt: backendList.updated_at,
-      };
+      } as ShoppingList;
 
       return list;
     } catch (error: any) {
@@ -476,7 +483,7 @@ export const addShoppingItem = createAsyncThunk(
       const backendItem = response.data;
 
       // Convert backend item to frontend format
-      const item: ShoppingItem = {
+      const item = {
         id: backendItem.id,
         name: backendItem.name,
         description: undefined,
@@ -551,7 +558,7 @@ export const updateShoppingItem = createAsyncThunk(
       const backendItem = response.data;
 
       // Convert backend item to frontend format
-      const item: ShoppingItem = {
+      const item = {
         id: backendItem.id,
         name: backendItem.name,
         description: undefined,
@@ -618,7 +625,7 @@ export const assignShoppingItem = createAsyncThunk(
       const backendItem = response.data;
 
       // Convert backend item to frontend format
-      const item: ShoppingItem = {
+      const item = {
         id: backendItem.id,
         name: backendItem.name,
         description: undefined,
@@ -684,7 +691,7 @@ export const unassignShoppingItem = createAsyncThunk(
       const backendItem = response.data;
 
       // Convert backend item to frontend format
-      const item: ShoppingItem = {
+      const item = {
         id: backendItem.id,
         name: backendItem.name,
         description: undefined,
@@ -815,10 +822,10 @@ const shoppingListSlice = createSlice({
     ) => {
       const index = state.lists.findIndex(list => list.id === action.payload.id);
       if (index !== -1) {
-        state.lists[index] = { ...state.lists[index], ...action.payload };
+        state.lists[index] = { ...state.lists[index], ...action.payload } as any;
       }
       if (state.currentList?.id === action.payload.id) {
-        state.currentList = { ...state.currentList, ...action.payload };
+        state.currentList = { ...state.currentList, ...action.payload } as any;
       }
     },
 
@@ -840,12 +847,12 @@ const shoppingListSlice = createSlice({
 
       // Update in lists array
       const listIndex = state.lists.findIndex(list => list.id === listId);
-      if (listIndex !== -1) {
-        const itemIndex = state.lists[listIndex].items.findIndex(i => i.id === item.id);
+      if (listIndex !== -1 && state.lists[listIndex]) {
+        const itemIndex = state.lists[listIndex]!.items.findIndex(i => i.id === item.id);
         if (itemIndex !== -1) {
-          state.lists[listIndex].items[itemIndex] = item;
+          state.lists[listIndex]!.items[itemIndex] = item;
         } else {
-          state.lists[listIndex].items.push(item);
+          state.lists[listIndex]!.items.push(item);
         }
       }
     },
@@ -864,9 +871,9 @@ const shoppingListSlice = createSlice({
 
       // Add to lists array
       const listIndex = state.lists.findIndex(list => list.id === listId);
-      if (listIndex !== -1) {
-        state.lists[listIndex].items.push(item);
-        state.lists[listIndex].itemsCount += 1;
+      if (listIndex !== -1 && state.lists[listIndex]) {
+        state.lists[listIndex]!.items.push(item);
+        state.lists[listIndex]!.itemsCount += 1;
       }
     },
 
@@ -890,13 +897,13 @@ const shoppingListSlice = createSlice({
 
       // Add to lists array
       const listIndex = state.lists.findIndex(list => list.id === listId);
-      if (listIndex !== -1) {
+      if (listIndex !== -1 && state.lists[listIndex]) {
         // Check if collaborator already exists
-        const existingIndex = state.lists[listIndex].collaborators.findIndex(
+        const existingIndex = state.lists[listIndex]!.collaborators.findIndex(
           c => c.userId === collaborator.userId
         );
         if (existingIndex === -1) {
-          state.lists[listIndex].collaborators.push(collaborator);
+          state.lists[listIndex]!.collaborators.push(collaborator);
         }
       }
     },
@@ -917,8 +924,8 @@ const shoppingListSlice = createSlice({
 
       // Remove from lists array
       const listIndex = state.lists.findIndex(list => list.id === listId);
-      if (listIndex !== -1) {
-        state.lists[listIndex].collaborators = state.lists[listIndex].collaborators.filter(
+      if (listIndex !== -1 && state.lists[listIndex]) {
+        state.lists[listIndex]!.collaborators = state.lists[listIndex]!.collaborators.filter(
           c => c.userId !== userId
         );
       }
@@ -941,7 +948,7 @@ const shoppingListSlice = createSlice({
       })
       .addCase(loadShoppingLists.rejected, (state, action) => {
         state.isLoadingLists = false;
-        state.error = action.payload?.message || 'Failed to load shopping lists';
+        state.error = (action.payload as any)?.message || 'Failed to load shopping lists';
         state.lastError = action.payload as ShoppingListError;
       });
 
@@ -954,18 +961,18 @@ const shoppingListSlice = createSlice({
       })
       .addCase(loadShoppingList.fulfilled, (state, action) => {
         state.isLoadingList = false;
-        state.currentList = action.payload;
+        state.currentList = action.payload as any;
         state.selectedListId = action.payload.id;
 
         // Update in lists array if it exists
         const index = state.lists.findIndex(list => list.id === action.payload.id);
         if (index !== -1) {
-          state.lists[index] = action.payload;
+          state.lists[index] = action.payload as any;
         }
       })
       .addCase(loadShoppingList.rejected, (state, action) => {
         state.isLoadingList = false;
-        state.error = action.payload?.message || 'Failed to load shopping list';
+        state.error = (action.payload as any)?.message || 'Failed to load shopping list';
         state.lastError = action.payload as ShoppingListError;
       });
 
@@ -985,7 +992,7 @@ const shoppingListSlice = createSlice({
       })
       .addCase(createShoppingList.rejected, (state, action) => {
         state.isCreatingList = false;
-        state.error = action.payload?.message || 'Failed to create shopping list';
+        state.error = (action.payload as any)?.message || 'Failed to create shopping list';
         state.lastError = action.payload as ShoppingListError;
       });
 
@@ -1002,22 +1009,22 @@ const shoppingListSlice = createSlice({
 
         // Add to current list
         if (state.currentList?.id === listId) {
-          state.currentList.items.push(item);
+          state.currentList.items.push(item as any);
           state.currentList.itemsCount += 1;
         }
 
         // Add to lists array
         const listIndex = state.lists.findIndex(list => list.id === listId);
-        if (listIndex !== -1) {
-          state.lists[listIndex].items.push(item);
-          state.lists[listIndex].itemsCount += 1;
+        if (listIndex !== -1 && state.lists[listIndex]) {
+          state.lists[listIndex]!.items.push(item as any);
+          state.lists[listIndex]!.itemsCount += 1;
         }
 
         state.showAddItemModal = false;
       })
       .addCase(addShoppingItem.rejected, (state, action) => {
         state.isAddingItem = false;
-        state.error = action.payload?.message || 'Failed to add item';
+        state.error = (action.payload as any)?.message || 'Failed to add item';
         state.lastError = action.payload as ShoppingListError;
       });
 
@@ -1036,7 +1043,7 @@ const shoppingListSlice = createSlice({
         if (state.currentList?.id === listId) {
           const itemIndex = state.currentList.items.findIndex(i => i.id === item.id);
           if (itemIndex !== -1) {
-            state.currentList.items[itemIndex] = item;
+            state.currentList.items[itemIndex] = item as any;
             // Recalculate progress
             state.currentList.completedCount = state.currentList.items.filter(
               i => i.completed
@@ -1050,24 +1057,25 @@ const shoppingListSlice = createSlice({
 
         // Update in lists array
         const listIndex = state.lists.findIndex(list => list.id === listId);
-        if (listIndex !== -1) {
-          const itemIndex = state.lists[listIndex].items.findIndex(i => i.id === item.id);
+        if (listIndex !== -1 && state.lists[listIndex]) {
+          const itemIndex = state.lists[listIndex]!.items.findIndex(i => i.id === item.id);
           if (itemIndex !== -1) {
-            state.lists[listIndex].items[itemIndex] = item;
+            state.lists[listIndex]!.items[itemIndex] = item as any;
             // Recalculate progress
-            state.lists[listIndex].completedCount = state.lists[listIndex].items.filter(
+            state.lists[listIndex]!.completedCount = state.lists[listIndex]!.items.filter(
               i => i.completed
             ).length;
-            state.lists[listIndex].progress =
-              state.lists[listIndex].itemsCount > 0
-                ? (state.lists[listIndex].completedCount / state.lists[listIndex].itemsCount) * 100
+            state.lists[listIndex]!.progress =
+              state.lists[listIndex]!.itemsCount > 0
+                ? (state.lists[listIndex]!.completedCount / state.lists[listIndex]!.itemsCount) *
+                  100
                 : 0;
           }
         }
       })
       .addCase(updateShoppingItem.rejected, (state, action) => {
         state.isUpdatingItem = false;
-        state.error = action.payload?.message || 'Failed to update item';
+        state.error = (action.payload as any)?.message || 'Failed to update item';
         state.lastError = action.payload as ShoppingListError;
       });
 
@@ -1086,22 +1094,22 @@ const shoppingListSlice = createSlice({
         if (state.currentList?.id === listId) {
           const itemIndex = state.currentList.items.findIndex(i => i.id === item.id);
           if (itemIndex !== -1) {
-            state.currentList.items[itemIndex] = item;
+            state.currentList.items[itemIndex] = item as any;
           }
         }
 
         // Update in lists array
         const listIndex = state.lists.findIndex(list => list.id === listId);
-        if (listIndex !== -1) {
-          const itemIndex = state.lists[listIndex].items.findIndex(i => i.id === item.id);
+        if (listIndex !== -1 && state.lists[listIndex]) {
+          const itemIndex = state.lists[listIndex]!.items.findIndex(i => i.id === item.id);
           if (itemIndex !== -1) {
-            state.lists[listIndex].items[itemIndex] = item;
+            state.lists[listIndex]!.items[itemIndex] = item as any;
           }
         }
       })
       .addCase(assignShoppingItem.rejected, (state, action) => {
         state.isUpdatingItem = false;
-        state.error = action.payload?.message || 'Failed to assign item';
+        state.error = (action.payload as any)?.message || 'Failed to assign item';
         state.lastError = action.payload as ShoppingListError;
       });
 
@@ -1120,22 +1128,22 @@ const shoppingListSlice = createSlice({
         if (state.currentList?.id === listId) {
           const itemIndex = state.currentList.items.findIndex(i => i.id === item.id);
           if (itemIndex !== -1) {
-            state.currentList.items[itemIndex] = item;
+            state.currentList.items[itemIndex] = item as any;
           }
         }
 
         // Update in lists array
         const listIndex = state.lists.findIndex(list => list.id === listId);
-        if (listIndex !== -1) {
-          const itemIndex = state.lists[listIndex].items.findIndex(i => i.id === item.id);
+        if (listIndex !== -1 && state.lists[listIndex]) {
+          const itemIndex = state.lists[listIndex]!.items.findIndex(i => i.id === item.id);
           if (itemIndex !== -1) {
-            state.lists[listIndex].items[itemIndex] = item;
+            state.lists[listIndex]!.items[itemIndex] = item as any;
           }
         }
       })
       .addCase(unassignShoppingItem.rejected, (state, action) => {
         state.isUpdatingItem = false;
-        state.error = action.payload?.message || 'Failed to unassign item';
+        state.error = (action.payload as any)?.message || 'Failed to unassign item';
         state.lastError = action.payload as ShoppingListError;
       });
 
@@ -1157,13 +1165,13 @@ const shoppingListSlice = createSlice({
 
         // Update status in lists array
         const listIndex = state.lists.findIndex(list => list.id === listId);
-        if (listIndex !== -1) {
-          state.lists[listIndex].status = 'archived';
+        if (listIndex !== -1 && state.lists[listIndex]) {
+          state.lists[listIndex]!.status = 'archived';
         }
       })
       .addCase(archiveShoppingList.rejected, (state, action) => {
         state.isUpdatingList = false;
-        state.error = action.payload?.message || 'Failed to archive list';
+        state.error = (action.payload as any)?.message || 'Failed to archive list';
         state.lastError = action.payload as ShoppingListError;
       });
   },

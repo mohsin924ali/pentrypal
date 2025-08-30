@@ -101,7 +101,6 @@ class GlobalNotificationService {
     const index = this.notifications.findIndex(n => n.id === notificationId);
     if (index !== -1) {
       const deleted = this.notifications.splice(index, 1)[0];
-      console.log(`🗑️ Deleted notification: ${deleted.title}`);
       this.notifyListeners();
     }
   }

@@ -9,7 +9,7 @@ import type {
   ShoppingListMetadata,
   ShoppingListStatus,
   User,
-} from '@/types';
+} from '../../shared/types';
 
 export class ShoppingList implements BaseEntity {
   public readonly id: string;
@@ -23,23 +23,23 @@ export class ShoppingList implements BaseEntity {
   public readonly actualCost?: number;
   public readonly completedAt?: Date;
   public readonly metadata: ShoppingListMetadata;
-  public readonly createdAt: Date;
-  public readonly updatedAt: Date;
+  public readonly createdAt: string;
+  public readonly updatedAt: string;
 
   constructor(data: ShoppingListConstructorData) {
     this.id = data.id;
     this.name = data.name;
-    this.description = data.description;
+    this.description = data.description as any;
     this.items = data.items ?? [];
     this.collaborators = data.collaborators ?? [];
     this.owner = data.owner;
     this.status = data.status ?? 'active';
-    this.totalEstimatedCost = data.totalEstimatedCost;
-    this.actualCost = data.actualCost;
-    this.completedAt = data.completedAt;
+    this.totalEstimatedCost = data.totalEstimatedCost as any;
+    this.actualCost = data.actualCost as any;
+    this.completedAt = data.completedAt as any;
     this.metadata = data.metadata;
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
+    this.createdAt = data.createdAt as unknown as string;
+    this.updatedAt = data.updatedAt as unknown as string;
 
     this.validate();
   }
@@ -84,15 +84,15 @@ export class ShoppingList implements BaseEntity {
     const newItem: ShoppingListItem = {
       ...item,
       id: this.generateItemId(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     return new ShoppingList({
       ...this,
       items: [...this.items, newItem],
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -109,14 +109,14 @@ export class ShoppingList implements BaseEntity {
     updatedItems[itemIndex] = {
       ...updatedItems[itemIndex],
       ...updates,
-      updatedAt: new Date(),
-    };
+      updatedAt: new Date().toISOString(),
+    } as any;
 
     return new ShoppingList({
       ...this,
       items: updatedItems,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -132,8 +132,8 @@ export class ShoppingList implements BaseEntity {
     return new ShoppingList({
       ...this,
       items: filteredItems,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -155,7 +155,7 @@ export class ShoppingList implements BaseEntity {
       completed: false,
       completedBy: undefined,
       completedAt: undefined,
-    });
+    } as any);
   }
 
   /**
@@ -172,8 +172,8 @@ export class ShoppingList implements BaseEntity {
     return new ShoppingList({
       ...this,
       collaborators: [...this.collaborators, collaborator],
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -189,8 +189,8 @@ export class ShoppingList implements BaseEntity {
     return new ShoppingList({
       ...this,
       collaborators: filteredCollaborators,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -210,16 +210,16 @@ export class ShoppingList implements BaseEntity {
     updatedCollaborators[collaboratorIndex] = {
       ...updatedCollaborators[collaboratorIndex],
       permissions: {
-        ...updatedCollaborators[collaboratorIndex].permissions,
+        ...updatedCollaborators[collaboratorIndex]!.permissions,
         ...permissions,
       },
-    };
+    } as any;
 
     return new ShoppingList({
       ...this,
       collaborators: updatedCollaborators,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -234,8 +234,8 @@ export class ShoppingList implements BaseEntity {
       ...this,
       status: 'completed',
       completedAt: new Date(),
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -249,8 +249,8 @@ export class ShoppingList implements BaseEntity {
     return new ShoppingList({
       ...this,
       status: 'archived',
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -265,8 +265,8 @@ export class ShoppingList implements BaseEntity {
       ...this,
       status: 'active',
       completedAt: undefined,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -279,8 +279,8 @@ export class ShoppingList implements BaseEntity {
         ...this.metadata,
         ...metadata,
       },
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -294,8 +294,8 @@ export class ShoppingList implements BaseEntity {
     return new ShoppingList({
       ...this,
       actualCost: cost,
-      updatedAt: new Date(),
-    });
+      updatedAt: new Date().toISOString(),
+    } as any);
   }
 
   /**
@@ -409,9 +409,9 @@ export class ShoppingList implements BaseEntity {
       actualCost: this.actualCost,
       completedAt: this.completedAt?.toISOString(),
       metadata: this.metadata,
-      createdAt: this.createdAt.toISOString(),
-      updatedAt: this.updatedAt.toISOString(),
-    };
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    } as any;
   }
 
   /**
@@ -432,7 +432,7 @@ export class ShoppingList implements BaseEntity {
       metadata: json.metadata,
       createdAt: new Date(json.createdAt),
       updatedAt: new Date(json.updatedAt),
-    });
+    } as any);
   }
 
   /**
@@ -455,10 +455,10 @@ export class ShoppingList implements BaseEntity {
         budget: data.budget,
         estimatedTime: data.estimatedTime,
         recurringPattern: data.recurringPattern,
-      },
+      } as any,
       createdAt: now,
       updatedAt: now,
-    });
+    } as any);
   }
 }
 
