@@ -73,15 +73,42 @@ export class ApiClient {
     this.refreshToken = null;
   }
 
+  private async clearAllAuthenticationData(): Promise<void> {
+    try {
+      // Clear secure storage
+      const { SecureTokenStorage } = await import('../storage/SecureTokenStorage');
+      await SecureTokenStorage.removeTokens(STORAGE_KEYS.authTokens);
+
+      // Clear AsyncStorage
+      await AsyncStorage.removeItem(STORAGE_KEYS.authTokens);
+
+      // Force logout in Redux store
+      const { forceResetAuthentication } = await import('./index');
+      await forceResetAuthentication();
+
+      // eslint-disable-next-line no-console
+      console.log('🗑️ All authentication data cleared - user needs to log in again');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to clear authentication data:', error);
+    }
+  }
+
   private async refreshAccessToken(): Promise<BackendTokens> {
     if (!this.refreshToken) {
+      // eslint-disable-next-line no-console
+      console.error('❌ No refresh token available for token refresh');
       throw new Error('No refresh token available');
     }
 
     if (this.isRefreshing && this.refreshPromise) {
+      // eslint-disable-next-line no-console
+      console.log('⏳ Token refresh already in progress, waiting...');
       return this.refreshPromise;
     }
 
+    // eslint-disable-next-line no-console
+    console.log('🔄 Starting token refresh process...');
     this.isRefreshing = true;
     this.refreshPromise = this.performTokenRefresh();
 
@@ -91,8 +118,27 @@ export class ApiClient {
 
       // Store new tokens
       await AsyncStorage.setItem(STORAGE_KEYS.authTokens, JSON.stringify(newTokens));
+      // eslint-disable-next-line no-console
+      console.log('✅ New tokens stored successfully');
+
+      // Trigger WebSocket reconnection with fresh tokens
+      try {
+        const { reconnectWebSocketWithFreshTokens } = await import(
+          '../services/websocketIntegration'
+        );
+        await reconnectWebSocketWithFreshTokens();
+        // eslint-disable-next-line no-console
+        console.log('🔄 WebSocket reconnected with fresh tokens');
+      } catch (wsError) {
+        // eslint-disable-next-line no-console
+        console.warn('⚠️ Failed to reconnect WebSocket after token refresh:', wsError);
+      }
 
       return newTokens;
+    } catch (refreshError) {
+      // eslint-disable-next-line no-console
+      console.error('❌ Token refresh failed completely:', refreshError);
+      throw refreshError;
     } finally {
       this.isRefreshing = false;
       this.refreshPromise = null;
@@ -100,6 +146,9 @@ export class ApiClient {
   }
 
   private async performTokenRefresh(): Promise<BackendTokens> {
+    // eslint-disable-next-line no-console
+    console.log('🔄 Sending refresh token request to backend...');
+
     const response = await fetch(`${this.config.baseUrl}/auth/refresh`, {
       method: 'POST',
       headers: {
@@ -110,11 +159,23 @@ export class ApiClient {
       }),
     });
 
+    // eslint-disable-next-line no-console
+    console.log(`📡 Refresh response status: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
-      throw new Error('Token refresh failed');
+      const errorText = await response.text();
+      // eslint-disable-next-line no-console
+      console.error(`❌ Token refresh failed with ${response.status}: ${errorText}`);
+
+      if (response.status === 422) {
+        throw new Error('Refresh token is invalid or expired. Please log in again.');
+      }
+      throw new Error(`Token refresh failed: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
+    // eslint-disable-next-line no-console
+    console.log('✅ Token refresh successful, received new tokens');
     return data.tokens || data;
   }
 
@@ -154,13 +215,20 @@ export class ApiClient {
         // Handle token expiration (but not for auth endpoints)
         if (!isAuthEndpoint && this.isTokenExpiredError(error) && config.requiresAuth !== false) {
           try {
+            // eslint-disable-next-line no-console
+            console.log('🔄 Attempting token refresh due to expired token...');
             await this.refreshAccessToken();
+            // eslint-disable-next-line no-console
+            console.log('✅ Token refresh successful, retrying request...');
             // Retry the request with new token
             continue;
           } catch (refreshError) {
-            // Token refresh failed, clear tokens and throw error
+            // eslint-disable-next-line no-console
+            console.error('❌ Token refresh failed:', refreshError);
+            // Token refresh failed, clear tokens and force re-authentication
             this.clearTokens();
             await AsyncStorage.removeItem(STORAGE_KEYS.authTokens);
+            await this.clearAllAuthenticationData();
             throw new Error('Authentication failed');
           }
         }
@@ -281,10 +349,16 @@ export class ApiClient {
   }
 
   private isTokenExpiredError(error: any): boolean {
+    const errorMessage = error?.message?.toLowerCase() || '';
     return (
-      error?.message?.includes('token') ||
-      error?.message?.includes('401') ||
-      error?.message?.includes('Unauthorized')
+      errorMessage.includes('token') ||
+      errorMessage.includes('401') ||
+      errorMessage.includes('unauthorized') ||
+      errorMessage.includes('not authenticated') ||
+      errorMessage.includes('authentication failed') ||
+      errorMessage.includes('403') ||
+      errorMessage.includes('forbidden') ||
+      errorMessage.includes('expired')
     );
   }
 

@@ -4,10 +4,11 @@
 
 import React, { type FC } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Image, Text, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTheme } from '../providers/ThemeProvider';
 import { selectFriendRequests } from '../../application/store/slices/socialSlice';
+import { useAppInitialization } from '../../application/hooks/useAppInitialization';
 
 // Screens
 import { DashboardScreen } from '../screens/Dashboard';
@@ -75,6 +76,9 @@ const TabIcon: FC<{
 export const MainNavigator: FC = () => {
   const { theme } = useTheme();
   const friendRequests = useSelector(selectFriendRequests);
+
+  // Initialize app services including WebSocket
+  useAppInitialization();
 
   // Calculate pending requests count - defensive approach
   const pendingRequestsCount = React.useMemo(() => {

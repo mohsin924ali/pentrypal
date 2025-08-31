@@ -297,26 +297,52 @@ export const loadShoppingList = createAsyncThunk(
 
       const backendList = response.data;
 
+      // Process collaborators from backend response
+      const collaborators = (backendList.collaborators || []).map(collab => ({
+        id: collab.id,
+        userId: collab.user_id,
+        name: collab.user?.name || 'Unknown User',
+        email: collab.user?.email || '',
+        avatar: collab.user?.avatar_url || undefined,
+        listId: collab.list_id,
+        role: collab.role,
+        permissions: Object.keys(collab.permissions || {}),
+        invitedAt: (collab as any).invited_at || collab.created_at,
+        acceptedAt: (collab as any).accepted_at || collab.created_at,
+        user: collab.user, // Include the full user object
+      }));
+
+      // Add the owner as a collaborator if not already included
+      const ownerAsCollaborator = {
+        id: `owner-${backendList.id}`,
+        userId: (backendList as any).owner_id,
+        name: (backendList as any).owner?.name || 'You',
+        email: (backendList as any).owner?.email || '',
+        avatar: (backendList as any).owner?.avatar_url || undefined,
+        listId: backendList.id,
+        role: 'owner' as const,
+        permissions: ['read', 'write', 'delete', 'manage'],
+        invitedAt: backendList.created_at,
+        acceptedAt: backendList.created_at,
+        user: (backendList as any).owner, // Include the full owner user object
+      };
+
+      // Check if owner is already in collaborators list
+      const ownerInCollaborators = collaborators.some(
+        c => c.userId === (backendList as any).owner_id
+      );
+      const allCollaborators = ownerInCollaborators
+        ? collaborators
+        : [ownerAsCollaborator, ...collaborators];
+
       // Convert backend list to frontend format
       const list = {
         id: backendList.id,
         name: backendList.name,
         description: backendList.description,
         ownerId: (backendList as any).owner_id,
-        ownerName: 'Owner', // Will be populated by other calls
-        collaborators: (backendList.collaborators || []).map(collab => ({
-          id: collab.id,
-          userId: collab.user_id,
-          name: collab.user?.name || 'Unknown User',
-          email: collab.user?.email || '',
-          avatar: collab.user?.avatar_url || undefined,
-          listId: collab.list_id,
-          role: collab.role,
-          permissions: Object.keys(collab.permissions || {}),
-          invitedAt: (collab as any).invited_at || collab.created_at,
-          acceptedAt: (collab as any).accepted_at || collab.created_at,
-          user: collab.user, // Include the full user object
-        })) as any,
+        ownerName: (backendList as any).owner?.name || 'Owner',
+        collaborators: allCollaborators as any,
         items: (backendList.items || []).map(item => ({
           id: item.id,
           name: item.name,
@@ -774,6 +800,23 @@ const shoppingListSlice = createSlice({
       state.lastError = null;
     },
 
+    // WebSocket Room Management
+    leaveCurrentListRoom: state => {
+      if (state.currentList) {
+        import('../../../infrastructure/services/websocketIntegration')
+          .then(({ leaveListRoom }) => {
+            if (state.currentList) {
+              leaveListRoom(state.currentList.id);
+            }
+          })
+          .catch(error => {
+            console.warn('Failed to leave WebSocket room:', error);
+          });
+        state.currentList = null;
+        state.selectedListId = null;
+      }
+    },
+
     // UI state management
     setSelectedListId: (state, action: PayloadAction<string | null>) => {
       state.selectedListId = action.payload;
@@ -954,10 +997,23 @@ const shoppingListSlice = createSlice({
 
     // Load Shopping List
     builder
-      .addCase(loadShoppingList.pending, state => {
+      .addCase(loadShoppingList.pending, (state, action) => {
         state.isLoadingList = true;
         state.error = null;
         state.lastError = null;
+
+        // Leave previous WebSocket room if switching lists
+        if (state.currentList && state.currentList.id !== action.meta.arg) {
+          import('../../../infrastructure/services/websocketIntegration')
+            .then(({ leaveListRoom }) => {
+              if (state.currentList) {
+                leaveListRoom(state.currentList.id);
+              }
+            })
+            .catch(error => {
+              console.warn('Failed to leave WebSocket room:', error);
+            });
+        }
       })
       .addCase(loadShoppingList.fulfilled, (state, action) => {
         state.isLoadingList = false;
@@ -969,6 +1025,15 @@ const shoppingListSlice = createSlice({
         if (index !== -1) {
           state.lists[index] = action.payload as any;
         }
+
+        // Join WebSocket room for real-time updates
+        import('../../../infrastructure/services/websocketIntegration')
+          .then(({ joinListRoom }) => {
+            joinListRoom(action.payload.id);
+          })
+          .catch(error => {
+            console.warn('Failed to join WebSocket room:', error);
+          });
       })
       .addCase(loadShoppingList.rejected, (state, action) => {
         state.isLoadingList = false;
@@ -1183,6 +1248,7 @@ const shoppingListSlice = createSlice({
 
 export const {
   clearError,
+  leaveCurrentListRoom,
   setSelectedListId,
   setSelectedItemId,
   setShowCreateListModal,

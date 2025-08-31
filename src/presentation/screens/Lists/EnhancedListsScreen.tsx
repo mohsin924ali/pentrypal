@@ -45,6 +45,7 @@ import type { AppDispatch } from '../../../application/store';
 import {
   addCollaboratorToList,
   assignShoppingItem,
+  loadShoppingList,
   loadShoppingLists,
   removeCollaboratorFromList,
   selectIsLoadingLists,
@@ -225,6 +226,25 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   const handleSuccessAnimationComplete = useCallback(() => {
     setShowSuccessAnimation(false);
   }, []);
+
+  // Handle list selection for real-time updates
+  const handleListSelection = useCallback(
+    async (list: ShoppingList) => {
+      const newSelectedId = selectedList === list.id ? null : list.id;
+      setSelectedList(newSelectedId);
+
+      // If selecting a list (not deselecting), load it for WebSocket room joining
+      if (newSelectedId) {
+        try {
+          await dispatch(loadShoppingList(list.id)).unwrap();
+        } catch (loadError) {
+          console.error('Failed to load shopping list for WebSocket room:', loadError);
+          // Continue anyway with local state
+        }
+      }
+    },
+    [dispatch, selectedList]
+  );
 
   // Notification state
   const [unreadCount, setUnreadCount] = useState(0);
@@ -848,9 +868,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
           <TouchableOpacity
             style={[styles.listCard, isArchived && styles.archivedListCard]}
             onPress={
-              isArchived
-                ? () => handleViewArchivedList(list)
-                : () => setSelectedList(selectedList === list.id ? null : list.id)
+              isArchived ? () => handleViewArchivedList(list) : () => handleListSelection(list)
             }
             accessibilityRole='button'
             accessibilityLabel={

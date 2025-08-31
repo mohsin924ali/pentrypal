@@ -108,6 +108,9 @@ class ShoppingListService:
             {"list_name": list_data.name}
         )
         
+        # Send real-time notification for list creation
+        await self._notify_list_update(db_list, "created")
+        
         return db_list
     
     async def update_list(
@@ -151,6 +154,9 @@ class ShoppingListService:
             {"changes": serializable_changes}
         )
         
+        # Send real-time notification for list update
+        await self._notify_list_update(db_list, "updated")
+        
         return db_list
     
     async def delete_list(
@@ -176,6 +182,9 @@ class ShoppingListService:
             db, user_id, "shopping_list", list_id, "deleted",
             {"list_name": db_list.name}
         )
+        
+        # Send real-time notification for list deletion
+        await self._notify_list_update(db_list, "deleted")
         
         db.delete(db_list)
         db.commit()
@@ -247,6 +256,9 @@ class ShoppingListService:
             db, user_id, "shopping_item", str(db_item.id), "created",
             {"item_name": item_data.name, "list_id": list_id}
         )
+        
+        # Send real-time notification for item creation
+        await self._notify_item_update(db_item, "created")
         
         return db_item
     
@@ -320,6 +332,9 @@ class ShoppingListService:
             {"item_name": db_item.name, "list_id": list_id, "changes": serializable_changes}
         )
         
+        # Send real-time notification for item update
+        await self._notify_item_update(db_item, action)
+        
         return db_item
     
     async def delete_item(
@@ -353,6 +368,9 @@ class ShoppingListService:
             db, user_id, "shopping_item", item_id, "deleted",
             {"item_name": db_item.name, "list_id": list_id}
         )
+        
+        # Send real-time notification for item deletion
+        await self._notify_item_update(db_item, "deleted")
         
         db.delete(db_item)
         db.commit()
@@ -469,6 +487,9 @@ class ShoppingListService:
             db, user_id, "list_collaborator", str(db_collaborator.id), "removed",
             {"collaborator_name": collaborator_user.name if collaborator_user else "Unknown", "list_id": list_id}
         )
+        
+        # Send real-time notification for collaborator removal
+        await self._notify_list_update(db_list, "collaborator_removed")
         
         db.delete(db_collaborator)
         db.commit()
@@ -595,6 +616,7 @@ class ShoppingListService:
     async def _notify_item_update(self, shopping_item: ShoppingItem, action: str):
         """Send real-time notification for item updates"""
         try:
+            print(f"🔔 DEBUG: _notify_item_update called for item {shopping_item.name}, action: {action}")
             # Import here to avoid circular imports
             from app.api.v1.endpoints.websocket import notify_item_update
             
@@ -609,10 +631,14 @@ class ShoppingListService:
                 "list_id": str(shopping_item.list_id)
             }
             
+            print(f"🔔 DEBUG: Sending item update notification: {item_data}")
             await notify_item_update(item_data, str(shopping_item.list_id))
+            print(f"🔔 DEBUG: Item update notification sent successfully")
         except Exception as e:
             # Don't fail the main operation if WebSocket notification fails
-            print(f"Failed to send item update notification: {e}")
+            print(f"❌ Failed to send item update notification: {e}")
+            import traceback
+            traceback.print_exc()
     
     async def _notify_collaborator_added(self, db: Session, shopping_list: ShoppingList, collaborator_user: "User", inviter_id: str):
         """Send notification to newly added collaborator"""

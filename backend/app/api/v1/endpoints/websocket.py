@@ -77,23 +77,32 @@ async def handle_websocket_message(message: Dict[str, Any], user_id: str, db: Se
     
     if message_type == "join_list_room":
         # Join a shopping list room for real-time updates
-        list_id = message.get("list_id")
+        # Frontend sends: { type: 'join_list_room', data: { list_id: 'id' } }
+        data = message.get("data", {})
+        list_id = data.get("list_id")
         if list_id:
+            print(f"🔔 DEBUG: User {user_id} requesting to join room: list_{list_id}")
             # Verify user has access to the list
-            shopping_list = await shopping_list_service.get_shopping_list_by_id(db, list_id, user_id)
+            shopping_list = await shopping_list_service.get_list_by_id(db, list_id, user_id)
             if shopping_list:
                 room_id = f"list_{list_id}"
                 await connection_manager.join_room(user_id, room_id)
+                print(f"✅ DEBUG: User {user_id} successfully joined room: {room_id}")
             else:
+                print(f"❌ DEBUG: User {user_id} denied access to list {list_id}")
                 await connection_manager.send_personal_message({
                     "type": "error",
                     "message": "Access denied to shopping list",
                     "list_id": list_id
                 }, user_id)
+        else:
+            print(f"❌ DEBUG: join_list_room message missing list_id. Message: {message}")
     
     elif message_type == "leave_list_room":
         # Leave a shopping list room
-        list_id = message.get("list_id")
+        # Frontend sends: { type: 'leave_list_room', data: { list_id: 'id' } }
+        data = message.get("data", {})
+        list_id = data.get("list_id")
         if list_id:
             room_id = f"list_{list_id}"
             await connection_manager.leave_room(user_id, room_id)

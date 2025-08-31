@@ -31,6 +31,7 @@ import { getAvatarProps, getFallbackAvatar } from '../../../shared/utils/avatarU
 import { useDispatch, useSelector } from 'react-redux';
 import {
   archiveShoppingList,
+  loadShoppingList,
   loadShoppingLists,
   selectFilteredLists,
   selectIsLoadingLists,
@@ -397,6 +398,14 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
     // If selecting a different list, clear previous state
     if (selectedList && selectedList.id !== list.id) {
       setCompletedItems(new Set());
+    }
+
+    // Load the shopping list to set currentList in Redux (for WebSocket room joining)
+    try {
+      await dispatch(loadShoppingList(list.id)).unwrap();
+    } catch (error) {
+      console.error('Failed to load shopping list for WebSocket room:', error);
+      // Continue anyway with local state
     }
 
     setSelectedList(list);

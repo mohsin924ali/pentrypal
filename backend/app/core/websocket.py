@@ -151,7 +151,10 @@ class ConnectionManager:
     
     async def broadcast_to_room(self, message: Dict[str, Any], room_id: str, exclude_user: Optional[str] = None):
         """Broadcast a message to all users in a room"""
+        print(f"🔔 DEBUG: broadcast_to_room called - room: {room_id}, users_in_room: {self.room_subscriptions.get(room_id, [])}")
+        
         if room_id not in self.room_subscriptions:
+            print(f"❌ DEBUG: Room {room_id} not found in rooms: {list(self.room_subscriptions.keys())}")
             return
         
         message_str = json.dumps(message)
@@ -160,11 +163,13 @@ class ConnectionManager:
             if exclude_user and user_id == exclude_user:
                 continue
             
+            print(f"🔔 DEBUG: Trying to send to user {user_id}, connection exists: {user_id in self.active_connections}")
             if user_id in self.active_connections:
                 disconnected_connections = []
                 for websocket in self.active_connections[user_id]:
                     try:
                         await websocket.send_text(message_str)
+                        print(f"✅ DEBUG: Message sent successfully to {user_id}")
                     except Exception as e:
                         print(f"❌ Failed to broadcast to {user_id} in room {room_id}: {e}")
                         disconnected_connections.append(websocket)
@@ -235,6 +240,7 @@ class ConnectionManager:
             "data": item_data,
             "timestamp": datetime.utcnow().isoformat()
         }
+        print(f"🔔 DEBUG: send_item_update called - room: {room_id}, data: {item_data}")
         await self.broadcast_to_room(update_message, room_id)
     
     async def send_friend_request_notification(self, request_data: Dict[str, Any], user_id: str):

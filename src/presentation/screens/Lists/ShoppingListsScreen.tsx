@@ -22,6 +22,7 @@ import { useTheme } from '../../providers/ThemeProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   createShoppingList,
+  loadShoppingList,
   loadShoppingLists,
   selectFilteredLists,
   selectIsCreatingList,
@@ -140,7 +141,14 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
 
   // Handle list press
   const handleListPress = useCallback(
-    (list: ShoppingList) => {
+    async (list: ShoppingList) => {
+      // Load the shopping list to set currentList in Redux (for WebSocket room joining)
+      try {
+        await dispatch(loadShoppingList(list.id)).unwrap();
+      } catch (error) {
+        console.error('Failed to load shopping list for WebSocket room:', error);
+      }
+
       if (onListPress) {
         onListPress(list);
       } else {
@@ -148,7 +156,7 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
         Alert.alert('List Selected', `You selected: ${list.name}`);
       }
     },
-    [onListPress]
+    [dispatch, onListPress]
   );
 
   // Render list item

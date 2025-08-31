@@ -71,8 +71,19 @@ export class WebSocketIntegration {
     }
 
     websocketLogger.debug('🔌 Connecting WebSocket with auth token');
+    websocketLogger.debug(
+      `🔐 Using access token: ${authState.tokens.accessToken.substring(0, 50)}...`
+    );
     webSocketService.setAccessToken(authState.tokens.accessToken);
     await webSocketService.connect();
+  }
+
+  /**
+   * Reconnect with fresh tokens after token refresh
+   */
+  public async reconnectWithFreshTokens(): Promise<void> {
+    websocketLogger.debug('🔄 Reconnecting WebSocket with refreshed tokens');
+    await this.connect();
   }
 
   /**
@@ -325,7 +336,7 @@ export class WebSocketIntegration {
       // Import notification service
       import('./notificationService')
         .then(notificationModule => {
-          const notificationService = (notificationModule as any).notificationService;
+          const notificationService = notificationModule.default;
           // Handle different notification types
           switch (notificationData.type) {
             case 'list_shared':
@@ -413,6 +424,8 @@ export const webSocketIntegration = new WebSocketIntegration();
 export const initializeWebSocket = () => webSocketIntegration.initialize();
 export const connectWebSocket = () => webSocketIntegration.connect();
 export const disconnectWebSocket = () => webSocketIntegration.disconnect();
+export const reconnectWebSocketWithFreshTokens = () =>
+  webSocketIntegration.reconnectWithFreshTokens();
 export const joinListRoom = (listId: string) => webSocketIntegration.joinListRoom(listId);
 export const leaveListRoom = (listId: string) => webSocketIntegration.leaveListRoom(listId);
 export const sendTypingIndicator = (listId: string, isTyping: boolean) =>
