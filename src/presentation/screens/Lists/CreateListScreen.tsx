@@ -696,7 +696,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
           </Typography>
           <View style={styles.categoryInfo}>
             <Typography
-              variant='h3'
+              variant='h5'
               color={safeTheme.colors.text.primary}
               style={styles.categoryName}>
               {category.name}
@@ -1125,7 +1125,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         {showCategories && !searchQuery.trim() && (
           <View style={styles.categoriesSection}>
             <Typography
-              variant='h3'
+              variant='h5'
               color={safeTheme.colors.text.primary}
               style={styles.sectionTitle}>
               Selected Items ({selectedItems.size} selected)
@@ -1149,7 +1149,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         {!showCategories && (
           <View style={styles.initialState}>
             <Typography
-              variant='h3'
+              variant='h5'
               color={safeTheme.colors.text.primary}
               style={styles.initialStateTitle}>
               🛒 Ready to create your list?
@@ -1291,8 +1291,8 @@ const styles = {
   } as ViewStyle,
 
   sectionTitle: {
-    fontWeight: '700',
-    marginBottom: 16,
+    fontWeight: '600',
+    marginBottom: 12,
   } as ViewStyle,
 
   categoryContainer: {
@@ -1328,7 +1328,7 @@ const styles = {
   } as ViewStyle,
 
   categoryName: {
-    fontWeight: '700',
+    fontWeight: '600',
     marginBottom: 2,
   } as ViewStyle,
 
@@ -1453,9 +1453,9 @@ const styles = {
   } as ViewStyle,
 
   initialStateTitle: {
-    fontWeight: '700',
+    fontWeight: '600',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   } as ViewStyle,
 
   initialStateDescription: {
