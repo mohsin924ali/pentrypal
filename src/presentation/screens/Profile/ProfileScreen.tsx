@@ -16,6 +16,9 @@ import { ProfilePhotoModal } from '../../components/molecules/ProfilePhotoModal'
 import { useTheme } from '../../providers/ThemeProvider';
 import { useNetwork } from '../../providers/NetworkProvider';
 
+// Styles
+import { baseStyles, createDynamicStyles, createThemedStyles } from './ProfileScreen.styles';
+
 // Store
 import type { AppDispatch, RootState } from '../../../application/store';
 import {
@@ -59,6 +62,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
 
   // Modal states
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+
+  // Create themed styles
+  const themedStyles = createThemedStyles(theme);
+  const dynamicStyles = createDynamicStyles(theme);
 
   // Handle logout
   const handleLogout = () => {
@@ -187,23 +194,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
 
   // Render setting item
   const renderSettingItem = (item: SettingItem) => (
-    <View
-      key={item.id}
-      style={[
-        styles.settingItem,
-        {
-          backgroundColor: theme.colors.surface.card,
-          borderColor: theme.colors.border.primary,
-        },
-      ]}>
-      <View style={styles.settingContent}>
-        <View style={styles.settingIcon}>
+    <View key={item.id} style={themedStyles.settingItem}>
+      <View style={baseStyles.settingContent}>
+        <View style={baseStyles.settingIcon}>
           <Typography variant='h6' style={{ fontSize: 20 }}>
             {item.icon}
           </Typography>
         </View>
 
-        <View style={styles.settingInfo}>
+        <View style={baseStyles.settingInfo}>
           <Typography variant='h6' color={theme.colors.text.primary}>
             {item.title}
           </Typography>
@@ -238,23 +237,19 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface.background }]}>
+    <SafeAreaView style={[baseStyles.container, themedStyles.themedContainer]}>
       <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
+        style={baseStyles.content}
+        contentContainerStyle={baseStyles.scrollContent}
         showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={baseStyles.header}>
           <Typography variant='h3' color={theme.colors.text.primary}>
             Profile
           </Typography>
 
           {!isConnected && (
-            <View
-              style={[
-                styles.offlineBadge,
-                { backgroundColor: theme.colors.semantic.warning[100] },
-              ]}>
+            <View style={[baseStyles.offlineBadge, dynamicStyles.offlineBadgeWithTheme]}>
               <Typography variant='caption' color={theme.colors.semantic.warning[700]}>
                 Offline
               </Typography>
@@ -263,21 +258,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
 
         {/* User Info */}
-        <View
-          style={[
-            styles.userCard,
-            {
-              backgroundColor: theme.colors.surface.card,
-              borderColor: theme.colors.border.primary,
-            },
-          ]}>
+        <View style={themedStyles.userCard}>
           <TouchableOpacity
-            style={[styles.avatar, { backgroundColor: theme.colors.primary[100] }]}
+            style={[baseStyles.avatar, themedStyles.avatarWithTheme]}
             onPress={() => setShowPhotoModal(true)}>
             {user?.avatar ? (
               <Image
                 source={{ uri: user.avatar }}
-                style={styles.avatarImage as any}
+                style={baseStyles.avatarImage as any}
                 resizeMode='cover'
               />
             ) : (
@@ -287,14 +275,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
             )}
 
             {/* Camera overlay */}
-            <View style={styles.cameraOverlay}>
-              <Typography variant='caption' style={styles.cameraIcon}>
+            <View style={themedStyles.cameraOverlay}>
+              <Typography variant='caption' style={themedStyles.cameraIcon}>
                 📷
               </Typography>
             </View>
           </TouchableOpacity>
 
-          <View style={styles.userInfo}>
+          <View style={baseStyles.userInfo}>
             <Typography variant='h4' color={theme.colors.text.primary}>
               {user?.name || 'User'}
             </Typography>
@@ -317,11 +305,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
 
         {/* Account Settings */}
-        <View style={styles.section}>
+        <View style={baseStyles.section}>
           <Typography
             variant='h5'
             color={theme.colors.text.primary}
-            style={{ marginBottom: theme.spacing.md }}>
+            style={dynamicStyles.sectionHeaderSpacing}>
             Account
           </Typography>
 
@@ -329,11 +317,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
 
         {/* Security Settings */}
-        <View style={styles.section}>
+        <View style={baseStyles.section}>
           <Typography
             variant='h5'
             color={theme.colors.text.primary}
-            style={{ marginBottom: theme.spacing.md }}>
+            style={dynamicStyles.sectionHeaderSpacing}>
             Security
           </Typography>
 
@@ -341,11 +329,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
 
         {/* App Settings */}
-        <View style={styles.section}>
+        <View style={baseStyles.section}>
           <Typography
             variant='h5'
             color={theme.colors.text.primary}
-            style={{ marginBottom: theme.spacing.md }}>
+            style={dynamicStyles.sectionHeaderSpacing}>
             Preferences
           </Typography>
 
@@ -353,11 +341,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
 
         {/* Support */}
-        <View style={styles.section}>
+        <View style={baseStyles.section}>
           <Typography
             variant='h5'
             color={theme.colors.text.primary}
-            style={{ marginBottom: theme.spacing.md }}>
+            style={dynamicStyles.sectionHeaderSpacing}>
             Support
           </Typography>
 
@@ -365,7 +353,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
 
         {/* Logout */}
-        <View style={styles.section}>
+        <View style={baseStyles.section}>
           <Button
             title='Sign Out'
             variant='destructive'
@@ -381,7 +369,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
 
         {/* App Version */}
-        <View style={styles.versionContainer}>
+        <View style={baseStyles.versionContainer}>
           <Typography variant='caption' color={theme.colors.text.tertiary} align='center'>
             PentryPal v1.0.0
           </Typography>
@@ -391,118 +379,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
 
         {/* Bottom spacing */}
-        <View style={{ height: theme.spacing.xl }} />
+        <View style={dynamicStyles.bottomSpacing} />
       </ScrollView>
 
       {/* Profile Photo Modal */}
       <ProfilePhotoModal visible={showPhotoModal} onClose={() => setShowPhotoModal(false)} />
     </SafeAreaView>
   );
-};
-
-// ========================================
-// Styles
-// ========================================
-
-const styles = {
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-  },
-  header: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    paddingVertical: 16,
-    marginBottom: 24,
-  },
-  offlineBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  userCard: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginBottom: 32,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    marginRight: 16,
-    position: 'relative' as const,
-    overflow: 'hidden' as const,
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 30,
-  },
-  cameraOverlay: {
-    position: 'absolute' as const,
-    bottom: -2,
-    right: -2,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    width: 20,
-    height: 20,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  cameraIcon: {
-    fontSize: 10,
-  },
-  userInfo: {
-    flex: 1,
-  },
-  section: {
-    marginBottom: 32,
-  },
-  settingItem: {
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  settingContent: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    padding: 16,
-  },
-  settingIcon: {
-    marginRight: 12,
-  },
-  settingInfo: {
-    flex: 1,
-  },
-  versionContainer: {
-    alignItems: 'center' as const,
-    marginTop: 24,
-  },
 };

@@ -2,8 +2,8 @@
 // Root Navigator - Main navigation structure
 // ========================================
 
-import React, { type FC, useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { type FC, useEffect, useRef, useState } from 'react';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
@@ -36,15 +36,27 @@ const Stack = createStackNavigator<RootStackParamList>();
 export const RootNavigator: FC = () => {
   const [isAppReady, setIsAppReady] = useState(false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
-  // Log authentication state changes
+  // Handle navigation based on state changes
   useEffect(() => {
     console.log(
       `🔐 Auth state changed: isAuthenticated=${isAuthenticated}, hasSeenOnboarding=${hasSeenOnboarding}`
     );
-  }, [isAuthenticated, hasSeenOnboarding]);
+
+    if (!isAppReady) return;
+
+    // Navigate based on current state
+    if (!hasSeenOnboarding) {
+      navigationRef.current?.navigate('Onboarding');
+    } else if (!isAuthenticated) {
+      navigationRef.current?.navigate('Auth');
+    } else {
+      navigationRef.current?.navigate('Main');
+    }
+  }, [isAuthenticated, hasSeenOnboarding, isAppReady]);
 
   // Simulate app initialization
   useEffect(() => {
@@ -75,25 +87,12 @@ export const RootNavigator: FC = () => {
     return <LoadingScreen />;
   }
 
-  // Determine initial route
-  const getInitialRouteName = (): keyof RootStackParamList => {
-    if (!hasSeenOnboarding) {
-      return 'Onboarding';
-    }
-
-    if (!isAuthenticated) {
-      return 'Auth';
-    }
-
-    return 'Main';
-  };
-
   // Handle onboarding completion
   const handleOnboardingComplete = async () => {
     console.log('Handling onboarding completion...');
     // await AsyncStorage.setItem('@onboarding_seen', 'true');
     setHasSeenOnboarding(true);
-    // Navigation will happen automatically due to state change
+    // Navigation will happen in the useEffect above
     console.log('Onboarding completed - state updated, navigation will follow');
   };
 
@@ -103,10 +102,15 @@ export const RootNavigator: FC = () => {
     console.log('Authentication successful, isAuthenticated will trigger navigation');
   };
 
-  // Determine what screens to show based on current state
-  const renderNavigator = () => {
-    if (!hasSeenOnboarding) {
-      return (
+  return (
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          gestureEnabled: true,
+          animationEnabled: true,
+        }}
+        initialRouteName='Onboarding'>
         <Stack.Screen name='Onboarding'>
           {props => (
             <OnboardingContainer
@@ -116,29 +120,12 @@ export const RootNavigator: FC = () => {
             />
           )}
         </Stack.Screen>
-      );
-    }
 
-    if (!isAuthenticated) {
-      return (
         <Stack.Screen name='Auth'>
           {props => <AuthNavigator {...props} onAuthSuccess={handleAuthSuccess} />}
         </Stack.Screen>
-      );
-    }
 
-    return <Stack.Screen name='Main' component={MainNavigator} />;
-  };
-
-  return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          gestureEnabled: true,
-          animationEnabled: true,
-        }}>
-        {renderNavigator()}
+        <Stack.Screen name='Main' component={MainNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );

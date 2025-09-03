@@ -8,14 +8,15 @@ import {
   Animated,
   FlatList,
   Image,
+  Keyboard,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   TextInput,
   TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
@@ -26,6 +27,16 @@ import type { Contributor } from '../../components/molecules/ConsultContributors
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
 import { getAvatarProps, getFallbackAvatar } from '../../../shared/utils/avatarUtils';
+
+// Styles
+import {
+  baseStyles,
+  collaboratorColors,
+  createDynamicStyles,
+  createFallbackTheme,
+  createThemedStyles,
+  getCollaboratorColor,
+} from './ShopScreen.styles';
 
 // Redux
 import { useDispatch, useSelector } from 'react-redux';
@@ -91,18 +102,12 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   const isLoadingLists = useSelector(selectIsLoadingLists);
   const error = useSelector(selectShoppingListError);
 
-  // Ensure theme colors are available with robust fallback
-  const safeTheme = theme?.colors
-    ? theme
-    : {
-        colors: {
-          primary: { '500': '#22c55e' },
-          text: { primary: '#000000', secondary: '#666666', tertiary: '#999999' },
-          background: { primary: '#ffffff' },
-          surface: { background: '#ffffff', secondary: '#f5f5f5' },
-          border: { primary: '#e5e5e5' },
-        },
-      };
+  // Ensure theme colors are available with clean fallback
+  const safeTheme = theme?.colors ? theme : createFallbackTheme();
+
+  // Create styled functions
+  const themedStyles = createThemedStyles(safeTheme);
+  const dynamicStyles = createDynamicStyles(safeTheme);
 
   const [mode, setMode] = useState<ShopMode>('select-list');
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
@@ -113,6 +118,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showUnfinishedModal, setShowUnfinishedModal] = useState(false);
   const [showConsultModal, setShowConsultModal] = useState(false);
+  const [animatedHeight] = useState(new Animated.Value(0));
 
   // Load shopping lists on mount
   useEffect(() => {
@@ -248,27 +254,10 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
     return 'Unknown User';
   };
 
-  // Color palette for different collaborators
-  const collaboratorColors = [
-    '#3B82F6',
-    '#EF4444',
-    '#10B981',
-    '#F59E0B',
-    '#8B5CF6',
-    '#EC4899',
-    '#06B6D4',
-    '#84CC16',
-    '#F97316',
-    '#6366F1',
-  ];
-
-  const getCollaboratorColor = (userId: string): string => {
+  // Collaborator color helper using extracted function
+  const getCollaboratorColorForList = (userId: string): string => {
     if (!selectedList) return collaboratorColors[0] || '#4F46E5';
-
-    const collaboratorIndex = selectedList.collaborators.findIndex(c => c.userId === userId);
-    if (collaboratorIndex === -1) return collaboratorColors[0] || '#4F46E5';
-
-    return collaboratorColors[collaboratorIndex % collaboratorColors.length] || '#4F46E5';
+    return getCollaboratorColor(userId, selectedList.collaborators);
   };
 
   const getUserAvatar = (userId: string): AvatarType => {
@@ -350,8 +339,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                   fontSize: size * 0.6,
                   lineHeight: size,
                   textAlign: 'center',
-                  color: '#666',
-                }}>
+                }}
+                color={safeTheme.colors.text.secondary}>
                 👤
               </Typography>
             </View>
@@ -359,24 +348,25 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       }
     } catch (avatarError) {
       console.error('Error rendering avatar:', avatarError);
+      const fallbackAvatarStyle = {
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: (safeTheme.colors as any).gray?.['200'] || '#E5E5E5',
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
+      };
+
       return (
-        <View
-          style={{
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor: '#f0f0f0',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+        <View style={fallbackAvatarStyle}>
           <Typography
             variant='caption'
             style={{
               fontSize: size * 0.6,
               lineHeight: size,
               textAlign: 'center',
-              color: '#666',
-            }}>
+            }}
+            color={safeTheme.colors.text.secondary}>
             👤
           </Typography>
         </View>
@@ -438,9 +428,26 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       setExpandedItemId(null);
       setAmountInput('');
     } else {
-      // If item is not completed, show inline amount input
-      setExpandedItemId(item.id);
-      setAmountInput(item.price?.toString() || '');
+      // If item is not completed, show inline amount input with animation
+      if (expandedItemId === item.id) {
+        // Collapse
+        Animated.timing(animatedHeight, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }).start(() => {
+          setExpandedItemId(null);
+        });
+      } else {
+        // Expand
+        setExpandedItemId(item.id);
+        setAmountInput(item.price?.toString() || '');
+        Animated.timing(animatedHeight, {
+          toValue: 40, // Even more compact height for single row
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
     }
   };
 
@@ -537,12 +544,22 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
     const numericAmount = parseFloat(amountInput);
     const finalAmount = isNaN(numericAmount) ? 0 : numericAmount;
 
-    handleItemCompletionWithAmount(item, finalAmount);
+    // Dismiss keyboard immediately
+    Keyboard.dismiss();
+
+    // Clear the expanded state immediately so input disappears
     setExpandedItemId(null);
     setAmountInput('');
+
+    // Save the item with amount
+    handleItemCompletionWithAmount(item, finalAmount);
   };
 
   const handleAmountCancel = () => {
+    // Dismiss keyboard immediately
+    Keyboard.dismiss();
+
+    // Clear state immediately
     setExpandedItemId(null);
     setAmountInput('');
   };
@@ -666,26 +683,17 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   };
 
   const renderListSelection = () => (
-    <View style={styles.container}>
+    <SafeAreaView style={[baseStyles.container, themedStyles.container]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Typography
-          variant='h2'
-          color={safeTheme?.colors?.text?.primary || '#000000'}
-          style={styles.headerTitle}>
-          🛒 Shopping Mode
-        </Typography>
-        <Typography
-          variant='caption'
-          color={safeTheme?.colors?.text?.secondary || '#666666'}
-          style={styles.headerSubtitle}>
-          Select a list to start shopping
+      <View style={baseStyles.header}>
+        <Typography variant='h3' color={safeTheme.colors.text.primary}>
+          Shop
         </Typography>
       </View>
 
       {/* Lists */}
       <ScrollView
-        style={styles.scrollView}
+        style={baseStyles.scrollView}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -696,63 +704,77 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
           />
         }>
         {error ? (
-          <View style={styles.emptyContainer}>
-            <Typography variant='h3' style={styles.emptyTitle}>
+          <View style={baseStyles.emptyContainer}>
+            <Typography variant='h3' style={[baseStyles.emptyTitle, themedStyles.emptyTitle]}>
               Error Loading Lists
             </Typography>
-            <Typography variant='body1' style={styles.emptyText}>
+            <Typography variant='body1' style={[baseStyles.emptyText, themedStyles.emptyText]}>
               {error}
             </Typography>
           </View>
         ) : displayLists.filter(list => list.status !== 'archived').length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Typography variant='h3' style={styles.emptyTitle}>
+          <View style={baseStyles.emptyContainer}>
+            <Typography variant='h3' style={[baseStyles.emptyTitle, themedStyles.emptyTitle]}>
               {isLoadingLists ? 'Loading...' : 'No Active Shopping Lists'}
             </Typography>
-            <Typography variant='body1' style={styles.emptyText}>
+            <Typography variant='body1' style={[baseStyles.emptyText, themedStyles.emptyText]}>
               {isLoadingLists
                 ? 'Please wait while we load your lists'
                 : 'Create a shopping list first to start shopping'}
             </Typography>
           </View>
         ) : (
-          <View style={styles.listsContainer}>
+          <View style={{ paddingVertical: 16 }}>
             {displayLists
               .filter(list => list.status !== 'archived')
               .map(list => (
                 <TouchableOpacity
                   key={list.id}
-                  style={styles.listCard}
+                  style={[baseStyles.listCard, themedStyles.listCard]}
                   onPress={() => handleSelectList(list)}>
-                  <View style={styles.listCardHeader}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 12,
+                    }}>
                     <Typography
                       variant='h3'
-                      color={safeTheme?.colors?.text?.primary || '#000000'}
-                      style={styles.listTitle}>
+                      color={safeTheme.colors.text.primary}
+                      style={baseStyles.listTitle}>
                       {list.name}
                     </Typography>
                     <Typography
                       variant='caption'
-                      color={safeTheme?.colors?.text?.secondary || '#666666'}
-                      style={styles.listItemCount}>
+                      color={safeTheme.colors.text.secondary}
+                      style={baseStyles.listItemCount}>
                       {list.itemsCount} items
                     </Typography>
                   </View>
 
-                  <View style={styles.listProgress}>
+                  <View style={baseStyles.listProgress}>
                     <Typography
                       variant='caption'
-                      color={safeTheme?.colors?.text?.secondary || '#666666'}
-                      style={styles.progressText}>
-                      {list.completedCount} of {list.itemsCount} completed
+                      color={safeTheme.colors.text.secondary}
+                      style={baseStyles.progressText}>
+                      {list.completedCount || 0} of {list.itemsCount || 0} completed
                     </Typography>
-                    <View style={styles.progressBar}>
-                      <View style={[styles.progressFill, { width: `${list.progress}%` }]} />
+                    <View style={[baseStyles.progressBar, themedStyles.progressBar]}>
+                      <View
+                        style={[
+                          baseStyles.progressFill,
+                          themedStyles.progressFill,
+                          dynamicStyles.createProgressFillStyle(Math.round(list.progress || 0)),
+                        ]}
+                      />
                     </View>
                   </View>
 
-                  <View style={styles.listActions}>
-                    <Typography variant='body1' style={styles.shopButton}>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Typography
+                      variant='body1'
+                      style={[baseStyles.shopButtonText, themedStyles.shopButtonText]}>
                       Start Shopping →
                     </Typography>
                   </View>
@@ -761,38 +783,37 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
           </View>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 
   const renderShoppingMode = () => (
-    <View style={styles.container}>
+    <SafeAreaView style={[baseStyles.container, themedStyles.container]}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackToListSelection} style={styles.backButton}>
-          <Typography variant='body1' style={styles.backIcon}>
+      <View style={baseStyles.header}>
+        <TouchableOpacity
+          onPress={handleBackToListSelection}
+          style={[baseStyles.backButton, themedStyles.backButton]}>
+          <Typography variant='body1' style={{ fontSize: 20 }}>
             ←
           </Typography>
         </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <Typography
-            variant='h3'
-            color={safeTheme?.colors?.text?.primary || '#000000'}
-            style={styles.headerTitle}>
+        <View style={baseStyles.headerCenter}>
+          <Typography variant='h3' color={safeTheme.colors.text.primary}>
             {selectedList?.name}
           </Typography>
           <Typography
             variant='caption'
-            color={safeTheme?.colors?.text?.secondary || '#666666'}
-            style={styles.headerSubtitle}>
+            color={safeTheme.colors.text.secondary}
+            style={baseStyles.headerSubtitleInShopping}>
             {completedItems.size} of {selectedList?.itemsCount || 0} completed
           </Typography>
           {selectedList && selectedList.collaborators && selectedList.collaborators.length > 1 && (
-            <View style={styles.avatarStack}>
+            <View style={baseStyles.avatarStack}>
               {selectedList.collaborators.slice(0, 4).map((collaborator, index) => (
                 <View
                   key={collaborator.userId}
                   style={[
-                    styles.stackedAvatar,
+                    baseStyles.stackedAvatar,
                     {
                       zIndex: selectedList.collaborators.length - index,
                       marginLeft: index > 0 ? -8 : 0,
@@ -805,14 +826,14 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
               {selectedList.collaborators.length > 4 && (
                 <View
                   style={[
-                    styles.stackedAvatar,
-                    styles.moreIndicator,
+                    baseStyles.stackedAvatar,
+                    themedStyles.moreIndicator,
                     { zIndex: 0, marginLeft: -8 },
                   ]}>
                   <Typography
                     variant='caption'
                     color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}
-                    style={styles.stackedAvatarText}>
+                    style={baseStyles.stackedAvatarText}>
                     +{selectedList.collaborators.length - 4}
                   </Typography>
                 </View>
@@ -820,19 +841,24 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             </View>
           )}
         </View>
-        <TouchableOpacity onPress={handleFinishShopping} style={styles.finishButton}>
-          <Typography variant='caption' style={styles.finishButtonText}>
+        <TouchableOpacity
+          onPress={handleFinishShopping}
+          style={[baseStyles.finishButton, themedStyles.finishButton]}>
+          <Typography
+            variant='caption'
+            style={[baseStyles.finishButtonText, themedStyles.finishButtonText]}>
             Finish
           </Typography>
         </TouchableOpacity>
       </View>
 
       {/* Shopping Progress */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBarLarge}>
+      <View style={[baseStyles.progressContainer, themedStyles.progressContainer]}>
+        <View style={[baseStyles.progressBarLarge, themedStyles.progressBarLarge]}>
           <View
             style={[
-              styles.progressFillLarge,
+              baseStyles.progressFillLarge,
+              themedStyles.progressFillLarge,
               {
                 width: `${selectedList ? Math.round((completedItems.size / selectedList.itemsCount) * 100) : 0}%`,
               },
@@ -846,63 +872,83 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         data={selectedList?.items || []}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <View style={styles.shoppingItemContainer}>
+          <View style={baseStyles.shoppingItemContainer}>
             <TouchableOpacity
               style={
                 [
-                  styles.shoppingItem,
-                  completedItems.has(item.id) && styles.shoppingItemCompleted,
-                  item.assignedTo && styles.shoppingItemAssigned,
+                  baseStyles.shoppingItem,
+                  themedStyles.shoppingItem,
+                  completedItems.has(item.id) && baseStyles.shoppingItemCompleted,
+                  item.assignedTo && [
+                    baseStyles.shoppingItemAssigned,
+                    themedStyles.shoppingItemAssigned,
+                  ],
                   item.assignedTo && {
                     borderLeftColor: getCollaboratorColor(item.assignedTo),
                     borderLeftWidth: 4,
                   },
+                  expandedItemId === item.id &&
+                    !completedItems.has(item.id) && {
+                      borderBottomLeftRadius: 0,
+                      borderBottomRightRadius: 0,
+                      marginBottom: 0,
+                    },
                 ] as any
               }
               onPress={() => handleToggleItem(item)}>
-              <View style={styles.itemLeft}>
+              <View style={baseStyles.itemLeft}>
                 <View
                   style={[
-                    styles.checkbox,
-                    completedItems.has(item.id) && styles.checkboxCompleted,
+                    baseStyles.checkbox,
+                    themedStyles.checkbox,
+                    completedItems.has(item.id) && [
+                      baseStyles.checkboxCompleted,
+                      themedStyles.checkboxCompleted,
+                    ],
                   ]}>
                   {completedItems.has(item.id) && (
-                    <Typography variant='caption' style={styles.checkmark}>
+                    <Typography
+                      variant='caption'
+                      style={[baseStyles.checkmark, themedStyles.checkmark]}>
                       ✓
                     </Typography>
                   )}
                 </View>
-                <Typography variant='h2' style={styles.itemIcon}>
+                <Typography variant='h2' style={baseStyles.itemIcon}>
                   {item.icon}
                 </Typography>
-                <View style={styles.itemInfo}>
+                <View style={baseStyles.itemInfo}>
                   <Typography
                     variant='body1'
-                    color={safeTheme?.colors?.text?.primary || '#000000'}
+                    color={safeTheme.colors.text.primary}
                     style={[
-                      styles.itemName,
-                      completedItems.has(item.id) && styles.itemNameCompleted,
+                      baseStyles.itemName,
+                      completedItems.has(item.id) && baseStyles.itemNameCompleted,
                     ]}>
                     {item.name}
                   </Typography>
-                  <View style={styles.itemDetails}>
+                  <View style={baseStyles.itemDetails}>
                     <Typography
                       variant='caption'
-                      color={safeTheme?.colors?.text?.secondary || '#666666'}
-                      style={styles.itemQuantity}>
+                      color={safeTheme.colors.text.secondary}
+                      style={baseStyles.itemQuantity}>
                       {item.quantity} {item.unit}
                     </Typography>
 
                     {item.assignedTo && selectedList && selectedList.collaborators && (
-                      <View style={styles.assignmentRow}>
+                      <View style={baseStyles.assignmentRow}>
                         <Typography
                           variant='caption'
                           color={getCollaboratorColor(item.assignedTo)}
-                          style={styles.assignmentIndicator}>
+                          style={baseStyles.assignmentIndicator}>
                           • Assigned to {getUserName(item.assignedTo)}
                         </Typography>
                         <View
-                          style={[styles.assignedAvatarInline, { backgroundColor: 'transparent' }]}>
+                          style={[
+                            baseStyles.assignedAvatarInline,
+                            themedStyles.assignedAvatarInline,
+                            dynamicStyles.transparentAvatarStyle,
+                          ]}>
                           {renderAvatar(getUserAvatar(item.assignedTo), 20)}
                         </View>
                       </View>
@@ -914,8 +960,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                       selectedList!.ownerId !== user?.id && (
                         <Typography
                           variant='caption'
-                          color={safeTheme?.colors?.text?.tertiary || '#999999'}
-                          style={styles.permissionIndicator}>
+                          color={safeTheme.colors.text.tertiary}
+                          style={baseStyles.permissionIndicator}>
                           Only {getUserName(item.assignedTo)} can update this item
                         </Typography>
                       )}
@@ -926,62 +972,76 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
             {/* Inline Amount Input - Shows when item is tapped but not completed */}
             {expandedItemId === item.id && !completedItems.has(item.id) && (
-              <View style={styles.amountInputContainer}>
-                <View style={styles.amountInputRow}>
+              <Animated.View
+                style={[
+                  baseStyles.amountInputContainer,
+                  themedStyles.amountInputContainer,
+                  { height: animatedHeight, overflow: 'hidden' },
+                ]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Typography
                     variant='caption'
-                    color={safeTheme?.colors?.text?.secondary || '#666666'}
-                    style={styles.amountLabel}>
-                    Amount paid:
+                    color={safeTheme.colors.text.secondary}
+                    style={{ fontSize: 11, width: 35 }}>
+                    $
                   </Typography>
-                  <View style={styles.amountInputWrapper}>
-                    <Typography
-                      variant='body1'
-                      color={safeTheme?.colors?.text?.primary || '#000000'}
-                      style={styles.currencySymbol}>
-                      $
-                    </Typography>
+                  <View
+                    style={[
+                      baseStyles.amountInputField,
+                      themedStyles.amountInputField,
+                      { flex: 1, minWidth: 60 },
+                    ]}>
                     <TextInput
-                      style={styles.amountTextInput}
+                      style={{ flex: 1, fontSize: 14, paddingVertical: 4, textAlign: 'center' }}
                       value={amountInput}
                       onChangeText={setAmountInput}
                       placeholder='0.00'
-                      placeholderTextColor={safeTheme?.colors?.text?.tertiary || '#999999'}
+                      placeholderTextColor={safeTheme.colors.text.tertiary}
                       keyboardType='numeric'
                       autoFocus
                       selectTextOnFocus
                     />
                   </View>
-                </View>
-                <View style={styles.amountButtonRow}>
-                  <TouchableOpacity style={styles.amountCancelButton} onPress={handleAmountCancel}>
+                  <TouchableOpacity
+                    style={[
+                      baseStyles.amountCancelButton,
+                      themedStyles.amountCancelButton,
+                      { paddingVertical: 4, paddingHorizontal: 8, minWidth: 45 },
+                    ]}
+                    onPress={handleAmountCancel}>
                     <Typography
                       variant='caption'
-                      color={safeTheme?.colors?.text?.secondary || '#666666'}>
-                      Cancel
+                      color={safeTheme.colors.text.secondary}
+                      style={{ fontSize: 11 }}>
+                      ✕
                     </Typography>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={styles.amountConfirmButton}
+                    style={[
+                      baseStyles.amountConfirmButton,
+                      themedStyles.amountConfirmButton,
+                      { paddingVertical: 4, paddingHorizontal: 8, minWidth: 45 },
+                    ]}
                     onPress={() => handleAmountConfirm(item)}>
                     <Typography
                       variant='caption'
-                      color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}>
-                      Mark as Purchased
+                      color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}
+                      style={{ fontSize: 11 }}>
+                      ✓
                     </Typography>
                   </TouchableOpacity>
                 </View>
-              </View>
+              </Animated.View>
             )}
           </View>
         )}
-        style={styles.shoppingList}
+        contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
       />
 
       {/* Floating Consult Contributors Button */}
       {hasContributors && (
-        <View style={styles.consultButtonContainer}>
+        <View style={{ position: 'absolute', bottom: 20, right: 20, zIndex: 1000 }}>
           <ConsultButton
             onPress={handleConsultPress}
             testID='consult-contributors-button'
@@ -990,11 +1050,11 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
           />
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[baseStyles.container, themedStyles.container]}>
       {renderContent()}
 
       {/* Consult Contributors Modal */}
@@ -1012,412 +1072,4 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   );
 };
 
-// ========================================
-// Styles - Copied from Original Shop Screen
-// ========================================
-
-const styles = {
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  } as ViewStyle,
-
-  scrollView: {
-    flex: 1,
-  } as ViewStyle,
-
-  // Header styles
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F4F2',
-  } as ViewStyle,
-
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  headerTitle: {
-    fontWeight: '700',
-    marginBottom: 2,
-  } as ViewStyle,
-
-  headerSubtitle: {
-    fontSize: 12,
-    opacity: 0.7,
-  } as ViewStyle,
-
-  avatarStack: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
-  } as ViewStyle,
-
-  stackedAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  } as ViewStyle,
-
-  stackedAvatarText: {
-    fontSize: 10,
-    fontWeight: '600',
-  } as ViewStyle,
-
-  moreIndicator: {
-    backgroundColor: '#6B7280',
-  } as ViewStyle,
-
-  backButton: {
-    padding: 12,
-    borderRadius: 50,
-    backgroundColor: '#F9F9F9',
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  backIcon: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  } as ViewStyle,
-
-  finishButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 16,
-    backgroundColor: '#4ADE80',
-  } as ViewStyle,
-
-  finishButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  } as ViewStyle,
-
-  // List selection styles
-  listsContainer: {
-    padding: 20,
-  } as ViewStyle,
-
-  listCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#F0F4F2',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  } as ViewStyle,
-
-  listCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  } as ViewStyle,
-
-  listTitle: {
-    fontWeight: '700',
-  } as ViewStyle,
-
-  listItemCount: {
-    fontSize: 12,
-    opacity: 0.7,
-  } as ViewStyle,
-
-  listProgress: {
-    marginBottom: 16,
-  } as ViewStyle,
-
-  progressText: {
-    fontSize: 12,
-    marginBottom: 8,
-  } as ViewStyle,
-
-  progressBar: {
-    height: 8,
-    backgroundColor: '#F0F4F2',
-    borderRadius: 4,
-    overflow: 'hidden',
-  } as ViewStyle,
-
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#4ADE80',
-    borderRadius: 4,
-  } as ViewStyle,
-
-  listActions: {
-    alignItems: 'flex-end',
-  } as ViewStyle,
-
-  shopButton: {
-    color: '#4ADE80',
-    fontWeight: '600',
-  } as ViewStyle,
-
-  // Shopping mode styles
-  progressContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#F9F9F9',
-  } as ViewStyle,
-
-  progressBarLarge: {
-    height: 12,
-    backgroundColor: '#E5E5E5',
-    borderRadius: 6,
-    overflow: 'hidden',
-  } as ViewStyle,
-
-  progressFillLarge: {
-    height: '100%',
-    backgroundColor: '#4ADE80',
-    borderRadius: 6,
-  } as ViewStyle,
-
-  shoppingList: {
-    flex: 1,
-    paddingTop: 12,
-  } as ViewStyle,
-
-  shoppingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    marginHorizontal: 16,
-    marginBottom: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  } as ViewStyle,
-
-  shoppingItemCompleted: {
-    opacity: 0.6,
-  } as ViewStyle,
-
-  shoppingItemAssigned: {
-    backgroundColor: '#F0F9FF',
-    borderLeftWidth: 4,
-  } as ViewStyle,
-
-  itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  } as ViewStyle,
-
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#E5E5E5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-    backgroundColor: '#FFFFFF',
-  } as ViewStyle,
-
-  checkboxCompleted: {
-    backgroundColor: '#4ADE80',
-    borderColor: '#4ADE80',
-  } as ViewStyle,
-
-  checkmark: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  } as ViewStyle,
-
-  itemIcon: {
-    fontSize: 24,
-    marginRight: 16,
-  } as ViewStyle,
-
-  itemInfo: {
-    flex: 1,
-  } as ViewStyle,
-
-  itemName: {
-    fontWeight: '600',
-    marginBottom: 2,
-  } as ViewStyle,
-
-  itemNameCompleted: {
-    textDecorationLine: 'line-through',
-    opacity: 0.7,
-  } as ViewStyle,
-
-  itemQuantity: {
-    fontSize: 12,
-  } as ViewStyle,
-
-  itemDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  } as ViewStyle,
-
-  assignmentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 8,
-  } as ViewStyle,
-
-  assignmentIndicator: {
-    fontSize: 12,
-    fontWeight: '500',
-  } as ViewStyle,
-
-  assignedAvatarInline: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
-  } as ViewStyle,
-
-  assignedAvatarText: {
-    fontSize: 12,
-    fontWeight: '600',
-  } as ViewStyle,
-
-  permissionIndicator: {
-    fontSize: 11,
-    fontStyle: 'italic',
-    marginTop: 2,
-  } as ViewStyle,
-
-  // Empty state styles
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-  } as ViewStyle,
-
-  emptyTitle: {
-    marginBottom: 12,
-    color: '#6B7280',
-  } as ViewStyle,
-
-  emptyText: {
-    color: '#6B7280',
-    textAlign: 'center',
-  } as ViewStyle,
-
-  // Inline amount input styles
-  shoppingItemContainer: {
-    marginBottom: 8,
-  } as ViewStyle,
-
-  amountInputContainer: {
-    backgroundColor: '#F8F9FA',
-    marginHorizontal: 20,
-    marginTop: -8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  } as ViewStyle,
-
-  amountInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  } as ViewStyle,
-
-  amountLabel: {
-    fontWeight: '500',
-  } as ViewStyle,
-
-  amountInputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 12,
-    minWidth: 100,
-  } as ViewStyle,
-
-  currencySymbol: {
-    marginRight: 8,
-    fontWeight: '600',
-    color: '#374151',
-  } as ViewStyle,
-
-  amountTextInput: {
-    flex: 1,
-    paddingVertical: 8,
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#374151',
-    textAlign: 'right',
-  } as ViewStyle,
-
-  amountButtonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  } as ViewStyle,
-
-  amountCancelButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  } as ViewStyle,
-
-  amountConfirmButton: {
-    flex: 2,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    backgroundColor: '#22c55e',
-  } as ViewStyle,
-
-  // Consult Contributors Button Container
-  consultButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    zIndex: 1000,
-  } as ViewStyle,
-};
+// All styles are now extracted to ShopScreen.styles.ts - no local styles needed!

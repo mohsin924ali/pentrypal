@@ -13,6 +13,9 @@ import { Button } from '../../components/atoms/Button/Button';
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
 
+// Styles
+import { baseStyles, createDynamicStyles, createThemedStyles } from './PantryScreen.styles';
+
 // Types
 export type PantryScreenProps = Record<string, never>;
 
@@ -44,6 +47,10 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
   const { theme } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  // Create themed styles
+  const themedStyles = createThemedStyles(theme);
+  const dynamicStyles = createDynamicStyles(theme);
 
   // Mock data for demo
   const mockItems: PantryItem[] = [
@@ -176,17 +183,10 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
     const statusText = getStatusText(item);
 
     return (
-      <View
-        style={[
-          styles.itemCard,
-          {
-            backgroundColor: theme.colors.surface.card,
-            borderColor: theme.colors.border.primary,
-          },
-        ]}>
+      <View style={themedStyles.itemCard}>
         {/* Header */}
-        <View style={styles.itemHeader}>
-          <View style={styles.itemInfo}>
+        <View style={baseStyles.itemHeader}>
+          <View style={baseStyles.itemInfo}>
             <Typography variant='h6' color={theme.colors.text.primary}>
               {item.name}
             </Typography>
@@ -196,7 +196,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
             </Typography>
           </View>
 
-          <View style={[styles.statusBadge, { backgroundColor: `${statusColor}20` }]}>
+          <View style={[baseStyles.statusBadge, dynamicStyles.createStatusBadgeStyle(statusColor)]}>
             <Typography variant='caption' color={statusColor}>
               {statusText}
             </Typography>
@@ -204,7 +204,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
         </View>
 
         {/* Quantity */}
-        <View style={styles.quantityContainer}>
+        <View style={baseStyles.quantityContainer}>
           <Typography variant='h5' color={theme.colors.text.primary}>
             {item.quantity} {item.unit}
           </Typography>
@@ -218,7 +218,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
 
         {/* Expiration */}
         {item.expirationDate && (
-          <View style={styles.expirationContainer}>
+          <View style={baseStyles.expirationContainer}>
             <Typography variant='body2' color={theme.colors.text.secondary}>
               Expires: {formatDate(item.expirationDate)}
             </Typography>
@@ -226,13 +226,13 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
         )}
 
         {/* Actions */}
-        <View style={styles.itemActions}>
+        <View style={baseStyles.itemActions}>
           <Button
             title='Edit'
             variant='outline'
             size='sm'
             onPress={() => console.log('Edit item', item.id)}
-            style={styles.actionButton}
+            style={baseStyles.actionButton}
           />
 
           <Button
@@ -240,7 +240,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
             variant='primary'
             size='sm'
             onPress={() => console.log('Use item', item.id)}
-            style={styles.actionButton}
+            style={baseStyles.actionButton}
           />
         </View>
       </View>
@@ -248,20 +248,20 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface.background }]}>
+    <SafeAreaView style={[baseStyles.container, themedStyles.themedContainer]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={baseStyles.header}>
         <Typography variant='h3' color={theme.colors.text.primary}>
           Pantry
         </Typography>
 
-        <View style={styles.headerActions}>
+        <View style={baseStyles.headerActions}>
           <Button
             title='📷'
             variant='outline'
             size='sm'
             onPress={() => console.log('Scan barcode')}
-            style={{ marginRight: 8 }}
+            style={dynamicStyles.headerButtonWithMargin}
           />
 
           <Button title='➕' variant='primary' size='sm' onPress={() => console.log('Add item')} />
@@ -269,8 +269,8 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
       </View>
 
       {/* Stats */}
-      <View style={styles.statsContainer}>
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+      <View style={baseStyles.statsContainer}>
+        <View style={themedStyles.statCard}>
           <Typography variant='h5' color={theme.colors.primary[500]}>
             {totalItems}
           </Typography>
@@ -279,7 +279,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
           </Typography>
         </View>
 
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+        <View style={themedStyles.statCard}>
           <Typography variant='h5' color={theme.colors.semantic.warning[500]}>
             {expiringSoon}
           </Typography>
@@ -288,7 +288,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
           </Typography>
         </View>
 
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+        <View style={themedStyles.statCard}>
           <Typography variant='h5' color={theme.colors.secondary[500]}>
             {lowStockItems}
           </Typography>
@@ -297,7 +297,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
           </Typography>
         </View>
 
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+        <View style={themedStyles.statCard}>
           <Typography variant='h5' color={theme.colors.semantic.error[500]}>
             {expiredItems}
           </Typography>
@@ -311,8 +311,8 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.categoryFilter}
-        contentContainerStyle={styles.categoryContent}>
+        style={baseStyles.categoryFilter}
+        contentContainerStyle={baseStyles.categoryContent}>
         {categories.map(category => (
           <Button
             key={category}
@@ -320,7 +320,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
             variant={selectedCategory === category ? 'primary' : 'outline'}
             size='sm'
             onPress={() => setSelectedCategory(category)}
-            style={styles.categoryButton}
+            style={baseStyles.categoryButton}
           />
         ))}
       </ScrollView>
@@ -330,8 +330,8 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
         data={filteredItems}
         renderItem={renderPantryItem}
         keyExtractor={item => item.id}
-        style={styles.itemsList}
-        contentContainerStyle={styles.itemsContent}
+        style={baseStyles.itemsList}
+        contentContainerStyle={baseStyles.itemsContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -341,7 +341,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
           />
         }
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
+          <View style={baseStyles.emptyContainer}>
             <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
               🥫
             </Typography>
@@ -349,14 +349,14 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
               variant='h6'
               color={theme.colors.text.secondary}
               align='center'
-              style={{ marginTop: theme.spacing.md }}>
+              style={dynamicStyles.emptyStateTextWithTopMargin}>
               No items in pantry
             </Typography>
             <Typography
               variant='body2'
               color={theme.colors.text.tertiary}
               align='center'
-              style={{ marginTop: theme.spacing.sm }}>
+              style={dynamicStyles.emptyStateSmallTextWithMargin}>
               Add items to track your inventory
             </Typography>
             <Button
@@ -364,111 +364,11 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
               variant='primary'
               size='md'
               onPress={() => console.log('Add first item')}
-              style={{ marginTop: theme.spacing.lg }}
+              style={dynamicStyles.emptyStateButtonWithMargin}
             />
           </View>
         }
       />
     </SafeAreaView>
   );
-};
-
-// ========================================
-// Styles
-// ========================================
-
-const styles = {
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  headerActions: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-  },
-  statsContainer: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    paddingHorizontal: 24,
-    marginBottom: 16,
-  },
-  statCard: {
-    flex: 0.23,
-    padding: 12,
-    borderRadius: 12,
-    alignItems: 'center' as const,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  categoryFilter: {
-    marginBottom: 16,
-  },
-  categoryContent: {
-    paddingHorizontal: 24,
-    gap: 8,
-  },
-  categoryButton: {
-    marginRight: 8,
-  },
-  itemsList: {
-    flex: 1,
-  },
-  itemsContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-  },
-  itemCard: {
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  itemHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'flex-start' as const,
-    marginBottom: 12,
-  },
-  itemInfo: {
-    flex: 1,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginLeft: 8,
-  },
-  quantityContainer: {
-    marginBottom: 8,
-  },
-  expirationContainer: {
-    marginBottom: 12,
-  },
-  itemActions: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-  },
-  actionButton: {
-    flex: 0.48,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    paddingVertical: 64,
-  },
 };

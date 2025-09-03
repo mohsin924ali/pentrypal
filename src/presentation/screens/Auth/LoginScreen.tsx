@@ -33,6 +33,7 @@ import {
   clearError,
   loginUser,
   loginWithBiometric,
+  resetLoadingStates,
   selectAuth,
   updateSecuritySettings,
 } from '../../../application/store/slices/authSlice';
@@ -420,9 +421,10 @@ export const LoginScreen: FC<LoginScreenProps> = ({
     onNavigateToRegister();
   };
 
-  // Clear errors on component mount
+  // Clear errors and reset loading states on component mount
   useEffect(() => {
     dispatch(clearError());
+    dispatch(resetLoadingStates()); // Fix stuck loading states
   }, [dispatch]);
 
   // Navigate on successful login

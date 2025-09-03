@@ -468,6 +468,15 @@ const authSlice = createSlice({
       state.lastError = null;
     },
 
+    // Reset loading states - to fix stuck loading issues
+    resetLoadingStates: state => {
+      state.isLoading = false;
+      state.isLoggingIn = false;
+      state.isRegistering = false;
+      state.isRefreshingToken = false;
+      state.isLoggingOut = false;
+    },
+
     // Clear authentication state (for force logout)
     clearAuth: state => {
       state.user = null;
@@ -747,6 +756,7 @@ export const {
   clearAuth,
   forceLogout,
   updateUserProfile,
+  resetLoadingStates,
   setDeviceInfo,
   updateSecuritySettings,
   resetLoginAttempts,

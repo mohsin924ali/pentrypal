@@ -10,6 +10,9 @@ import { useTheme } from '../providers/ThemeProvider';
 import { selectFriendRequests } from '../../application/store/slices/socialSlice';
 import { useAppInitialization } from '../../application/hooks/useAppInitialization';
 
+// Styles
+import { createFallbackTheme, createTabBarStyles } from './MainNavigator.styles';
+
 // Screens
 import { DashboardScreen } from '../screens/Dashboard';
 import { ListsStackNavigator } from './ListsStackNavigator';
@@ -87,25 +90,10 @@ export const MainNavigator: FC = () => {
   }, [friendRequests?.received?.length]);
 
   // Ensure theme colors are available with robust fallback
-  const safeTheme = theme?.colors
-    ? theme
-    : {
-        colors: {
-          primary: { '500': '#22c55e' },
-          text: { primary: '#000000', secondary: '#666666', tertiary: '#999999' },
-          surface: { background: '#ffffff' },
-          border: { primary: '#e5e5e5' },
-        },
-        shadows: {
-          sm: {
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 2,
-            elevation: 2,
-          },
-        },
-      };
+  const safeTheme = theme?.colors ? theme : createFallbackTheme();
+
+  // Create tab bar styles using the theme
+  const { tabBarStyle, tabBarLabelStyle, tabBarIconStyle } = createTabBarStyles(safeTheme);
 
   return (
     <Tab.Navigator
@@ -113,23 +101,9 @@ export const MainNavigator: FC = () => {
         headerShown: false,
         tabBarActiveTintColor: safeTheme.colors.primary['500'],
         tabBarInactiveTintColor: safeTheme.colors.text.tertiary,
-        tabBarStyle: {
-          backgroundColor: safeTheme.colors.surface.background,
-          borderTopColor: safeTheme.colors.border.primary,
-          borderTopWidth: 1,
-          paddingTop: 8,
-          paddingBottom: 24,
-          height: 85,
-          ...safeTheme.shadows.sm,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
-          marginTop: 4,
-        },
-        tabBarIconStyle: {
-          marginTop: 4,
-        },
+        tabBarStyle,
+        tabBarLabelStyle,
+        tabBarIconStyle,
       }}>
       <Tab.Screen
         name='Dashboard'
