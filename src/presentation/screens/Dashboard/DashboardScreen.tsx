@@ -21,6 +21,7 @@ import { useFocusEffect } from '@react-navigation/native';
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
@@ -451,612 +452,632 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   }, [lists, user?.id]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Typography variant='h3' color={theme.colors.text.primary}>
-            {getGreeting()}, {user?.name?.split(' ')[0] || 'User'}!
-          </Typography>
-
-          <Typography variant='body1' color={theme.colors.text.secondary} style={{ marginTop: 4 }}>
-            {isConnected ? "Here's your grocery overview" : 'Offline mode - showing cached data'}
-          </Typography>
-        </View>
-
-        {/* Connection Status */}
-        {!isConnected && (
-          <View
-            style={[styles.statusBadge, { backgroundColor: theme.colors.semantic.warning[100] }]}>
-            <Typography variant='caption' color={theme.colors.semantic.warning[700]}>
-              Offline
-            </Typography>
-          </View>
-        )}
-      </View>
-
-      {/* Content */}
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing || isLoadingLists}
-            onRefresh={onRefresh}
-            tintColor={theme.colors.primary[500]}
-          />
-        }>
-        {/* Overview Stats Cards */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statsRow}>
-            <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-              <Typography variant='h4' color={theme.colors.primary[500]}>
-                {statistics.activeLists}
-              </Typography>
-              <Typography variant='caption' color={theme.colors.text.secondary}>
-                Active Lists
-              </Typography>
-            </View>
-
-            <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-              <Typography variant='h4' color={theme.colors.secondary[500]}>
-                {statistics.pendingItems}
-              </Typography>
-              <Typography variant='caption' color={theme.colors.text.secondary}>
-                Pending Items
-              </Typography>
-            </View>
-          </View>
-
-          <View style={styles.statsRow}>
-            <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-              <Typography variant='h4' color={theme.colors.semantic.success[500]}>
-                {statistics.completionRate.toFixed(0)}%
-              </Typography>
-              <Typography variant='caption' color={theme.colors.text.secondary}>
-                Completion Rate
-              </Typography>
-            </View>
-
-            <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-              <Typography variant='h4' color={theme.colors.accent[500]}>
-                {statistics.archivedLists}
-              </Typography>
-              <Typography variant='caption' color={theme.colors.text.secondary}>
-                Completed Lists
-              </Typography>
-            </View>
-          </View>
-        </View>
-
-        {/* Spending Overview - User's Personal Spending */}
-        <View style={styles.section}>
-          <View style={styles.spendingHeader}>
-            <Typography variant='h5' color={theme.colors.text.primary} style={styles.sectionTitle}>
-              💰 Your Spending Overview
-            </Typography>
-            <TouchableOpacity onPress={openBudgetModal} style={styles.budgetButton}>
-              <Typography variant='caption' color={theme.colors.primary[500]}>
-                {monthlyBudget > 0 ? 'Edit Budget' : 'Set Budget'}
-              </Typography>
-            </TouchableOpacity>
-          </View>
-
-          {/* Budget Alert */}
-          {statistics.isOverBudget && (
-            <View
-              style={[
-                styles.alertCard,
-                {
-                  backgroundColor: theme.colors.semantic.error[50],
-                  borderColor: theme.colors.semantic.error[200],
-                },
-              ]}>
-              <Typography variant='body2' color={theme.colors.semantic.error[700]}>
-                ⚠️ You've exceeded your monthly budget by ${statistics.overBudgetAmount.toFixed(2)}
-              </Typography>
-            </View>
-          )}
-
-          {statistics.isNearBudgetLimit && (
-            <View
-              style={[
-                styles.alertCard,
-                {
-                  backgroundColor: theme.colors.semantic.warning[50],
-                  borderColor: theme.colors.semantic.warning[200],
-                },
-              ]}>
-              <Typography variant='body2' color={theme.colors.semantic.warning[700]}>
-                🔔 You've used {statistics.budgetPercentage.toFixed(0)}% of your monthly budget
-              </Typography>
-            </View>
-          )}
-
-          <View style={styles.spendingOverview}>
-            <View style={[styles.spendingCard, { backgroundColor: theme.colors.surface.card }]}>
-              <View style={styles.spendingCardHeader}>
-                <Typography variant='caption' color={theme.colors.text.secondary}>
-                  Your Total Spent
-                </Typography>
-                <Typography variant='h3' color={theme.colors.primary[500]}>
-                  ${statistics.userTotalSpent.toFixed(2)}
-                </Typography>
-              </View>
-
-              <View style={styles.spendingCardDetails}>
-                <View style={styles.spendingDetail}>
-                  <Typography variant='caption' color={theme.colors.text.tertiary}>
-                    This Month
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    color={
-                      statistics.isOverBudget
-                        ? theme.colors.semantic.error[500]
-                        : theme.colors.text.primary
-                    }>
-                    ${statistics.userThisMonthSpent.toFixed(2)}
-                  </Typography>
-                </View>
-                <View style={styles.spendingDetail}>
-                  <Typography variant='caption' color={theme.colors.text.tertiary}>
-                    {monthlyBudget > 0 ? 'Remaining' : 'Avg per List'}
-                  </Typography>
-                  <Typography variant='body2' color={theme.colors.text.primary}>
-                    {monthlyBudget > 0
-                      ? `$${Math.max(0, statistics.budgetRemaining).toFixed(2)}`
-                      : `$${(statistics.userTotalSpent / Math.max(1, statistics.totalLists)).toFixed(2)}`}
-                  </Typography>
-                </View>
-              </View>
-            </View>
-
-            {monthlyBudget > 0 && (
-              <View style={[styles.budgetCard, { backgroundColor: theme.colors.surface.card }]}>
-                <View style={styles.budgetCardHeader}>
-                  <Typography variant='caption' color={theme.colors.text.secondary}>
-                    Monthly Budget Progress
-                  </Typography>
-                  <Typography variant='body2' color={theme.colors.text.primary}>
-                    {statistics.budgetPercentage.toFixed(0)}%
-                  </Typography>
-                </View>
-                <View style={styles.budgetProgress}>
-                  <View
-                    style={[
-                      styles.budgetProgressBar,
-                      { backgroundColor: theme.colors.border.primary },
-                    ]}>
-                    <View
-                      style={
-                        [
-                          styles.budgetProgressFill,
-                          {
-                            backgroundColor: statistics.isOverBudget
-                              ? theme.colors.semantic.error[500]
-                              : statistics.isNearBudgetLimit
-                                ? theme.colors.semantic.warning[500]
-                                : theme.colors.semantic.success[500],
-                            width: `${Math.min(statistics.budgetPercentage, 100)}%` as any,
-                          },
-                        ] as any
-                      }
-                    />
-                  </View>
-                  <Typography variant='caption' color={theme.colors.text.secondary}>
-                    ${statistics.userThisMonthSpent.toFixed(2)} / ${monthlyBudget.toFixed(2)}
-                  </Typography>
-                </View>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Spending by User */}
-        {spendingByUser.length > 0 && (
-          <View style={styles.section}>
-            <Typography variant='h5' color={theme.colors.text.primary} style={styles.sectionTitle}>
-              👥 Who Spent How Much
+    <GradientBackground>
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Typography variant='h3' color={theme.colors.text.primary}>
+              {getGreeting()}, {user?.name?.split(' ')[0] || 'User'}!
             </Typography>
 
-            {spendingByUser.map((userSpending, index) => (
-              <View
-                key={userSpending.userId}
-                style={[styles.userSpendingCard, { backgroundColor: theme.colors.surface.card }]}>
-                <View style={styles.userSpendingHeader}>
-                  <View style={styles.userSpendingInfo}>
-                    <Typography variant='body1' color={theme.colors.text.primary}>
-                      {userSpending.name}
-                    </Typography>
-                    <Typography variant='caption' color={theme.colors.text.secondary}>
-                      {userSpending.itemCount} items purchased
-                    </Typography>
-                  </View>
-                  <View style={styles.userSpendingAmount}>
-                    <Typography variant='h6' color={theme.colors.primary[500]}>
-                      ${userSpending.amount.toFixed(2)}
-                    </Typography>
-                    <Typography variant='caption' color={theme.colors.text.secondary}>
-                      {userSpending.percentage.toFixed(1)}%
-                    </Typography>
-                  </View>
-                </View>
-
-                <View style={styles.userSpendingProgress}>
-                  <View
-                    style={[
-                      styles.userProgressBar,
-                      { backgroundColor: theme.colors.border.primary },
-                    ]}>
-                    <View
-                      style={
-                        [
-                          styles.userProgressFill,
-                          {
-                            backgroundColor:
-                              index === 0 ? theme.colors.primary[500] : theme.colors.secondary[400],
-                            width: `${userSpending.percentage}%` as any,
-                          },
-                        ] as any
-                      }
-                    />
-                  </View>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Category-wise Spending */}
-        {categorySpending.length > 0 && (
-          <View style={styles.section}>
-            <Typography variant='h5' color={theme.colors.text.primary} style={styles.sectionTitle}>
-              📊 Spending by Category
-            </Typography>
-
-            {categorySpending.map((category, index) => (
-              <View
-                key={category.categoryId}
-                style={[
-                  styles.categorySpendingCard,
-                  { backgroundColor: theme.colors.surface.card },
-                ]}>
-                <View style={styles.categorySpendingHeader}>
-                  <View style={styles.categorySpendingInfo}>
-                    <View style={styles.categorySpendingTitleRow}>
-                      <Typography variant='h6' style={styles.categoryIcon}>
-                        {category.icon}
-                      </Typography>
-                      <Typography variant='body1' color={theme.colors.text.primary}>
-                        {category.name}
-                      </Typography>
-                    </View>
-                    <Typography variant='caption' color={theme.colors.text.secondary}>
-                      {category.itemCount} items purchased
-                    </Typography>
-                  </View>
-                  <View style={styles.categorySpendingAmount}>
-                    <Typography variant='h6' color={theme.colors.primary[500]}>
-                      ${category.amount.toFixed(2)}
-                    </Typography>
-                    <Typography variant='caption' color={theme.colors.text.secondary}>
-                      {category.percentage.toFixed(1)}%
-                    </Typography>
-                  </View>
-                </View>
-
-                <View style={styles.categorySpendingProgress}>
-                  <View
-                    style={[
-                      styles.categoryProgressBar,
-                      { backgroundColor: theme.colors.border.primary },
-                    ]}>
-                    <View
-                      style={
-                        [
-                          styles.categoryProgressFill,
-                          {
-                            backgroundColor:
-                              index === 0
-                                ? theme.colors.primary[500]
-                                : index === 1
-                                  ? theme.colors.secondary[400]
-                                  : theme.colors.accent[400],
-                            width: `${category.percentage}%` as any,
-                          },
-                        ] as any
-                      }
-                    />
-                  </View>
-                </View>
-              </View>
-            ))}
-
-            {statistics.userTotalSpent > 0 && categorySpending.length > 0 && (
-              <View
-                style={[
-                  styles.categoryInsightCard,
-                  { backgroundColor: theme.colors.surface.card },
-                ]}>
-                <Typography
-                  variant='body2'
-                  color={theme.colors.text.secondary}
-                  style={styles.categoryInsightText}>
-                  💡 Your top spending category is{' '}
-                  <Typography
-                    variant='body2'
-                    color={theme.colors.primary[500]}
-                    style={{ fontWeight: '600' }}>
-                    {categorySpending[0]?.name}
-                  </Typography>
-                  {' at $'}
-                  <Typography variant='body2' color={theme.colors.text.secondary}>
-                    {categorySpending[0]?.amount.toFixed(2)}
-                  </Typography>
-                  {' ('}
-                  <Typography variant='body2' color={theme.colors.text.secondary}>
-                    {categorySpending[0]?.percentage.toFixed(0)}
-                  </Typography>
-                  {'% of total)'}
-                </Typography>
-              </View>
-            )}
-          </View>
-        )}
-
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Typography variant='h5' color={theme.colors.text.primary} style={styles.sectionTitle}>
-            🚀 Quick Actions
-          </Typography>
-
-          <View style={styles.actionsContainer}>
-            <Button
-              title='New List'
-              variant='primary'
-              size='md'
-              onPress={() => console.log('Navigate to create list')}
-              style={styles.actionButton}
-              leftIcon={
-                {
-                  component: ({ size, color }: { size: number; color: string }) => (
-                    <Image
-                      source={CreateListIcon}
-                      style={{ width: size, height: size, tintColor: color }}
-                      resizeMode='contain'
-                    />
-                  ),
-                  name: 'add',
-                  size: 18,
-                } as any
-              }
-            />
-
-            <Button
-              title='View Lists'
-              variant='outline'
-              size='md'
-              onPress={() => console.log('Navigate to lists')}
-              style={styles.actionButton}
-              leftIcon={
-                {
-                  component: ({ size, color }: { size: number; color: string }) => (
-                    <Typography variant='h6' style={{ fontSize: size, color }}>
-                      📋
-                    </Typography>
-                  ),
-                  name: 'list',
-                  size: 18,
-                } as any
-              }
-            />
-          </View>
-
-          <View style={styles.actionsContainer}>
-            <Button
-              title='Start Shopping'
-              variant='secondary'
-              size='md'
-              onPress={() => console.log('Navigate to shop')}
-              style={styles.actionButton}
-              leftIcon={
-                {
-                  component: ({ size, color }: { size: number; color: string }) => (
-                    <Typography variant='h6' style={{ fontSize: size, color }}>
-                      🛒
-                    </Typography>
-                  ),
-                  name: 'shop',
-                  size: 18,
-                } as any
-              }
-            />
-
-            <Button
-              title='Add Friends'
-              variant='tertiary'
-              size='md'
-              onPress={() => console.log('Navigate to social')}
-              style={styles.actionButton}
-              leftIcon={
-                {
-                  component: ({ size, color }: { size: number; color: string }) => (
-                    <Typography variant='h6' style={{ fontSize: size, color }}>
-                      👥
-                    </Typography>
-                  ),
-                  name: 'people',
-                  size: 18,
-                } as any
-              }
-            />
-          </View>
-        </View>
-
-        {/* Recent Activity */}
-        {recentActivity.length > 0 && (
-          <View style={styles.section}>
-            <Typography variant='h5' color={theme.colors.text.primary} style={styles.sectionTitle}>
-              📈 Recent Activity
-            </Typography>
-
-            {recentActivity.map(activity => (
-              <View
-                key={activity.id}
-                style={[
-                  styles.activityItem,
-                  {
-                    backgroundColor: theme.colors.surface.card,
-                    borderColor: theme.colors.border.primary,
-                  },
-                ]}>
-                <View style={styles.activityContent}>
-                  <Typography variant='body1' color={theme.colors.text.primary}>
-                    {activity.title}
-                  </Typography>
-
-                  <View style={styles.activityMeta}>
-                    <Typography variant='caption' color={theme.colors.text.tertiary}>
-                      {activity.time} • by {activity.user}
-                    </Typography>
-                    {activity.amount && (
-                      <Typography variant='caption' color={theme.colors.primary[500]}>
-                        ${activity.amount.toFixed(2)}
-                      </Typography>
-                    )}
-                  </View>
-                </View>
-
-                <View style={styles.activityIcon}>
-                  <Typography variant='body2'>
-                    {activity.type === 'list_created' && '📝'}
-                    {activity.type === 'items_completed' && '✅'}
-                    {activity.type === 'list_completed' && '🎉'}
-                  </Typography>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Empty State */}
-        {lists.length === 0 && !isLoadingLists && (
-          <View style={styles.emptyState}>
-            <Typography
-              variant='h6'
-              color={theme.colors.text.secondary}
-              style={{ textAlign: 'center', marginBottom: 16 }}>
-              🛒 Welcome to PentryPal!
-            </Typography>
             <Typography
               variant='body1'
-              color={theme.colors.text.tertiary}
-              style={{ textAlign: 'center', marginBottom: 24 }}>
-              Create your first shopping list to get started with collaborative grocery shopping.
-            </Typography>
-            <Button
-              title='Create Your First List'
-              variant='primary'
-              size='lg'
-              onPress={() => console.log('Navigate to create list')}
-              leftIcon={
-                {
-                  component: ({ size, color }: { size: number; color: string }) => (
-                    <Image
-                      source={CreateListIcon}
-                      style={{ width: size, height: size, tintColor: color }}
-                      resizeMode='contain'
-                    />
-                  ),
-                  name: 'add',
-                  size: 20,
-                } as any
-              }
-            />
-          </View>
-        )}
-
-        {/* Bottom Spacing */}
-        <View style={{ height: theme.spacing.xl }} />
-      </ScrollView>
-
-      {/* Budget Setting Modal */}
-      <Modal
-        visible={showBudgetModal}
-        transparent={true}
-        animationType='fade'
-        onRequestClose={() => setShowBudgetModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View
-            style={[styles.modalContent, { backgroundColor: theme.colors.surface.card }] as any}>
-            <Typography variant='h4' color={theme.colors.text.primary} style={styles.modalTitle}>
-              Set Monthly Budget
-            </Typography>
-
-            <Typography
-              variant='body2'
               color={theme.colors.text.secondary}
-              style={styles.modalDescription}>
-              Set your monthly grocery budget to track your spending and get alerts when you're
-              approaching your limit.
+              style={{ marginTop: 4 }}>
+              {isConnected ? "Here's your grocery overview" : 'Offline mode - showing cached data'}
+            </Typography>
+          </View>
+
+          {/* Connection Status */}
+          {!isConnected && (
+            <View
+              style={[styles.statusBadge, { backgroundColor: theme.colors.semantic.warning[100] }]}>
+              <Typography variant='caption' color={theme.colors.semantic.warning[700]}>
+                Offline
+              </Typography>
+            </View>
+          )}
+        </View>
+
+        {/* Content */}
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing || isLoadingLists}
+              onRefresh={onRefresh}
+              tintColor={theme.colors.primary[500]}
+            />
+          }>
+          {/* Overview Stats Cards */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statsRow}>
+              <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+                <Typography variant='h4' color={theme.colors.primary[500]}>
+                  {statistics.activeLists}
+                </Typography>
+                <Typography variant='caption' color={theme.colors.text.secondary}>
+                  Active Lists
+                </Typography>
+              </View>
+
+              <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+                <Typography variant='h4' color={theme.colors.secondary[500]}>
+                  {statistics.pendingItems}
+                </Typography>
+                <Typography variant='caption' color={theme.colors.text.secondary}>
+                  Pending Items
+                </Typography>
+              </View>
+            </View>
+
+            <View style={styles.statsRow}>
+              <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+                <Typography variant='h4' color={theme.colors.semantic.success[500]}>
+                  {statistics.completionRate.toFixed(0)}%
+                </Typography>
+                <Typography variant='caption' color={theme.colors.text.secondary}>
+                  Completion Rate
+                </Typography>
+              </View>
+
+              <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+                <Typography variant='h4' color={theme.colors.accent[500]}>
+                  {statistics.archivedLists}
+                </Typography>
+                <Typography variant='caption' color={theme.colors.text.secondary}>
+                  Completed Lists
+                </Typography>
+              </View>
+            </View>
+          </View>
+
+          {/* Spending Overview - User's Personal Spending */}
+          <View style={styles.section}>
+            <View style={styles.spendingHeader}>
+              <Typography
+                variant='h5'
+                color={theme.colors.text.primary}
+                style={styles.sectionTitle}>
+                💰 Your Spending Overview
+              </Typography>
+              <TouchableOpacity onPress={openBudgetModal} style={styles.budgetButton}>
+                <Typography variant='caption' color={theme.colors.primary[500]}>
+                  {monthlyBudget > 0 ? 'Edit Budget' : 'Set Budget'}
+                </Typography>
+              </TouchableOpacity>
+            </View>
+
+            {/* Budget Alert */}
+            {statistics.isOverBudget && (
+              <View
+                style={[
+                  styles.alertCard,
+                  {
+                    backgroundColor: theme.colors.semantic.error[50],
+                    borderColor: theme.colors.semantic.error[200],
+                  },
+                ]}>
+                <Typography variant='body2' color={theme.colors.semantic.error[700]}>
+                  ⚠️ You've exceeded your monthly budget by $
+                  {statistics.overBudgetAmount.toFixed(2)}
+                </Typography>
+              </View>
+            )}
+
+            {statistics.isNearBudgetLimit && (
+              <View
+                style={[
+                  styles.alertCard,
+                  {
+                    backgroundColor: theme.colors.semantic.warning[50],
+                    borderColor: theme.colors.semantic.warning[200],
+                  },
+                ]}>
+                <Typography variant='body2' color={theme.colors.semantic.warning[700]}>
+                  🔔 You've used {statistics.budgetPercentage.toFixed(0)}% of your monthly budget
+                </Typography>
+              </View>
+            )}
+
+            <View style={styles.spendingOverview}>
+              <View style={[styles.spendingCard, { backgroundColor: theme.colors.surface.card }]}>
+                <View style={styles.spendingCardHeader}>
+                  <Typography variant='caption' color={theme.colors.text.secondary}>
+                    Your Total Spent
+                  </Typography>
+                  <Typography variant='h3' color={theme.colors.primary[500]}>
+                    ${statistics.userTotalSpent.toFixed(2)}
+                  </Typography>
+                </View>
+
+                <View style={styles.spendingCardDetails}>
+                  <View style={styles.spendingDetail}>
+                    <Typography variant='caption' color={theme.colors.text.tertiary}>
+                      This Month
+                    </Typography>
+                    <Typography
+                      variant='body2'
+                      color={
+                        statistics.isOverBudget
+                          ? theme.colors.semantic.error[500]
+                          : theme.colors.text.primary
+                      }>
+                      ${statistics.userThisMonthSpent.toFixed(2)}
+                    </Typography>
+                  </View>
+                  <View style={styles.spendingDetail}>
+                    <Typography variant='caption' color={theme.colors.text.tertiary}>
+                      {monthlyBudget > 0 ? 'Remaining' : 'Avg per List'}
+                    </Typography>
+                    <Typography variant='body2' color={theme.colors.text.primary}>
+                      {monthlyBudget > 0
+                        ? `$${Math.max(0, statistics.budgetRemaining).toFixed(2)}`
+                        : `$${(statistics.userTotalSpent / Math.max(1, statistics.totalLists)).toFixed(2)}`}
+                    </Typography>
+                  </View>
+                </View>
+              </View>
+
+              {monthlyBudget > 0 && (
+                <View style={[styles.budgetCard, { backgroundColor: theme.colors.surface.card }]}>
+                  <View style={styles.budgetCardHeader}>
+                    <Typography variant='caption' color={theme.colors.text.secondary}>
+                      Monthly Budget Progress
+                    </Typography>
+                    <Typography variant='body2' color={theme.colors.text.primary}>
+                      {statistics.budgetPercentage.toFixed(0)}%
+                    </Typography>
+                  </View>
+                  <View style={styles.budgetProgress}>
+                    <View
+                      style={[
+                        styles.budgetProgressBar,
+                        { backgroundColor: theme.colors.border.primary },
+                      ]}>
+                      <View
+                        style={
+                          [
+                            styles.budgetProgressFill,
+                            {
+                              backgroundColor: statistics.isOverBudget
+                                ? theme.colors.semantic.error[500]
+                                : statistics.isNearBudgetLimit
+                                  ? theme.colors.semantic.warning[500]
+                                  : theme.colors.semantic.success[500],
+                              width: `${Math.min(statistics.budgetPercentage, 100)}%` as any,
+                            },
+                          ] as any
+                        }
+                      />
+                    </View>
+                    <Typography variant='caption' color={theme.colors.text.secondary}>
+                      ${statistics.userThisMonthSpent.toFixed(2)} / ${monthlyBudget.toFixed(2)}
+                    </Typography>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+
+          {/* Spending by User */}
+          {spendingByUser.length > 0 && (
+            <View style={styles.section}>
+              <Typography
+                variant='h5'
+                color={theme.colors.text.primary}
+                style={styles.sectionTitle}>
+                👥 Who Spent How Much
+              </Typography>
+
+              {spendingByUser.map((userSpending, index) => (
+                <View
+                  key={userSpending.userId}
+                  style={[styles.userSpendingCard, { backgroundColor: theme.colors.surface.card }]}>
+                  <View style={styles.userSpendingHeader}>
+                    <View style={styles.userSpendingInfo}>
+                      <Typography variant='body1' color={theme.colors.text.primary}>
+                        {userSpending.name}
+                      </Typography>
+                      <Typography variant='caption' color={theme.colors.text.secondary}>
+                        {userSpending.itemCount} items purchased
+                      </Typography>
+                    </View>
+                    <View style={styles.userSpendingAmount}>
+                      <Typography variant='h6' color={theme.colors.primary[500]}>
+                        ${userSpending.amount.toFixed(2)}
+                      </Typography>
+                      <Typography variant='caption' color={theme.colors.text.secondary}>
+                        {userSpending.percentage.toFixed(1)}%
+                      </Typography>
+                    </View>
+                  </View>
+
+                  <View style={styles.userSpendingProgress}>
+                    <View
+                      style={[
+                        styles.userProgressBar,
+                        { backgroundColor: theme.colors.border.primary },
+                      ]}>
+                      <View
+                        style={
+                          [
+                            styles.userProgressFill,
+                            {
+                              backgroundColor:
+                                index === 0
+                                  ? theme.colors.primary[500]
+                                  : theme.colors.secondary[400],
+                              width: `${userSpending.percentage}%` as any,
+                            },
+                          ] as any
+                        }
+                      />
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Category-wise Spending */}
+          {categorySpending.length > 0 && (
+            <View style={styles.section}>
+              <Typography
+                variant='h5'
+                color={theme.colors.text.primary}
+                style={styles.sectionTitle}>
+                📊 Spending by Category
+              </Typography>
+
+              {categorySpending.map((category, index) => (
+                <View
+                  key={category.categoryId}
+                  style={[
+                    styles.categorySpendingCard,
+                    { backgroundColor: theme.colors.surface.card },
+                  ]}>
+                  <View style={styles.categorySpendingHeader}>
+                    <View style={styles.categorySpendingInfo}>
+                      <View style={styles.categorySpendingTitleRow}>
+                        <Typography variant='h6' style={styles.categoryIcon}>
+                          {category.icon}
+                        </Typography>
+                        <Typography variant='body1' color={theme.colors.text.primary}>
+                          {category.name}
+                        </Typography>
+                      </View>
+                      <Typography variant='caption' color={theme.colors.text.secondary}>
+                        {category.itemCount} items purchased
+                      </Typography>
+                    </View>
+                    <View style={styles.categorySpendingAmount}>
+                      <Typography variant='h6' color={theme.colors.primary[500]}>
+                        ${category.amount.toFixed(2)}
+                      </Typography>
+                      <Typography variant='caption' color={theme.colors.text.secondary}>
+                        {category.percentage.toFixed(1)}%
+                      </Typography>
+                    </View>
+                  </View>
+
+                  <View style={styles.categorySpendingProgress}>
+                    <View
+                      style={[
+                        styles.categoryProgressBar,
+                        { backgroundColor: theme.colors.border.primary },
+                      ]}>
+                      <View
+                        style={
+                          [
+                            styles.categoryProgressFill,
+                            {
+                              backgroundColor:
+                                index === 0
+                                  ? theme.colors.primary[500]
+                                  : index === 1
+                                    ? theme.colors.secondary[400]
+                                    : theme.colors.accent[400],
+                              width: `${category.percentage}%` as any,
+                            },
+                          ] as any
+                        }
+                      />
+                    </View>
+                  </View>
+                </View>
+              ))}
+
+              {statistics.userTotalSpent > 0 && categorySpending.length > 0 && (
+                <View
+                  style={[
+                    styles.categoryInsightCard,
+                    { backgroundColor: theme.colors.surface.card },
+                  ]}>
+                  <Typography
+                    variant='body2'
+                    color={theme.colors.text.secondary}
+                    style={styles.categoryInsightText}>
+                    💡 Your top spending category is{' '}
+                    <Typography
+                      variant='body2'
+                      color={theme.colors.primary[500]}
+                      style={{ fontWeight: '600' }}>
+                      {categorySpending[0]?.name}
+                    </Typography>
+                    {' at $'}
+                    <Typography variant='body2' color={theme.colors.text.secondary}>
+                      {categorySpending[0]?.amount.toFixed(2)}
+                    </Typography>
+                    {' ('}
+                    <Typography variant='body2' color={theme.colors.text.secondary}>
+                      {categorySpending[0]?.percentage.toFixed(0)}
+                    </Typography>
+                    {'% of total)'}
+                  </Typography>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Quick Actions */}
+          <View style={styles.section}>
+            <Typography variant='h5' color={theme.colors.text.primary} style={styles.sectionTitle}>
+              🚀 Quick Actions
             </Typography>
 
-            <View style={styles.inputContainer}>
-              <Typography
-                variant='body2'
-                color={theme.colors.text.primary}
-                style={styles.inputLabel}>
-                Monthly Budget ($)
-              </Typography>
-              <TextInput
-                style={[
-                  styles.budgetInput,
+            <View style={styles.actionsContainer}>
+              <Button
+                title='New List'
+                variant='primary'
+                size='md'
+                onPress={() => console.log('Navigate to create list')}
+                style={styles.actionButton}
+                leftIcon={
                   {
-                    backgroundColor: theme.colors.surface.background,
-                    borderColor: theme.colors.border.primary,
-                    color: theme.colors.text.primary,
-                  },
-                ]}
-                value={budgetInput}
-                onChangeText={setBudgetInput}
-                placeholder='Enter amount (e.g., 500)'
-                placeholderTextColor={theme.colors.text.tertiary}
-                keyboardType='numeric'
-                autoFocus
+                    component: ({ size, color }: { size: number; color: string }) => (
+                      <Image
+                        source={CreateListIcon}
+                        style={{ width: size, height: size, tintColor: color }}
+                        resizeMode='contain'
+                      />
+                    ),
+                    name: 'add',
+                    size: 18,
+                  } as any
+                }
+              />
+
+              <Button
+                title='View Lists'
+                variant='outline'
+                size='md'
+                onPress={() => console.log('Navigate to lists')}
+                style={styles.actionButton}
+                leftIcon={
+                  {
+                    component: ({ size, color }: { size: number; color: string }) => (
+                      <Typography variant='h6' style={{ fontSize: size, color }}>
+                        📋
+                      </Typography>
+                    ),
+                    name: 'list',
+                    size: 18,
+                  } as any
+                }
               />
             </View>
 
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                onPress={() => setShowBudgetModal(false)}
-                style={[
-                  styles.modalButton,
-                  styles.cancelButton,
-                  { borderColor: theme.colors.border.primary },
-                ]}>
-                <Typography variant='body2' color={theme.colors.text.secondary}>
-                  Cancel
-                </Typography>
-              </TouchableOpacity>
+            <View style={styles.actionsContainer}>
+              <Button
+                title='Start Shopping'
+                variant='secondary'
+                size='md'
+                onPress={() => console.log('Navigate to shop')}
+                style={styles.actionButton}
+                leftIcon={
+                  {
+                    component: ({ size, color }: { size: number; color: string }) => (
+                      <Typography variant='h6' style={{ fontSize: size, color }}>
+                        🛒
+                      </Typography>
+                    ),
+                    name: 'shop',
+                    size: 18,
+                  } as any
+                }
+              />
 
-              <TouchableOpacity
-                onPress={handleSetBudget}
-                style={[
-                  styles.modalButton,
-                  styles.confirmButton,
-                  { backgroundColor: theme.colors.primary[500] },
-                ]}>
-                <Typography variant='body2' color={theme.colors.surface.card}>
-                  {monthlyBudget > 0 ? 'Update Budget' : 'Set Budget'}
-                </Typography>
-              </TouchableOpacity>
+              <Button
+                title='Add Friends'
+                variant='tertiary'
+                size='md'
+                onPress={() => console.log('Navigate to social')}
+                style={styles.actionButton}
+                leftIcon={
+                  {
+                    component: ({ size, color }: { size: number; color: string }) => (
+                      <Typography variant='h6' style={{ fontSize: size, color }}>
+                        👥
+                      </Typography>
+                    ),
+                    name: 'people',
+                    size: 18,
+                  } as any
+                }
+              />
             </View>
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+
+          {/* Recent Activity */}
+          {recentActivity.length > 0 && (
+            <View style={styles.section}>
+              <Typography
+                variant='h5'
+                color={theme.colors.text.primary}
+                style={styles.sectionTitle}>
+                📈 Recent Activity
+              </Typography>
+
+              {recentActivity.map(activity => (
+                <View
+                  key={activity.id}
+                  style={[
+                    styles.activityItem,
+                    {
+                      backgroundColor: theme.colors.surface.card,
+                      borderColor: theme.colors.border.primary,
+                    },
+                  ]}>
+                  <View style={styles.activityContent}>
+                    <Typography variant='body1' color={theme.colors.text.primary}>
+                      {activity.title}
+                    </Typography>
+
+                    <View style={styles.activityMeta}>
+                      <Typography variant='caption' color={theme.colors.text.tertiary}>
+                        {activity.time} • by {activity.user}
+                      </Typography>
+                      {activity.amount && (
+                        <Typography variant='caption' color={theme.colors.primary[500]}>
+                          ${activity.amount.toFixed(2)}
+                        </Typography>
+                      )}
+                    </View>
+                  </View>
+
+                  <View style={styles.activityIcon}>
+                    <Typography variant='body2'>
+                      {activity.type === 'list_created' && '📝'}
+                      {activity.type === 'items_completed' && '✅'}
+                      {activity.type === 'list_completed' && '🎉'}
+                    </Typography>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Empty State */}
+          {lists.length === 0 && !isLoadingLists && (
+            <View style={styles.emptyState}>
+              <Typography
+                variant='h6'
+                color={theme.colors.text.secondary}
+                style={{ textAlign: 'center', marginBottom: 16 }}>
+                🛒 Welcome to PentryPal!
+              </Typography>
+              <Typography
+                variant='body1'
+                color={theme.colors.text.tertiary}
+                style={{ textAlign: 'center', marginBottom: 24 }}>
+                Create your first shopping list to get started with collaborative grocery shopping.
+              </Typography>
+              <Button
+                title='Create Your First List'
+                variant='primary'
+                size='lg'
+                onPress={() => console.log('Navigate to create list')}
+                leftIcon={
+                  {
+                    component: ({ size, color }: { size: number; color: string }) => (
+                      <Image
+                        source={CreateListIcon}
+                        style={{ width: size, height: size, tintColor: color }}
+                        resizeMode='contain'
+                      />
+                    ),
+                    name: 'add',
+                    size: 20,
+                  } as any
+                }
+              />
+            </View>
+          )}
+
+          {/* Bottom Spacing */}
+          <View style={{ height: theme.spacing.xl }} />
+        </ScrollView>
+
+        {/* Budget Setting Modal */}
+        <Modal
+          visible={showBudgetModal}
+          transparent={true}
+          animationType='fade'
+          onRequestClose={() => setShowBudgetModal(false)}>
+          <View style={styles.modalOverlay}>
+            <View
+              style={[styles.modalContent, { backgroundColor: theme.colors.surface.card }] as any}>
+              <Typography variant='h4' color={theme.colors.text.primary} style={styles.modalTitle}>
+                Set Monthly Budget
+              </Typography>
+
+              <Typography
+                variant='body2'
+                color={theme.colors.text.secondary}
+                style={styles.modalDescription}>
+                Set your monthly grocery budget to track your spending and get alerts when you're
+                approaching your limit.
+              </Typography>
+
+              <View style={styles.inputContainer}>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.primary}
+                  style={styles.inputLabel}>
+                  Monthly Budget ($)
+                </Typography>
+                <TextInput
+                  style={[
+                    styles.budgetInput,
+                    {
+                      backgroundColor: theme.colors.surface.background,
+                      borderColor: theme.colors.border.primary,
+                      color: theme.colors.text.primary,
+                    },
+                  ]}
+                  value={budgetInput}
+                  onChangeText={setBudgetInput}
+                  placeholder='Enter amount (e.g., 500)'
+                  placeholderTextColor={theme.colors.text.tertiary}
+                  keyboardType='numeric'
+                  autoFocus
+                />
+              </View>
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  onPress={() => setShowBudgetModal(false)}
+                  style={[
+                    styles.modalButton,
+                    styles.cancelButton,
+                    { borderColor: theme.colors.border.primary },
+                  ]}>
+                  <Typography variant='body2' color={theme.colors.text.secondary}>
+                    Cancel
+                  </Typography>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleSetBudget}
+                  style={[
+                    styles.modalButton,
+                    styles.confirmButton,
+                    { backgroundColor: theme.colors.primary[500] },
+                  ]}>
+                  <Typography variant='body2' color={theme.colors.surface.card}>
+                    {monthlyBudget > 0 ? 'Update Budget' : 'Set Budget'}
+                  </Typography>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 

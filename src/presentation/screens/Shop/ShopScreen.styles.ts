@@ -426,7 +426,7 @@ export const createThemedStyles = (theme: any) =>
     } as ViewStyle,
 
     container: {
-      backgroundColor: theme.colors.surface.background,
+      // backgroundColor removed to show gradient background
     } as ViewStyle,
 
     currencySymbol: {

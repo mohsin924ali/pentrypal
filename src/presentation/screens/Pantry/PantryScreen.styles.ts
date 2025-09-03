@@ -86,9 +86,9 @@ export const baseStyles = StyleSheet.create({
  * Create themed styles using the provided theme
  */
 export const createThemedStyles = (theme: any) => ({
-  // Container with theme background
+  // Container with transparent background to show gradient
   themedContainer: {
-    backgroundColor: theme.colors.surface.background,
+    // backgroundColor removed to show gradient background
   } as ViewStyle,
 
   // Stat card with shadow and theme background

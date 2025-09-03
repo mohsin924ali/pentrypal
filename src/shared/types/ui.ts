@@ -28,6 +28,7 @@ export interface ColorPalette {
   readonly surface: SurfaceColors;
   readonly text: TextColors;
   readonly border: BorderColors;
+  readonly gradients: GradientColors;
 }
 
 export interface ColorScale {
@@ -76,6 +77,10 @@ export interface BorderColors {
   readonly divider: string;
   readonly focus: string;
   readonly error: string;
+}
+
+export interface GradientColors {
+  readonly screenBackground: readonly [string, string];
 }
 
 // ========================================

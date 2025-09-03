@@ -23,6 +23,7 @@ import { Typography } from '../../components/atoms/Typography/Typography';
 import { ConsultButton } from '../../components/atoms/ConsultButton/ConsultButton';
 import { ConsultContributorsModal } from '../../components/molecules/ConsultContributorsModal/ConsultContributorsModal';
 import type { Contributor } from '../../components/molecules/ConsultContributorsModal/ConsultContributorsModal';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
@@ -1054,21 +1055,23 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   );
 
   return (
-    <SafeAreaView style={[baseStyles.container, themedStyles.container]}>
-      {renderContent()}
+    <GradientBackground>
+      <SafeAreaView style={[baseStyles.container, themedStyles.container]}>
+        {renderContent()}
 
-      {/* Consult Contributors Modal */}
-      <ConsultContributorsModal
-        visible={showConsultModal}
-        contributors={getContributors()}
-        listName={selectedList?.name || 'Shopping List'}
-        onDismiss={handleConsultModalClose}
-        testID='shop-consult-modal'
-      />
+        {/* Consult Contributors Modal */}
+        <ConsultContributorsModal
+          visible={showConsultModal}
+          contributors={getContributors()}
+          listName={selectedList?.name || 'Shopping List'}
+          onDismiss={handleConsultModalClose}
+          testID='shop-consult-modal'
+        />
 
-      {/* TODO: Add modals when molecular components are created */}
-      {/* UnfinishedListModal and ArchiveConfirmationModal will be added later */}
-    </SafeAreaView>
+        {/* TODO: Add modals when molecular components are created */}
+        {/* UnfinishedListModal and ArchiveConfirmationModal will be added later */}
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 

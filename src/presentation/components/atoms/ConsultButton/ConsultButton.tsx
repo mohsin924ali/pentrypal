@@ -227,29 +227,15 @@ export const ConsultButton: FC<ConsultButtonProps> = ({
 // ========================================
 
 const styles = StyleSheet.create({
-  container: {
-    width: 60,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  wave: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    opacity: 0.3,
-  },
   button: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 30,
+    elevation: 8,
+    height: 60,
+    justifyContent: 'center',
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 12,
-    elevation: 8,
+    width: 60,
     zIndex: 10, // Ensure button stays on top of waves
     ...Platform.select({
       ios: {
@@ -260,12 +246,26 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  icon: {
-    width: 24,
-    height: 24,
-    tintColor: '#ffffff',
+  container: {
+    alignItems: 'center',
+    height: 60,
+    justifyContent: 'center',
+    position: 'relative',
+    width: 60,
   },
   disabled: {
     opacity: 0.5,
+  },
+  icon: {
+    height: 24,
+    tintColor: '#ffffff',
+    width: 24,
+  },
+  wave: {
+    borderRadius: 30,
+    height: 60,
+    opacity: 0.3,
+    position: 'absolute',
+    width: 60,
   },
 });

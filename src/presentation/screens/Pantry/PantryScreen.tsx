@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
@@ -248,127 +249,134 @@ export const PantryScreen: React.FC<PantryScreenProps> = () => {
   };
 
   return (
-    <SafeAreaView style={[baseStyles.container, themedStyles.themedContainer]}>
-      {/* Header */}
-      <View style={baseStyles.header}>
-        <Typography variant='h3' color={theme.colors.text.primary}>
-          Pantry
-        </Typography>
-
-        <View style={baseStyles.headerActions}>
-          <Button
-            title='📷'
-            variant='outline'
-            size='sm'
-            onPress={() => console.log('Scan barcode')}
-            style={dynamicStyles.headerButtonWithMargin}
-          />
-
-          <Button title='➕' variant='primary' size='sm' onPress={() => console.log('Add item')} />
-        </View>
-      </View>
-
-      {/* Stats */}
-      <View style={baseStyles.statsContainer}>
-        <View style={themedStyles.statCard}>
-          <Typography variant='h5' color={theme.colors.primary[500]}>
-            {totalItems}
+    <GradientBackground>
+      <SafeAreaView style={[baseStyles.container, themedStyles.themedContainer]}>
+        {/* Header */}
+        <View style={baseStyles.header}>
+          <Typography variant='h3' color={theme.colors.text.primary}>
+            Pantry
           </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Total Items
-          </Typography>
-        </View>
 
-        <View style={themedStyles.statCard}>
-          <Typography variant='h5' color={theme.colors.semantic.warning[500]}>
-            {expiringSoon}
-          </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Expiring Soon
-          </Typography>
-        </View>
-
-        <View style={themedStyles.statCard}>
-          <Typography variant='h5' color={theme.colors.secondary[500]}>
-            {lowStockItems}
-          </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Low Stock
-          </Typography>
-        </View>
-
-        <View style={themedStyles.statCard}>
-          <Typography variant='h5' color={theme.colors.semantic.error[500]}>
-            {expiredItems}
-          </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Expired
-          </Typography>
-        </View>
-      </View>
-
-      {/* Category Filter */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={baseStyles.categoryFilter}
-        contentContainerStyle={baseStyles.categoryContent}>
-        {categories.map(category => (
-          <Button
-            key={category}
-            title={category}
-            variant={selectedCategory === category ? 'primary' : 'outline'}
-            size='sm'
-            onPress={() => setSelectedCategory(category)}
-            style={baseStyles.categoryButton}
-          />
-        ))}
-      </ScrollView>
-
-      {/* Items List */}
-      <FlatList
-        data={filteredItems}
-        renderItem={renderPantryItem}
-        keyExtractor={item => item.id}
-        style={baseStyles.itemsList}
-        contentContainerStyle={baseStyles.itemsContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={theme.colors.primary[500]}
-          />
-        }
-        ListEmptyComponent={
-          <View style={baseStyles.emptyContainer}>
-            <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
-              🥫
-            </Typography>
-            <Typography
-              variant='h6'
-              color={theme.colors.text.secondary}
-              align='center'
-              style={dynamicStyles.emptyStateTextWithTopMargin}>
-              No items in pantry
-            </Typography>
-            <Typography
-              variant='body2'
-              color={theme.colors.text.tertiary}
-              align='center'
-              style={dynamicStyles.emptyStateSmallTextWithMargin}>
-              Add items to track your inventory
-            </Typography>
+          <View style={baseStyles.headerActions}>
             <Button
-              title='Add First Item'
+              title='📷'
+              variant='outline'
+              size='sm'
+              onPress={() => console.log('Scan barcode')}
+              style={dynamicStyles.headerButtonWithMargin}
+            />
+
+            <Button
+              title='➕'
               variant='primary'
-              size='md'
-              onPress={() => console.log('Add first item')}
-              style={dynamicStyles.emptyStateButtonWithMargin}
+              size='sm'
+              onPress={() => console.log('Add item')}
             />
           </View>
-        }
-      />
-    </SafeAreaView>
+        </View>
+
+        {/* Stats */}
+        <View style={baseStyles.statsContainer}>
+          <View style={themedStyles.statCard}>
+            <Typography variant='h5' color={theme.colors.primary[500]}>
+              {totalItems}
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Total Items
+            </Typography>
+          </View>
+
+          <View style={themedStyles.statCard}>
+            <Typography variant='h5' color={theme.colors.semantic.warning[500]}>
+              {expiringSoon}
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Expiring Soon
+            </Typography>
+          </View>
+
+          <View style={themedStyles.statCard}>
+            <Typography variant='h5' color={theme.colors.secondary[500]}>
+              {lowStockItems}
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Low Stock
+            </Typography>
+          </View>
+
+          <View style={themedStyles.statCard}>
+            <Typography variant='h5' color={theme.colors.semantic.error[500]}>
+              {expiredItems}
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Expired
+            </Typography>
+          </View>
+        </View>
+
+        {/* Category Filter */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={baseStyles.categoryFilter}
+          contentContainerStyle={baseStyles.categoryContent}>
+          {categories.map(category => (
+            <Button
+              key={category}
+              title={category}
+              variant={selectedCategory === category ? 'primary' : 'outline'}
+              size='sm'
+              onPress={() => setSelectedCategory(category)}
+              style={baseStyles.categoryButton}
+            />
+          ))}
+        </ScrollView>
+
+        {/* Items List */}
+        <FlatList
+          data={filteredItems}
+          renderItem={renderPantryItem}
+          keyExtractor={item => item.id}
+          style={baseStyles.itemsList}
+          contentContainerStyle={baseStyles.itemsContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.colors.primary[500]}
+            />
+          }
+          ListEmptyComponent={
+            <View style={baseStyles.emptyContainer}>
+              <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
+                🥫
+              </Typography>
+              <Typography
+                variant='h6'
+                color={theme.colors.text.secondary}
+                align='center'
+                style={dynamicStyles.emptyStateTextWithTopMargin}>
+                No items in pantry
+              </Typography>
+              <Typography
+                variant='body2'
+                color={theme.colors.text.tertiary}
+                align='center'
+                style={dynamicStyles.emptyStateSmallTextWithMargin}>
+                Add items to track your inventory
+              </Typography>
+              <Button
+                title='Add First Item'
+                variant='primary'
+                size='md'
+                onPress={() => console.log('Add first item')}
+                style={dynamicStyles.emptyStateButtonWithMargin}
+              />
+            </View>
+          }
+        />
+      </SafeAreaView>
+    </GradientBackground>
   );
 };

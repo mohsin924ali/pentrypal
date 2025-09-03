@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 import { AddFriendModal } from '../../components/molecules/AddFriendModal';
 
 // Hooks and Utils
@@ -381,220 +382,222 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Typography variant='h3' color={theme.colors.text.primary}>
-          Social
-        </Typography>
-
-        <Button
-          title='Add Friend'
-          variant='primary'
-          size='sm'
-          onPress={handleAddFriendPress}
-          leftIcon={
-            {
-              component: ({ size, color }: { size: number; color: string }) => (
-                <Image
-                  source={AddFriendIcon}
-                  style={{
-                    width: size,
-                    height: size,
-                    tintColor: '#FFFFFF', // White color for visibility on primary button
-                  }}
-                  resizeMode='contain'
-                />
-              ),
-              name: 'add-friend',
-              size: 16,
-            } as any
-          }
-        />
-      </View>
-
-      {/* Stats */}
-      <View style={styles.statsContainer}>
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-          <Typography variant='h5' color={theme.colors.primary[500]}>
-            {friends.length}
+    <GradientBackground>
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Typography variant='h3' color={theme.colors.text.primary}>
+            Social
           </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Friends
-          </Typography>
-        </View>
 
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-          <Typography variant='h5' color={theme.colors.secondary[500]}>
-            0
-          </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Shared Lists
-          </Typography>
-        </View>
-
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-          <Typography variant='h5' color={theme.colors.semantic.warning[500]}>
-            {pendingRequestsCount}
-          </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Unread
-          </Typography>
-        </View>
-      </View>
-
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <Button
-          title='Friends'
-          variant={activeTab === 'friends' ? 'primary' : 'outline'}
-          size='sm'
-          onPress={() => setActiveTab('friends')}
-          style={styles.tabButton}
-        />
-
-        <Button
-          title='Activity'
-          variant={activeTab === 'activity' ? 'primary' : 'outline'}
-          size='sm'
-          onPress={() => setActiveTab('activity')}
-          style={styles.tabButton}
-        />
-
-        <View style={styles.tabButtonContainer}>
           <Button
-            title='Invites'
-            variant={activeTab === 'invites' ? 'primary' : 'outline'}
+            title='Add Friend'
+            variant='primary'
             size='sm'
-            onPress={() => setActiveTab('invites')}
+            onPress={handleAddFriendPress}
+            leftIcon={
+              {
+                component: ({ size, color }: { size: number; color: string }) => (
+                  <Image
+                    source={AddFriendIcon}
+                    style={{
+                      width: size,
+                      height: size,
+                      tintColor: '#FFFFFF', // White color for visibility on primary button
+                    }}
+                    resizeMode='contain'
+                  />
+                ),
+                name: 'add-friend',
+                size: 16,
+              } as any
+            }
+          />
+        </View>
+
+        {/* Stats */}
+        <View style={styles.statsContainer}>
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+            <Typography variant='h5' color={theme.colors.primary[500]}>
+              {friends.length}
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Friends
+            </Typography>
+          </View>
+
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+            <Typography variant='h5' color={theme.colors.secondary[500]}>
+              0
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Shared Lists
+            </Typography>
+          </View>
+
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+            <Typography variant='h5' color={theme.colors.semantic.warning[500]}>
+              {pendingRequestsCount}
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Unread
+            </Typography>
+          </View>
+        </View>
+
+        {/* Tab Navigation */}
+        <View style={styles.tabContainer}>
+          <Button
+            title='Friends'
+            variant={activeTab === 'friends' ? 'primary' : 'outline'}
+            size='sm'
+            onPress={() => setActiveTab('friends')}
             style={styles.tabButton}
           />
-          {pendingRequestsCount > 0 && (
-            <View style={[styles.badge, { backgroundColor: theme.colors.semantic.error['500'] }]}>
-              <Typography variant='caption' color='#FFFFFF' style={styles.badgeText}>
-                {pendingRequestsCount}
-              </Typography>
-            </View>
-          )}
+
+          <Button
+            title='Activity'
+            variant={activeTab === 'activity' ? 'primary' : 'outline'}
+            size='sm'
+            onPress={() => setActiveTab('activity')}
+            style={styles.tabButton}
+          />
+
+          <View style={styles.tabButtonContainer}>
+            <Button
+              title='Invites'
+              variant={activeTab === 'invites' ? 'primary' : 'outline'}
+              size='sm'
+              onPress={() => setActiveTab('invites')}
+              style={styles.tabButton}
+            />
+            {pendingRequestsCount > 0 && (
+              <View style={[styles.badge, { backgroundColor: theme.colors.semantic.error['500'] }]}>
+                <Typography variant='caption' color='#FFFFFF' style={styles.badgeText}>
+                  {pendingRequestsCount}
+                </Typography>
+              </View>
+            )}
+          </View>
         </View>
-      </View>
 
-      {/* Content */}
-      {activeTab === 'friends' && (
-        <FlatList
-          data={friends}
-          renderItem={renderFriend}
-          keyExtractor={item => item.id}
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.colors.primary[500]}
-            />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
-                👥
-              </Typography>
-              <Typography
-                variant='h6'
-                color={theme.colors.text.secondary}
-                align='center'
-                style={{ marginTop: theme.spacing.md }}>
-                No friends yet
-              </Typography>
-              <Typography
-                variant='body2'
-                color={theme.colors.text.tertiary}
-                align='center'
-                style={{ marginTop: theme.spacing.sm }}>
-                Invite friends to collaborate on lists
-              </Typography>
-              <Button
-                title='Invite Friends'
-                variant='primary'
-                size='md'
-                onPress={handleAddFriendPress}
-                style={{ marginTop: theme.spacing.lg }}
+        {/* Content */}
+        {activeTab === 'friends' && (
+          <FlatList
+            data={friends}
+            renderItem={renderFriend}
+            keyExtractor={item => item.id}
+            style={styles.content}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.colors.primary[500]}
               />
-            </View>
-          }
-        />
-      )}
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
+                  👥
+                </Typography>
+                <Typography
+                  variant='h6'
+                  color={theme.colors.text.secondary}
+                  align='center'
+                  style={{ marginTop: theme.spacing.md }}>
+                  No friends yet
+                </Typography>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.tertiary}
+                  align='center'
+                  style={{ marginTop: theme.spacing.sm }}>
+                  Invite friends to collaborate on lists
+                </Typography>
+                <Button
+                  title='Invite Friends'
+                  variant='primary'
+                  size='md'
+                  onPress={handleAddFriendPress}
+                  style={{ marginTop: theme.spacing.lg }}
+                />
+              </View>
+            }
+          />
+        )}
 
-      {activeTab === 'activity' && (
-        <FlatList
-          data={[]}
-          renderItem={renderNotification}
-          keyExtractor={item => item.id}
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.colors.primary[500]}
-            />
-          }
-        />
-      )}
+        {activeTab === 'activity' && (
+          <FlatList
+            data={[]}
+            renderItem={renderNotification}
+            keyExtractor={item => item.id}
+            style={styles.content}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.colors.primary[500]}
+              />
+            }
+          />
+        )}
 
-      {activeTab === 'invites' && (
-        <FlatList
-          data={friendRequests.received}
-          renderItem={renderFriendRequest}
-          keyExtractor={item => item.id}
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.colors.primary[500]}
-            />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
-                📧
-              </Typography>
-              <Typography
-                variant='h6'
-                color={theme.colors.text.secondary}
-                align='center'
-                style={{ marginTop: theme.spacing.md }}>
-                No pending invites
-              </Typography>
-              <Typography
-                variant='body2'
-                color={theme.colors.text.tertiary}
-                align='center'
-                style={{ marginTop: theme.spacing.sm }}>
-                Friend requests will appear here
-              </Typography>
-            </View>
-          }
-        />
-      )}
+        {activeTab === 'invites' && (
+          <FlatList
+            data={friendRequests.received}
+            renderItem={renderFriendRequest}
+            keyExtractor={item => item.id}
+            style={styles.content}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.colors.primary[500]}
+              />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
+                  📧
+                </Typography>
+                <Typography
+                  variant='h6'
+                  color={theme.colors.text.secondary}
+                  align='center'
+                  style={{ marginTop: theme.spacing.md }}>
+                  No pending invites
+                </Typography>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.tertiary}
+                  align='center'
+                  style={{ marginTop: theme.spacing.sm }}>
+                  Friend requests will appear here
+                </Typography>
+              </View>
+            }
+          />
+        )}
 
-      {/* Add Friend Modal */}
-      <AddFriendModal
-        visible={socialState.showAddFriendModal}
-        onClose={handleCloseAddFriendModal}
-        onSendRequest={async request => {
-          // This is handled by the modal internally via Redux
-          console.log('Send friend request:', request);
-        }}
-        isLoading={socialState.isSendingRequest}
-        error={socialState.error}
-      />
-    </SafeAreaView>
+        {/* Add Friend Modal */}
+        <AddFriendModal
+          visible={socialState.showAddFriendModal}
+          onClose={handleCloseAddFriendModal}
+          onSendRequest={async request => {
+            // This is handled by the modal internally via Redux
+            console.log('Send friend request:', request);
+          }}
+          isLoading={socialState.isSendingRequest}
+          error={socialState.error}
+        />
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 

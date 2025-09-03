@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 import { ProfilePhotoModal } from '../../components/molecules/ProfilePhotoModal';
 
 // Hooks and Utils
@@ -237,153 +238,155 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
   );
 
   return (
-    <SafeAreaView style={[baseStyles.container, themedStyles.themedContainer]}>
-      <ScrollView
-        style={baseStyles.content}
-        contentContainerStyle={baseStyles.scrollContent}
-        showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={baseStyles.header}>
-          <Typography variant='h3' color={theme.colors.text.primary}>
-            Profile
-          </Typography>
+    <GradientBackground>
+      <SafeAreaView style={[baseStyles.container, themedStyles.themedContainer]}>
+        <ScrollView
+          style={baseStyles.content}
+          contentContainerStyle={baseStyles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          {/* Header */}
+          <View style={baseStyles.header}>
+            <Typography variant='h3' color={theme.colors.text.primary}>
+              Profile
+            </Typography>
 
-          {!isConnected && (
-            <View style={[baseStyles.offlineBadge, dynamicStyles.offlineBadgeWithTheme]}>
-              <Typography variant='caption' color={theme.colors.semantic.warning[700]}>
-                Offline
-              </Typography>
-            </View>
-          )}
-        </View>
-
-        {/* User Info */}
-        <View style={themedStyles.userCard}>
-          <TouchableOpacity
-            style={[baseStyles.avatar, themedStyles.avatarWithTheme]}
-            onPress={() => setShowPhotoModal(true)}>
-            {user?.avatar ? (
-              <Image
-                source={{ uri: user.avatar }}
-                style={baseStyles.avatarImage as any}
-                resizeMode='cover'
-              />
-            ) : (
-              <Typography variant='h3' color={theme.colors.primary[600]}>
-                {user?.name?.charAt(0) || 'U'}
-              </Typography>
+            {!isConnected && (
+              <View style={[baseStyles.offlineBadge, dynamicStyles.offlineBadgeWithTheme]}>
+                <Typography variant='caption' color={theme.colors.semantic.warning[700]}>
+                  Offline
+                </Typography>
+              </View>
             )}
+          </View>
 
-            {/* Camera overlay */}
-            <View style={themedStyles.cameraOverlay}>
-              <Typography variant='caption' style={themedStyles.cameraIcon}>
-                📷
+          {/* User Info */}
+          <View style={themedStyles.userCard}>
+            <TouchableOpacity
+              style={[baseStyles.avatar, themedStyles.avatarWithTheme]}
+              onPress={() => setShowPhotoModal(true)}>
+              {user?.avatar ? (
+                <Image
+                  source={{ uri: user.avatar }}
+                  style={baseStyles.avatarImage as any}
+                  resizeMode='cover'
+                />
+              ) : (
+                <Typography variant='h3' color={theme.colors.primary[600]}>
+                  {user?.name?.charAt(0) || 'U'}
+                </Typography>
+              )}
+
+              {/* Camera overlay */}
+              <View style={themedStyles.cameraOverlay}>
+                <Typography variant='caption' style={themedStyles.cameraIcon}>
+                  📷
+                </Typography>
+              </View>
+            </TouchableOpacity>
+
+            <View style={baseStyles.userInfo}>
+              <Typography variant='h4' color={theme.colors.text.primary}>
+                {user?.name || 'User'}
+              </Typography>
+
+              <Typography variant='body1' color={theme.colors.text.secondary}>
+                {user?.email || 'user@example.com'}
+              </Typography>
+
+              <Typography variant='caption' color={theme.colors.text.tertiary}>
+                Member since {new Date((user as any)?.createdAt || Date.now()).toLocaleDateString()}
               </Typography>
             </View>
-          </TouchableOpacity>
 
-          <View style={baseStyles.userInfo}>
-            <Typography variant='h4' color={theme.colors.text.primary}>
-              {user?.name || 'User'}
+            <Button
+              title='✏️'
+              variant='ghost'
+              size='sm'
+              onPress={() => console.log('Edit profile')}
+            />
+          </View>
+
+          {/* Account Settings */}
+          <View style={baseStyles.section}>
+            <Typography
+              variant='h5'
+              color={theme.colors.text.primary}
+              style={dynamicStyles.sectionHeaderSpacing}>
+              Account
             </Typography>
 
-            <Typography variant='body1' color={theme.colors.text.secondary}>
-              {user?.email || 'user@example.com'}
+            {accountSettings.map(renderSettingItem)}
+          </View>
+
+          {/* Security Settings */}
+          <View style={baseStyles.section}>
+            <Typography
+              variant='h5'
+              color={theme.colors.text.primary}
+              style={dynamicStyles.sectionHeaderSpacing}>
+              Security
             </Typography>
 
-            <Typography variant='caption' color={theme.colors.text.tertiary}>
-              Member since {new Date((user as any)?.createdAt || Date.now()).toLocaleDateString()}
+            {securityItems.map(renderSettingItem)}
+          </View>
+
+          {/* App Settings */}
+          <View style={baseStyles.section}>
+            <Typography
+              variant='h5'
+              color={theme.colors.text.primary}
+              style={dynamicStyles.sectionHeaderSpacing}>
+              Preferences
+            </Typography>
+
+            {appSettings.map(renderSettingItem)}
+          </View>
+
+          {/* Support */}
+          <View style={baseStyles.section}>
+            <Typography
+              variant='h5'
+              color={theme.colors.text.primary}
+              style={dynamicStyles.sectionHeaderSpacing}>
+              Support
+            </Typography>
+
+            {supportItems.map(renderSettingItem)}
+          </View>
+
+          {/* Logout */}
+          <View style={baseStyles.section}>
+            <Button
+              title='Sign Out'
+              variant='destructive'
+              size='lg'
+              fullWidth
+              onPress={handleLogout}
+              leftIcon={{
+                type: 'image',
+                source: require('../../../assets/images/logout.png'),
+                size: 18,
+              }}
+            />
+          </View>
+
+          {/* App Version */}
+          <View style={baseStyles.versionContainer}>
+            <Typography variant='caption' color={theme.colors.text.tertiary} align='center'>
+              PentryPal v1.0.0
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.tertiary} align='center'>
+              Built with ❤️ for better grocery management
             </Typography>
           </View>
 
-          <Button
-            title='✏️'
-            variant='ghost'
-            size='sm'
-            onPress={() => console.log('Edit profile')}
-          />
-        </View>
+          {/* Bottom spacing */}
+          <View style={dynamicStyles.bottomSpacing} />
+        </ScrollView>
 
-        {/* Account Settings */}
-        <View style={baseStyles.section}>
-          <Typography
-            variant='h5'
-            color={theme.colors.text.primary}
-            style={dynamicStyles.sectionHeaderSpacing}>
-            Account
-          </Typography>
-
-          {accountSettings.map(renderSettingItem)}
-        </View>
-
-        {/* Security Settings */}
-        <View style={baseStyles.section}>
-          <Typography
-            variant='h5'
-            color={theme.colors.text.primary}
-            style={dynamicStyles.sectionHeaderSpacing}>
-            Security
-          </Typography>
-
-          {securityItems.map(renderSettingItem)}
-        </View>
-
-        {/* App Settings */}
-        <View style={baseStyles.section}>
-          <Typography
-            variant='h5'
-            color={theme.colors.text.primary}
-            style={dynamicStyles.sectionHeaderSpacing}>
-            Preferences
-          </Typography>
-
-          {appSettings.map(renderSettingItem)}
-        </View>
-
-        {/* Support */}
-        <View style={baseStyles.section}>
-          <Typography
-            variant='h5'
-            color={theme.colors.text.primary}
-            style={dynamicStyles.sectionHeaderSpacing}>
-            Support
-          </Typography>
-
-          {supportItems.map(renderSettingItem)}
-        </View>
-
-        {/* Logout */}
-        <View style={baseStyles.section}>
-          <Button
-            title='Sign Out'
-            variant='destructive'
-            size='lg'
-            fullWidth
-            onPress={handleLogout}
-            leftIcon={{
-              type: 'image',
-              source: require('../../../assets/images/logout.png'),
-              size: 18,
-            }}
-          />
-        </View>
-
-        {/* App Version */}
-        <View style={baseStyles.versionContainer}>
-          <Typography variant='caption' color={theme.colors.text.tertiary} align='center'>
-            PentryPal v1.0.0
-          </Typography>
-          <Typography variant='caption' color={theme.colors.text.tertiary} align='center'>
-            Built with ❤️ for better grocery management
-          </Typography>
-        </View>
-
-        {/* Bottom spacing */}
-        <View style={dynamicStyles.bottomSpacing} />
-      </ScrollView>
-
-      {/* Profile Photo Modal */}
-      <ProfilePhotoModal visible={showPhotoModal} onClose={() => setShowPhotoModal(false)} />
-    </SafeAreaView>
+        {/* Profile Photo Modal */}
+        <ProfilePhotoModal visible={showPhotoModal} onClose={() => setShowPhotoModal(false)} />
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
