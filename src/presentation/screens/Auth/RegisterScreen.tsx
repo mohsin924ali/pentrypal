@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -78,7 +77,6 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
   const auth = useSelector(selectAuth);
 
   // Local state
-  const [showPassword, setShowPassword] = useState(false);
   const [biometricType, setBiometricType] = useState<string | null>(null);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
 
@@ -96,7 +94,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
   });
 
   // Form management
-  const { fields, isValid, hasErrors, getFieldProps, handleSubmit, setError, resetForm, setValue } =
+  const { fields, isValid, getFieldProps, handleSubmit, setError, resetForm, setValue } =
     useForm<RegisterFormData>({
       initialValues: {
         firstName: '',
@@ -451,416 +449,364 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
 
             {/* Registration Form */}
             <View style={styles.form}>
-              <View
-                style={[
-                  styles.formCard,
-                  {
-                    backgroundColor: `rgba(255, 255, 255, 0.15)`,
-                    borderColor: `rgba(255, 255, 255, 0.2)`,
-                  },
-                ]}>
-                {/* Name Fields */}
-                <View style={[styles.nameContainer, { marginBottom: theme.spacing.md }]}>
-                  <View style={[styles.nameField, { marginRight: theme.spacing.sm }]}>
-                    <Typography
-                      variant='body2'
-                      color={theme.colors.text.primary}
-                      style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                      First Name *
-                    </Typography>
-                    <Input
-                      placeholder='First name'
-                      autoComplete='given-name'
-                      returnKeyType='next'
-                      size='md'
-                      {...getFieldProps('firstName')}
-                      testID='register-firstName-input'
-                      accessibilityLabel='First name input'
-                    />
-                    {fields.firstName.error && fields.firstName.touched && (
-                      <Typography
-                        variant='caption'
-                        color={theme.colors.semantic.error[500]}
-                        style={{ marginTop: 4 }}>
-                        {fields.firstName.error}
-                      </Typography>
-                    )}
-                  </View>
-
-                  <View style={[styles.nameField, { marginLeft: theme.spacing.sm }]}>
-                    <Typography
-                      variant='body2'
-                      color={theme.colors.text.primary}
-                      style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                      Last Name *
-                    </Typography>
-                    <Input
-                      placeholder='Last name'
-                      autoComplete='family-name'
-                      returnKeyType='next'
-                      size='md'
-                      {...getFieldProps('lastName')}
-                      testID='register-lastName-input'
-                      accessibilityLabel='Last name input'
-                    />
-                    {fields.lastName.error && fields.lastName.touched && (
-                      <Typography
-                        variant='caption'
-                        color={theme.colors.semantic.error[500]}
-                        style={{ marginTop: 4 }}>
-                        {fields.lastName.error}
-                      </Typography>
-                    )}
-                  </View>
-                </View>
-
-                {/* Email Input */}
-                <View style={{ marginBottom: theme.spacing.md }}>
+              {/* Name Fields */}
+              <View style={[styles.nameContainer, { marginBottom: theme.spacing.md }]}>
+                <View style={[styles.nameField, { marginRight: theme.spacing.sm }]}>
                   <Typography
                     variant='body2'
                     color={theme.colors.text.primary}
-                    style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                    Email Address *
+                    style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                    First Name *
                   </Typography>
                   <Input
-                    placeholder='Enter your email address'
-                    keyboardType='email-address'
-                    autoComplete='email'
+                    placeholder='First name'
+                    autoComplete='given-name'
                     returnKeyType='next'
                     size='md'
-                    {...getFieldProps('email')}
-                    testID='register-email-input'
-                    accessibilityLabel='Email address input'
-                    accessibilityHint='Enter your email address'
+                    {...getFieldProps('firstName')}
+                    testID='register-firstName-input'
+                    accessibilityLabel='First name input'
                   />
-                  {fields.email.error && fields.email.touched && (
+                  {fields.firstName.error && fields.firstName.touched && (
                     <Typography
                       variant='caption'
                       color={theme.colors.semantic.error[500]}
                       style={{ marginTop: 4 }}>
-                      {fields.email.error}
+                      {fields.firstName.error}
                     </Typography>
                   )}
                 </View>
 
-                {/* Phone Number Input */}
-                <View style={{ marginBottom: theme.spacing.md }}>
+                <View style={[styles.nameField, { marginLeft: theme.spacing.sm }]}>
                   <Typography
                     variant='body2'
                     color={theme.colors.text.primary}
-                    style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                    Phone Number *
+                    style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                    Last Name *
                   </Typography>
-                  <PhoneNumberInput
-                    {...({
-                      countryCode: fields.countryCode.value,
-                      phoneNumber: fields.phoneNumber.value,
-                      onChangeCountry: handleCountryChange,
-                      onChangePhoneNumber: handlePhoneNumberChange,
-                      placeholder: 'Enter your phone number',
-                      error:
-                        fields.phoneNumber.error && fields.phoneNumber.touched
-                          ? fields.phoneNumber.error
-                          : undefined,
-                      testID: 'register-phone-input',
-                      accessibilityLabel: 'Phone number input',
-                    } as any)}
+                  <Input
+                    placeholder='Last name'
+                    autoComplete='family-name'
+                    returnKeyType='next'
+                    size='md'
+                    {...getFieldProps('lastName')}
+                    testID='register-lastName-input'
+                    accessibilityLabel='Last name input'
                   />
+                  {fields.lastName.error && fields.lastName.touched && (
+                    <Typography
+                      variant='caption'
+                      color={theme.colors.semantic.error[500]}
+                      style={{ marginTop: 4 }}>
+                      {fields.lastName.error}
+                    </Typography>
+                  )}
                 </View>
+              </View>
 
-                {/* Gender Dropdown */}
-                <View
-                  style={{ marginBottom: theme.spacing.md, zIndex: 1000, position: 'relative' }}>
+              {/* Email Input */}
+              <View style={{ marginBottom: theme.spacing.md }}>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.primary}
+                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  Email Address *
+                </Typography>
+                <Input
+                  placeholder='Enter your email address'
+                  keyboardType='email-address'
+                  autoComplete='email'
+                  returnKeyType='next'
+                  size='md'
+                  {...getFieldProps('email')}
+                  testID='register-email-input'
+                  accessibilityLabel='Email address input'
+                  accessibilityHint='Enter your email address'
+                />
+                {fields.email.error && fields.email.touched && (
+                  <Typography
+                    variant='caption'
+                    color={theme.colors.semantic.error[500]}
+                    style={{ marginTop: 4 }}>
+                    {fields.email.error}
+                  </Typography>
+                )}
+              </View>
+
+              {/* Phone Number Input */}
+              <View style={{ marginBottom: theme.spacing.md }}>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.primary}
+                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  Phone Number *
+                </Typography>
+                <PhoneNumberInput
+                  {...({
+                    countryCode: fields.countryCode.value,
+                    phoneNumber: fields.phoneNumber.value,
+                    onChangeCountry: handleCountryChange,
+                    onChangePhoneNumber: handlePhoneNumberChange,
+                    placeholder: 'Enter your phone number',
+                    error:
+                      fields.phoneNumber.error && fields.phoneNumber.touched
+                        ? fields.phoneNumber.error
+                        : undefined,
+                    testID: 'register-phone-input',
+                    accessibilityLabel: 'Phone number input',
+                  } as any)}
+                />
+              </View>
+
+              {/* Gender Dropdown */}
+              <View style={{ marginBottom: theme.spacing.md, zIndex: 1000, position: 'relative' }}>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.primary}
+                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  Gender *
+                </Typography>
+                <TouchableOpacity
+                  style={[
+                    styles.genderDropdown,
+                    {
+                      borderColor: theme.colors.border.primary,
+                      backgroundColor: theme.colors.surface.background,
+                    },
+                  ]}
+                  onPress={() => {
+                    setShowGenderDropdown(!showGenderDropdown);
+                  }}
+                  testID='gender-dropdown'
+                  accessibilityLabel='Gender selection dropdown'>
                   <Typography
                     variant='body2'
-                    color={theme.colors.text.primary}
-                    style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                    Gender *
+                    color={
+                      fields.gender.value ? theme.colors.text.primary : theme.colors.text.tertiary
+                    }>
+                    {fields.gender.value
+                      ? {
+                          male: 'Male',
+                          female: 'Female',
+                          other: 'Other',
+                          'prefer-not-to-say': 'Prefer not to say',
+                        }[fields.gender.value] || 'Select gender'
+                      : 'Select gender'}
                   </Typography>
-                  <TouchableOpacity
+                  <Typography variant='h6' color={theme.colors.text.secondary}>
+                    ▼
+                  </Typography>
+                </TouchableOpacity>
+
+                {showGenderDropdown && (
+                  <View
                     style={[
-                      styles.genderDropdown,
+                      styles.genderDropdownList,
                       {
                         borderColor: theme.colors.border.primary,
                         backgroundColor: theme.colors.surface.background,
+                        borderWidth: 2,
                       },
-                    ]}
-                    onPress={() => {
-                      setShowGenderDropdown(!showGenderDropdown);
-                    }}
-                    testID='gender-dropdown'
-                    accessibilityLabel='Gender selection dropdown'>
-                    <Typography
-                      variant='body2'
-                      color={
-                        fields.gender.value ? theme.colors.text.primary : theme.colors.text.tertiary
-                      }>
-                      {fields.gender.value
-                        ? {
-                            male: 'Male',
-                            female: 'Female',
-                            other: 'Other',
-                            'prefer-not-to-say': 'Prefer not to say',
-                          }[fields.gender.value] || 'Select gender'
-                        : 'Select gender'}
-                    </Typography>
-                    <Typography variant='h6' color={theme.colors.text.secondary}>
-                      ▼
-                    </Typography>
-                  </TouchableOpacity>
-
-                  {showGenderDropdown && (
-                    <View
-                      style={[
-                        styles.genderDropdownList,
-                        {
-                          borderColor: theme.colors.border.primary,
-                          backgroundColor: theme.colors.surface.background,
-                          borderWidth: 2,
-                        },
-                      ]}>
-                      {[
-                        { value: 'male', label: 'Male' },
-                        { value: 'female', label: 'Female' },
-                        { value: 'other', label: 'Other' },
-                        { value: 'prefer-not-to-say', label: 'Prefer not to say' },
-                      ].map((option, index, array) => (
-                        <TouchableOpacity
-                          key={option.value}
-                          style={[
-                            styles.genderDropdownItem,
-                            {
-                              backgroundColor:
-                                fields.gender.value === option.value
-                                  ? theme.colors.primary[100]
-                                  : theme.colors.surface.background,
-                              borderBottomWidth: index === array.length - 1 ? 0 : 1,
-                              borderBottomColor: theme.colors.border.primary,
-                            },
-                          ]}
-                          onPress={() => {
-                            setValue(
-                              'gender',
-                              option.value as 'male' | 'female' | 'other' | 'prefer-not-to-say'
-                            );
-                            setShowGenderDropdown(false);
-                          }}
-                          testID={`gender-option-${option.value}`}>
-                          <Typography
-                            variant='body2'
-                            color={
-                              fields.gender.value === option.value
-                                ? theme.colors.primary[600]
-                                : theme.colors.text.primary
-                            }>
-                            {option.label}
-                          </Typography>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-
-                  {fields.gender.error && fields.gender.touched && (
-                    <Typography
-                      variant='caption'
-                      color={theme.colors.semantic.error[500]}
-                      style={{ marginTop: 4 }}>
-                      {fields.gender.error}
-                    </Typography>
-                  )}
-                </View>
-
-                {/* Password Input */}
-                <View style={{ marginBottom: theme.spacing.xs }}>
-                  <Typography
-                    variant='body2'
-                    color={theme.colors.text.primary}
-                    style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                    Password *
-                  </Typography>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      borderWidth: 1,
-                      borderColor: theme.colors.border.primary,
-                      borderRadius: theme.borders.radius.md,
-                      paddingHorizontal: theme.spacing.sm,
-                      backgroundColor: theme.colors.surface.background,
-                      minHeight: 40,
-                    }}>
-                    <TextInput
-                      placeholder='Create a strong password'
-                      secureTextEntry={!showPassword}
-                      autoComplete='new-password'
-                      returnKeyType='next'
-                      value={getFieldProps('password').value}
-                      onChangeText={text => {
-                        console.log('🔍 PASSWORD INPUT DEBUG:');
-                        console.log('- New password text:', JSON.stringify(text));
-                        console.log('- Text length:', text.length);
-                        getFieldProps('password').onChangeText(text);
-                      }}
-                      onBlur={() => {
-                        console.log('🔍 PASSWORD BLUR DEBUG:');
-                        console.log(
-                          '- Password value on blur:',
-                          JSON.stringify(getFieldProps('password').value)
-                        );
-                        console.log('- About to trigger validation...');
-                        getFieldProps('password').onBlur();
-                      }}
-                      style={{
-                        flex: 1,
-                        fontSize: 16,
-                        color: theme.colors.text.primary,
-                        paddingVertical: theme.spacing.xs,
-                      }}
-                      placeholderTextColor={theme.colors.text.tertiary}
-                      testID='register-password-input'
-                    />
-                    <TouchableOpacity
-                      onPress={() => setShowPassword(!showPassword)}
-                      style={{ paddingLeft: 8 }}>
-                      <Typography variant='body1'>{showPassword ? '🙈' : '👁️'}</Typography>
-                    </TouchableOpacity>
-                  </View>
-                  {getFieldProps('password').error && (
-                    <Typography
-                      variant='caption'
-                      color={theme.colors.semantic.error[500]}
-                      style={{ marginTop: 4 }}>
-                      {getFieldProps('password').error}
-                    </Typography>
-                  )}
-                </View>
-
-                {/* Password Strength Indicator */}
-                {renderPasswordStrength()}
-
-                {/* Confirm Password Input */}
-                <View style={{ marginTop: theme.spacing.md, marginBottom: theme.spacing.md }}>
-                  <Typography
-                    variant='body2'
-                    color={theme.colors.text.primary}
-                    style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                    Confirm Password *
-                  </Typography>
-                  <Input
-                    placeholder='Confirm your password'
-                    secure
-                    autoComplete='new-password'
-                    returnKeyType='done'
-                    size='md'
-                    {...getFieldProps('confirmPassword')}
-                    testID='register-confirmPassword-input'
-                    accessibilityLabel='Confirm password input'
-                    accessibilityHint='Re-enter your password to confirm'
-                  />
-                </View>
-
-                {/* Terms Acceptance */}
-                <View style={styles.checkboxContainer}>
-                  <TouchableOpacity
-                    onPress={() => setValue('acceptTerms', !fields.acceptTerms.value)}
-                    style={styles.checkboxWrapper}
-                    testID='accept-terms-checkbox'>
-                    <View
-                      style={[styles.checkbox, fields.acceptTerms.value && styles.checkboxChecked]}>
-                      {fields.acceptTerms.value && (
-                        <Typography
-                          variant='body2'
-                          color={theme.colors.surface.background}
-                          style={styles.checkmark}>
-                          ✓
-                        </Typography>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-
-                  <View style={styles.termsText}>
-                    <Typography variant='body2' color={theme.colors.text.secondary}>
-                      I accept the{' '}
-                      <Typography
-                        variant='body2'
-                        color={theme.colors.primary[500]}
-                        onPress={handleTermsPress}
-                        style={{ textDecorationLine: 'underline' }}>
-                        Terms of Service
-                      </Typography>{' '}
-                      and{' '}
-                      <Typography
-                        variant='body2'
-                        color={theme.colors.primary[500]}
-                        onPress={handleTermsPress}
-                        style={{ textDecorationLine: 'underline' }}>
-                        Privacy Policy
-                      </Typography>
-                    </Typography>
-                  </View>
-                </View>
-
-                {/* Marketing Consent */}
-                <View style={styles.checkboxContainer}>
-                  <TouchableOpacity
-                    onPress={() => setValue('marketingConsent', !fields.marketingConsent?.value)}
-                    style={styles.checkboxWrapper}
-                    testID='marketing-consent-checkbox'>
-                    <View
-                      style={[
-                        styles.checkbox,
-                        fields.marketingConsent?.value && styles.checkboxChecked,
-                      ]}>
-                      {fields.marketingConsent?.value && (
-                        <Typography
-                          variant='body2'
-                          color={theme.colors.surface.background}
-                          style={styles.checkmark}>
-                          ✓
-                        </Typography>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-
-                  <View style={styles.termsText}>
-                    <Typography variant='body2' color={theme.colors.text.secondary}>
-                      I would like to receive marketing emails about new features and updates
-                      (optional)
-                    </Typography>
-                  </View>
-                </View>
-
-                {/* Error Display */}
-                {auth.error && (
-                  <View
-                    style={[
-                      styles.errorContainer,
-                      { backgroundColor: theme.colors.semantic.error[50] },
                     ]}>
-                    <Typography
-                      variant='body2'
-                      color={theme.colors.semantic.error[700]}
-                      align='center'>
-                      {auth.error}
-                    </Typography>
+                    {[
+                      { value: 'male', label: 'Male' },
+                      { value: 'female', label: 'Female' },
+                      { value: 'other', label: 'Other' },
+                      { value: 'prefer-not-to-say', label: 'Prefer not to say' },
+                    ].map((option, index, array) => (
+                      <TouchableOpacity
+                        key={option.value}
+                        style={[
+                          styles.genderDropdownItem,
+                          {
+                            backgroundColor:
+                              fields.gender.value === option.value
+                                ? theme.colors.primary[100]
+                                : theme.colors.surface.background,
+                            borderBottomWidth: index === array.length - 1 ? 0 : 1,
+                            borderBottomColor: theme.colors.border.primary,
+                          },
+                        ]}
+                        onPress={() => {
+                          setValue(
+                            'gender',
+                            option.value as 'male' | 'female' | 'other' | 'prefer-not-to-say'
+                          );
+                          setShowGenderDropdown(false);
+                        }}
+                        testID={`gender-option-${option.value}`}>
+                        <Typography
+                          variant='body2'
+                          color={
+                            fields.gender.value === option.value
+                              ? theme.colors.primary[600]
+                              : theme.colors.text.primary
+                          }>
+                          {option.label}
+                        </Typography>
+                      </TouchableOpacity>
+                    ))}
                   </View>
                 )}
 
-                {/* Register Button */}
-                <Button
-                  title='Create Account'
-                  variant='primary'
-                  size='lg'
-                  fullWidth
-                  onPress={handleRegistration}
-                  loading={auth.isRegistering}
-                  disabled={!isValid || !fields.acceptTerms.value || auth.isRegistering}
-                  style={{ marginTop: theme.spacing.lg }}
-                  testID='register-submit-button'
-                  accessibilityLabel='Create account button'
-                  accessibilityHint='Tap to create your new account'
+                {fields.gender.error && fields.gender.touched && (
+                  <Typography
+                    variant='caption'
+                    color={theme.colors.semantic.error[500]}
+                    style={{ marginTop: 4 }}>
+                    {fields.gender.error}
+                  </Typography>
+                )}
+              </View>
+
+              {/* Password Input */}
+              <View style={{ marginBottom: theme.spacing.xs }}>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.primary}
+                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  Password *
+                </Typography>
+                <Input
+                  placeholder='Create a strong password'
+                  secure
+                  autoComplete='new-password'
+                  returnKeyType='next'
+                  size='md'
+                  showPasswordToggle
+                  {...getFieldProps('password')}
+                  testID='register-password-input'
+                  accessibilityLabel='Password input'
+                  accessibilityHint='Create a strong password for your account'
                 />
               </View>
+
+              {/* Password Strength Indicator */}
+              {renderPasswordStrength()}
+
+              {/* Confirm Password Input */}
+              <View style={{ marginTop: theme.spacing.md, marginBottom: theme.spacing.md }}>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.primary}
+                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  Confirm Password *
+                </Typography>
+                <Input
+                  placeholder='Confirm your password'
+                  secure
+                  autoComplete='new-password'
+                  returnKeyType='done'
+                  size='md'
+                  showPasswordToggle
+                  {...getFieldProps('confirmPassword')}
+                  testID='register-confirmPassword-input'
+                  accessibilityLabel='Confirm password input'
+                  accessibilityHint='Re-enter your password to confirm'
+                />
+              </View>
+
+              {/* Terms Acceptance */}
+              <View style={styles.checkboxContainer}>
+                <TouchableOpacity
+                  onPress={() => setValue('acceptTerms', !fields.acceptTerms.value)}
+                  style={styles.checkboxWrapper}
+                  testID='accept-terms-checkbox'>
+                  <View
+                    style={[styles.checkbox, fields.acceptTerms.value && styles.checkboxChecked]}>
+                    {fields.acceptTerms.value && (
+                      <Typography
+                        variant='body2'
+                        color={theme.colors.surface.background}
+                        style={styles.checkmark}>
+                        ✓
+                      </Typography>
+                    )}
+                  </View>
+                </TouchableOpacity>
+
+                <View style={styles.termsText}>
+                  <Typography variant='body2' color={theme.colors.text.secondary}>
+                    I accept the{' '}
+                    <Typography
+                      variant='body2'
+                      color={theme.colors.primary[500]}
+                      onPress={handleTermsPress}
+                      style={{ textDecorationLine: 'underline' }}>
+                      Terms of Service
+                    </Typography>{' '}
+                    and{' '}
+                    <Typography
+                      variant='body2'
+                      color={theme.colors.primary[500]}
+                      onPress={handleTermsPress}
+                      style={{ textDecorationLine: 'underline' }}>
+                      Privacy Policy
+                    </Typography>
+                  </Typography>
+                </View>
+              </View>
+
+              {/* Marketing Consent */}
+              <View style={styles.checkboxContainer}>
+                <TouchableOpacity
+                  onPress={() => setValue('marketingConsent', !fields.marketingConsent?.value)}
+                  style={styles.checkboxWrapper}
+                  testID='marketing-consent-checkbox'>
+                  <View
+                    style={[
+                      styles.checkbox,
+                      fields.marketingConsent?.value && styles.checkboxChecked,
+                    ]}>
+                    {fields.marketingConsent?.value && (
+                      <Typography
+                        variant='body2'
+                        color={theme.colors.surface.background}
+                        style={styles.checkmark}>
+                        ✓
+                      </Typography>
+                    )}
+                  </View>
+                </TouchableOpacity>
+
+                <View style={styles.termsText}>
+                  <Typography variant='body2' color={theme.colors.text.secondary}>
+                    I would like to receive marketing emails about new features and updates
+                    (optional)
+                  </Typography>
+                </View>
+              </View>
+
+              {/* Error Display */}
+              {auth.error && (
+                <View
+                  style={[
+                    styles.errorContainer,
+                    { backgroundColor: theme.colors.semantic.error[50] },
+                  ]}>
+                  <Typography
+                    variant='body2'
+                    color={theme.colors.semantic.error[700]}
+                    align='center'>
+                    {auth.error}
+                  </Typography>
+                </View>
+              )}
+
+              {/* Register Button */}
+              <Button
+                title='Create Account'
+                variant='primary'
+                size='lg'
+                fullWidth
+                onPress={handleRegistration}
+                loading={auth.isRegistering}
+                disabled={!isValid || !fields.acceptTerms.value || auth.isRegistering}
+                style={{ marginTop: theme.spacing.lg }}
+                testID='register-submit-button'
+                accessibilityLabel='Create account button'
+                accessibilityHint='Tap to create your new account'
+              />
 
               {/* Footer */}
               <View style={styles.footer}>
@@ -937,21 +883,6 @@ const styles = {
   form: {
     flex: 1,
     paddingVertical: 16,
-  },
-  formCard: {
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 20,
-    marginHorizontal: 8,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
   },
   nameContainer: {
     flexDirection: 'row' as const,
@@ -1039,6 +970,9 @@ const styles = {
     fontSize: 12,
     fontWeight: 'bold' as const,
     lineHeight: 12,
+  },
+  fieldLabel: {
+    fontWeight: 'bold' as const,
   },
   termsText: {
     flex: 1,

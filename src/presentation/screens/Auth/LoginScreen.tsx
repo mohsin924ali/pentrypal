@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -77,20 +76,9 @@ export const LoginScreen: FC<LoginScreenProps> = ({
   const [biometricType, setBiometricType] = useState<string | null>(null);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
   const [lastLoginEmail, setLastLoginEmail] = useState<string>('');
-  const [showPassword, setShowPassword] = useState(false);
 
   // Form management
-  const {
-    fields,
-    isValid,
-    isSubmitting,
-    hasErrors,
-    getFieldProps,
-    handleSubmit,
-    validateForm,
-    setError,
-    resetForm,
-  } = useForm<LoginFormData>({
+  const { isValid, getFieldProps, handleSubmit, setError, resetForm } = useForm<LoginFormData>({
     initialValues: {
       email: '',
       password: '',
@@ -477,185 +465,146 @@ export const LoginScreen: FC<LoginScreenProps> = ({
 
             {/* Login Form */}
             <View style={styles.form}>
-              <View
-                style={[
-                  styles.formCard,
-                  {
-                    backgroundColor: `rgba(255, 255, 255, 0.15)`,
-                    borderColor: `rgba(255, 255, 255, 0.2)`,
-                  },
-                ]}>
-                {/* Email or Mobile Input */}
-                <View style={{ marginBottom: theme.spacing.md }}>
-                  <Typography
-                    variant='body2'
-                    color={theme.colors.text.primary}
-                    style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                    Email or Mobile Number *
-                  </Typography>
-                  <Input
-                    placeholder='Enter your email or mobile number'
-                    keyboardType='default'
-                    autoComplete='email'
-                    returnKeyType='next'
-                    size='md'
-                    {...getFieldProps('email')}
-                    testID='login-email-input'
-                    accessibilityLabel='Email address input'
-                    accessibilityHint='Enter your registered email address'
-                  />
-                </View>
-
-                {/* Password Input */}
-                <View style={{ marginBottom: theme.spacing.md }}>
-                  <Typography
-                    variant='body2'
-                    color={theme.colors.text.primary}
-                    style={{ marginBottom: theme.spacing.xs, fontWeight: '600' }}>
-                    Password *
-                  </Typography>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      borderWidth: 1,
-                      borderColor: theme.colors.border.primary,
-                      borderRadius: theme.borders.radius.md,
-                      paddingHorizontal: theme.spacing.sm,
-                      backgroundColor: theme.colors.surface.background,
-                      minHeight: 44,
-                    }}>
-                    <TextInput
-                      placeholder='Enter your password'
-                      secureTextEntry={!showPassword}
-                      autoComplete='current-password'
-                      returnKeyType='done'
-                      value={getFieldProps('password').value}
-                      onChangeText={getFieldProps('password').onChangeText}
-                      onBlur={getFieldProps('password').onBlur}
-                      style={{
-                        flex: 1,
-                        fontSize: 16,
-                        color: theme.colors.text.primary,
-                        paddingVertical: theme.spacing.xs,
-                      }}
-                      placeholderTextColor={theme.colors.text.tertiary}
-                      testID='login-password-input'
-                    />
-                    <TouchableOpacity
-                      onPress={() => setShowPassword(!showPassword)}
-                      style={{ paddingLeft: 8 }}>
-                      <Typography variant='body1'>{showPassword ? '🙈' : '👁️'}</Typography>
-                    </TouchableOpacity>
-                  </View>
-                  {getFieldProps('password').error && (
-                    <Typography
-                      variant='caption'
-                      color={theme.colors.semantic.error[500]}
-                      style={{ marginTop: 4 }}>
-                      {getFieldProps('password').error}
-                    </Typography>
-                  )}
-                </View>
-
-                {/* Remember Me Checkbox */}
-                {/* TODO: Implement checkbox component */}
-
-                {/* Error Display */}
-                {auth.error && (
-                  <View
-                    style={[
-                      styles.errorContainer,
-                      { backgroundColor: theme.colors.semantic.error[50] },
-                    ]}>
-                    <Typography
-                      variant='body2'
-                      color={theme.colors.semantic.error[700]}
-                      align='center'>
-                      {auth.error}
-                    </Typography>
-                  </View>
-                )}
-
-                {/* Login Button Row */}
-                <View style={[styles.loginButtonRow, { marginTop: theme.spacing.lg }]}>
-                  <Button
-                    title='Sign In'
-                    variant='primary'
-                    size='lg'
-                    leftIcon={{
-                      type: 'image',
-                      source: require('../../../assets/images/login.png'),
-                      size: 20,
-                    }}
-                    onPress={handleEmailLogin}
-                    loading={auth.isLoggingIn}
-                    disabled={!isValid || auth.isLoggingIn}
-                    style={styles.signInButton}
-                    testID='login-submit-button'
-                    accessibilityLabel='Sign in button'
-                    accessibilityHint='Tap to sign in with email and password'
-                  />
-
-                  {/* Biometric Login Icon */}
-                  {isBiometricAvailable && (
-                    <View style={{ marginLeft: 12 }}>
-                      <TouchableOpacity
-                        onPress={handleBiometricLogin}
-                        disabled={auth.isLoggingIn}
-                        style={[
-                          styles.biometricIconButton,
-                          {
-                            backgroundColor: theme.colors.surface.background,
-                            borderColor: theme.colors.border.primary,
-                            opacity: auth.isLoggingIn ? 0.5 : 1,
-                          },
-                        ]}
-                        testID='biometric-login-icon-button'
-                        accessibilityLabel={`${biometricType} login`}
-                        accessibilityHint={`Use ${biometricType} to sign in quickly`}>
-                        <View style={styles.biometricIcon}>
-                          <Image
-                            source={require('../../../assets/images/Fingerprint.png')}
-                            style={[
-                              styles.fingerprintImage,
-                              { tintColor: theme.colors.primary[500] },
-                            ]}
-                            resizeMode='contain'
-                          />
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-
-                {/* Forgot Password */}
-                <Button
-                  title='Forgot Password?'
-                  variant='ghost'
+              {/* Email or Mobile Input */}
+              <View style={{ marginBottom: theme.spacing.md }}>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.primary}
+                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  Email or Mobile Number *
+                </Typography>
+                <Input
+                  placeholder='Enter your email or mobile number'
+                  keyboardType='default'
+                  autoComplete='email'
+                  returnKeyType='next'
                   size='md'
-                  fullWidth
-                  onPress={handleForgotPassword}
-                  style={{ marginTop: theme.spacing.lg }}
-                  testID='forgot-password-button'
-                  accessibilityLabel='Forgot password button'
-                  accessibilityHint='Tap to reset your password'
+                  {...getFieldProps('email')}
+                  testID='login-email-input'
+                  accessibilityLabel='Email address input'
+                  accessibilityHint='Enter your registered email address'
+                />
+              </View>
+
+              {/* Password Input */}
+              <View style={{ marginBottom: theme.spacing.md }}>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.primary}
+                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  Password *
+                </Typography>
+                <Input
+                  placeholder='Enter your password'
+                  secure
+                  autoComplete='current-password'
+                  returnKeyType='done'
+                  size='md'
+                  showPasswordToggle
+                  {...getFieldProps('password')}
+                  testID='login-password-input'
+                  accessibilityLabel='Password input'
+                  accessibilityHint='Enter your account password'
+                />
+              </View>
+
+              {/* Remember Me Checkbox */}
+              {/* TODO: Implement checkbox component */}
+
+              {/* Error Display */}
+              {auth.error && (
+                <View
+                  style={[
+                    styles.errorContainer,
+                    { backgroundColor: theme.colors.semantic.error[50] },
+                  ]}>
+                  <Typography
+                    variant='body2'
+                    color={theme.colors.semantic.error[700]}
+                    align='center'>
+                    {auth.error}
+                  </Typography>
+                </View>
+              )}
+
+              {/* Login Button Row */}
+              <View style={[styles.loginButtonRow, { marginTop: theme.spacing.lg }]}>
+                <Button
+                  title='Sign In'
+                  variant='primary'
+                  size='lg'
+                  leftIcon={{
+                    type: 'image',
+                    source: require('../../../assets/images/login.png'),
+                    size: 20,
+                  }}
+                  onPress={handleEmailLogin}
+                  loading={auth.isLoggingIn}
+                  disabled={!isValid || auth.isLoggingIn}
+                  style={styles.signInButton}
+                  testID='login-submit-button'
+                  accessibilityLabel='Sign in button'
+                  accessibilityHint='Tap to sign in with email and password'
                 />
 
-                {/* Sign Up Link */}
-                <View style={styles.signUpContainer}>
-                  <Typography variant='body2' color={theme.colors.text.secondary} align='center'>
-                    Don't have an account?{' '}
-                    <Typography
-                      variant='body2'
-                      color={theme.colors.primary[500]}
-                      onPress={handleRegisterNavigation}
-                      style={{ textDecorationLine: 'underline' }}
-                      testID='register-navigation-link'>
-                      Sign Up
-                    </Typography>
+                {/* Biometric Login Icon */}
+                {isBiometricAvailable && (
+                  <View style={{ marginLeft: 12 }}>
+                    <TouchableOpacity
+                      onPress={handleBiometricLogin}
+                      disabled={auth.isLoggingIn}
+                      style={[
+                        styles.biometricIconButton,
+                        {
+                          backgroundColor: theme.colors.surface.background,
+                          borderColor: theme.colors.border.primary,
+                          opacity: auth.isLoggingIn ? 0.5 : 1,
+                        },
+                      ]}
+                      testID='biometric-login-icon-button'
+                      accessibilityLabel={`${biometricType} login`}
+                      accessibilityHint={`Use ${biometricType} to sign in quickly`}>
+                      <View style={styles.biometricIcon}>
+                        <Image
+                          source={require('../../../assets/images/Fingerprint.png')}
+                          style={[
+                            styles.fingerprintImage,
+                            { tintColor: theme.colors.primary[500] },
+                          ]}
+                          resizeMode='contain'
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+
+              {/* Forgot Password */}
+              <Button
+                title='Forgot Password?'
+                variant='ghost'
+                size='md'
+                fullWidth
+                onPress={handleForgotPassword}
+                style={{ marginTop: theme.spacing.lg }}
+                testID='forgot-password-button'
+                accessibilityLabel='Forgot password button'
+                accessibilityHint='Tap to reset your password'
+              />
+
+              {/* Sign Up Link */}
+              <View style={styles.signUpContainer}>
+                <Typography variant='body2' color={theme.colors.text.secondary} align='center'>
+                  Don&apos;t have an account?{' '}
+                  <Typography
+                    variant='body2'
+                    color={theme.colors.primary[500]}
+                    onPress={handleRegisterNavigation}
+                    style={styles.linkText}
+                    testID='register-navigation-link'>
+                    Sign Up
                   </Typography>
-                </View>
+                </Typography>
               </View>
             </View>
           </ScrollView>
@@ -691,21 +640,6 @@ const styles = {
     flex: 1,
     justifyContent: 'center' as const,
     paddingVertical: 16,
-  },
-  formCard: {
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 20,
-    marginHorizontal: 8,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
   },
   errorContainer: {
     padding: 16,
@@ -752,6 +686,12 @@ const styles = {
   fingerprintImage: {
     width: 28,
     height: 28,
+  },
+  fieldLabel: {
+    fontWeight: 'bold' as const,
+  },
+  linkText: {
+    textDecorationLine: 'underline' as const,
   },
   signUpContainer: {
     marginTop: 24,

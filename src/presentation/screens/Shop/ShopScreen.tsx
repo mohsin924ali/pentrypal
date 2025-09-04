@@ -851,11 +851,14 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             Finish
           </Typography>
         </TouchableOpacity>
-      </View>
 
-      {/* Shopping Progress */}
-      <View style={[baseStyles.progressContainer, themedStyles.progressContainer]}>
-        <View style={[baseStyles.progressBarLarge, themedStyles.progressBarLarge]}>
+        {/* Integrated Progress Bar */}
+        <View
+          style={[
+            baseStyles.progressBarLarge,
+            themedStyles.progressBarLarge,
+            baseStyles.integratedProgressBar,
+          ]}>
           <View
             style={[
               baseStyles.progressFillLarge,
@@ -870,6 +873,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
       {/* Shopping Items */}
       <FlatList
+        style={{ marginTop: 16 }}
         data={selectedList?.items || []}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
@@ -885,7 +889,10 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                     themedStyles.shoppingItemAssigned,
                   ],
                   item.assignedTo && {
-                    borderLeftColor: getCollaboratorColor(item.assignedTo),
+                    borderLeftColor: getCollaboratorColor(
+                      item.assignedTo,
+                      selectedList?.collaborators
+                    ),
                     borderLeftWidth: 4,
                   },
                   expandedItemId === item.id &&
@@ -940,7 +947,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                       <View style={baseStyles.assignmentRow}>
                         <Typography
                           variant='caption'
-                          color={getCollaboratorColor(item.assignedTo)}
+                          color={getCollaboratorColor(item.assignedTo, selectedList?.collaborators)}
                           style={baseStyles.assignmentIndicator}>
                           • Assigned to {getUserName(item.assignedTo)}
                         </Typography>

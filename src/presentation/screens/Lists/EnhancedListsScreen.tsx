@@ -24,9 +24,11 @@ import { Button } from '../../components/atoms/Button/Button';
 import { AssignmentModal } from '../../components/molecules/AssignmentModal';
 import { AddContributorModal } from '../../components/molecules/AddContributorModal';
 import { ListCreationSuccessAnimation } from '../../components/molecules/ListCreationSuccessAnimation';
+import { ArchivedListModal, ListErrorModal, ListSuccessModal } from './components';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
+import { useContributorManagement, useListAnimation, useListManagement } from './hooks';
 import { shoppingLogger } from '../../../shared/utils/logger';
 
 // Note: Using emoji icons instead of imports to avoid module resolution issues
@@ -36,6 +38,9 @@ const NotificationIcon = '🔔';
 const ShareIcon = '📤';
 import { DEFAULT_CURRENCY, formatCurrency } from '../../../shared/utils/currencyUtils';
 import { getAvatarProps, getFallbackAvatar } from '../../../shared/utils/avatarUtils';
+
+// Styles
+import { baseStyles, createDynamicStyles, createThemedStyles } from './EnhancedListsScreen.styles';
 
 // Services
 import NotificationService from '../../../infrastructure/services/notificationService';
@@ -89,15 +94,56 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   onEditListPress,
   onNavigationTabPress: _onNavigationTabPress,
 }) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const navigation = useNavigation<NavigationProp>();
   const { theme } = useTheme();
 
-  // Redux selectors
+  // Use extracted hooks
+  const {
+    shoppingLists,
+    isLoading,
+    error,
+    handleRefresh,
+    handleNavigateToCreateList,
+    handleViewArchivedList,
+    showArchivedDetailModal,
+    archivedListDetail,
+    handleCloseArchivedModal,
+    showSuccessAnimation,
+    setShowSuccessAnimation,
+  } = useListManagement();
+
+  const {
+    showAddContributorModal,
+    selectedListForContributor,
+    handleAddContributor,
+    handleCloseContributorModal,
+    handleAddContributorToList,
+    handleRemoveContributorFromList,
+  } = useContributorManagement();
+
+  const {
+    showSuccessModal,
+    successMessage,
+    successSubtitle,
+    successFadeAnim,
+    successScaleAnim,
+    showSuccessModalWithAnimation,
+    hideSuccessModalWithAnimation,
+    showErrorModal,
+    errorMessage,
+    errorSubtitle,
+    errorFadeAnim,
+    errorScaleAnim,
+    showErrorModalWithAnimation,
+    hideErrorModalWithAnimation,
+  } = useListAnimation();
+
+  // Styles
+  const themedStyles = createThemedStyles(theme);
+  const dynamicStyles = createDynamicStyles({ theme });
+
+  // Redux selectors and dispatch (remaining)
+  const dispatch = useDispatch<AppDispatch>();
   const user = useSelector(selectUser);
-  const shoppingLists = useSelector(selectShoppingLists);
-  const isLoading = useSelector(selectIsLoadingLists);
-  const error = useSelector(selectShoppingListError);
   const friends = useSelector(selectFriends);
 
   // Ensure theme colors are available with robust fallback
@@ -122,110 +168,13 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         },
       };
 
-  // State management
+  // State management (remaining local state)
   const [selectedList, setSelectedList] = useState<string | null>(null);
-  const [showAddContributorModal, setShowAddContributorModal] = useState(false);
-  const [selectedListForContributor, setSelectedListForContributor] = useState<string | null>(null);
 
-  // Success modal state
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [successSubtitle, setSuccessSubtitle] = useState('');
-  const [successFadeAnim] = useState(new Animated.Value(0));
-  const [successScaleAnim] = useState(new Animated.Value(0.3));
-
-  // Error modal state
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [errorSubtitle, setErrorSubtitle] = useState('');
-
-  // Load shopping lists on mount
-  useEffect(() => {
-    if (typeof user?.id === 'string' && user.id.length > 0) {
-      shoppingLogger.debug('🛒 Enhanced Lists - Loading shopping lists for user:', user.id);
-      // Load both active and archived lists - PRODUCTION SAFE
-      dispatch(loadShoppingLists({ limit: 100 })).catch(loadError => {
-        console.error('Failed to load shopping lists:', loadError);
-      });
-    }
-  }, [dispatch, user?.id]);
-
-  // Handle shopping list errors (like authentication failures)
-  useEffect(() => {
-    if (typeof error === 'string' && error.includes('Not authenticated')) {
-      shoppingLogger.warn('🚨 Authentication error in lists - forcing logout');
-      // Import and dispatch logout - PRODUCTION SAFE
-      import('../../../application/store/slices/authSlice')
-        .then(({ logoutUser }) => {
-          dispatch(logoutUser()).catch(logoutError => {
-            console.error('Logout failed:', logoutError);
-          });
-        })
-        .catch(importError => {
-          console.error('Failed to import logout:', importError);
-        });
-    }
-  }, [error, dispatch]);
-
-  // Handle pull to refresh
-  const handleRefresh = useCallback(async () => {
-    if (typeof user?.id !== 'string' || user.id.length === 0) return;
-
-    shoppingLogger.debug('🔄 Enhanced Lists - Refreshing shopping lists...');
-    try {
-      await dispatch(loadShoppingLists({ limit: 100 })).unwrap(); // Load all lists
-    } catch (refreshError) {
-      shoppingLogger.error('Failed to refresh shopping lists:', refreshError);
-    }
-  }, [dispatch, user?.id]);
-
-  // Refresh lists when screen comes into focus (e.g., returning from CreateList)
-  useFocusEffect(
-    useCallback(() => {
-      if (typeof user?.id === 'string' && user.id.length > 0) {
-        shoppingLogger.debug('🔄 Enhanced Lists - Screen focused, refreshing lists...');
-        const currentListCount = shoppingLists?.length || 0;
-
-        // Store current count before refreshing
-        setPreviousListCount(currentListCount);
-
-        // PRODUCTION SAFE: Handle promise rejection
-        dispatch(loadShoppingLists({ limit: 100 })).catch(focusError => {
-          console.error('Failed to load shopping lists on focus:', focusError);
-        });
-      }
-    }, [dispatch, user?.id, shoppingLists?.length])
-  );
-  const [errorFadeAnim] = useState(new Animated.Value(0));
-  const [errorScaleAnim] = useState(new Animated.Value(0.3));
-
-  // ========================================
-  // Navigation Handlers
-  // ========================================
-
-  const handleViewArchivedList = (list: ShoppingList) => {
-    shoppingLogger.debug('🗃️ Opening archived list modal for:', list.name);
-    shoppingLogger.debug('🗃️ List data:', {
-      itemsCount: list.itemsCount,
-      completedCount: list.completedCount,
-      totalSpent: list.totalSpent,
-      itemsLength: list.items?.length,
-      collaboratorsLength: list.collaborators?.length,
-    });
-    setArchivedListDetail(list);
-    setShowArchivedDetailModal(true);
-  };
-
-  // Handle navigation to create list screen
-  const handleNavigateToCreateList = useCallback(() => {
-    shoppingLogger.debug('🔍 DEBUG: Enhanced Lists - Navigating to create list screen');
-    navigation.navigate('CreateList', {});
-  }, [navigation]);
-
-  // Handle success animation completion
+  // Handle success animation completion (local handler)
   const handleSuccessAnimationComplete = useCallback(() => {
     setShowSuccessAnimation(false);
-  }, []);
+  }, [setShowSuccessAnimation]);
 
   // Handle list selection for real-time updates
   const handleListSelection = useCallback(
@@ -260,12 +209,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   const [showArchivedLists, setShowArchivedLists] = useState(false);
   const [userCurrency, setUserCurrency] = useState<CurrencyCode>(DEFAULT_CURRENCY);
 
-  // Archived List Detail Modal state
-  const [showArchivedDetailModal, setShowArchivedDetailModal] = useState(false);
-  const [archivedListDetail, setArchivedListDetail] = useState<ShoppingList | null>(null);
-
-  // List Creation Success Animation state
-  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  // Local state for list tracking
   const [previousListCount, setPreviousListCount] = useState(0);
 
   // Load user currency preference - PRODUCTION SAFE
@@ -323,20 +267,8 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     }
   }, [showAddContributorModal, dispatch]);
 
-  // Handle add contributor
-  const handleAddContributor = useCallback((listId: string) => {
-    setSelectedListForContributor(listId);
-    setShowAddContributorModal(true);
-  }, []);
-
-  // Handle close contributor modal
-  const handleCloseContributorModal = useCallback(() => {
-    setShowAddContributorModal(false);
-    setSelectedListForContributor(null);
-  }, []);
-
-  // Handle add contributor to list
-  const handleAddContributorToList = useCallback(
+  // Assignment handlers (remaining local business logic)
+  const handleAssignItemToList = useCallback(
     async (friendId: string, friendName: string) => {
       if (typeof selectedListForContributor !== 'string' || selectedListForContributor.length === 0)
         return;
@@ -431,50 +363,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   );
 
   // Handle remove contributor from list
-  const handleRemoveContributorFromList = useCallback(
-    async (friendId: string) => {
-      if (typeof selectedListForContributor !== 'string' || selectedListForContributor.length === 0)
-        return;
-
-      try {
-        shoppingLogger.debug('🗑️ Removing contributor:', {
-          friendId,
-          listId: selectedListForContributor,
-        });
-
-        // Optimistically update Redux state immediately
-        dispatch(
-          removeCollaboratorFromList({
-            listId: selectedListForContributor,
-            userId: friendId,
-          })
-        );
-
-        // Import shopping list API
-        const { shoppingListApi } = await import('../../../infrastructure/api');
-
-        // Remove collaborator via API
-        await shoppingListApi.removeCollaborator(selectedListForContributor, friendId);
-
-        shoppingLogger.debug('✅ Contributor removed successfully');
-
-        // Show success message
-        Alert.alert('Success', 'Contributor has been removed from the list.', [{ text: 'OK' }]);
-
-        // Refresh lists in background to sync with server (but UI already updated)
-        dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
-      } catch (removeError: unknown) {
-        shoppingLogger.error('❌ Failed to remove contributor:', removeError);
-
-        // Revert optimistic update on failure - need to re-add the collaborator
-        // For now, just refresh the lists to get the correct state
-        dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
-
-        throw removeError; // Re-throw to let modal handle the error
-      }
-    },
-    [selectedListForContributor, dispatch]
-  );
+  // REMOVED: handleRemoveContributorFromList - Now provided by useContributorManagement hook
 
   // Assignment functions
   const handleAssignItem = (listId: string, item: ShoppingItem) => {
@@ -509,9 +398,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       ).unwrap();
 
       // Show success message
-      setSuccessMessage('Item Assigned');
-      setSuccessSubtitle('Item has been successfully assigned');
-      showSuccessModalWithAnimation();
+      showSuccessModalWithAnimation('Item Assigned', 'Item has been successfully assigned');
 
       // Close the assignment modal
       setShowAssignmentModal(false);
@@ -533,12 +420,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       setTimeout(hideSuccessModalWithAnimation, 2000);
     } catch (assignError: unknown) {
       shoppingLogger.error('Error assigning item:', assignError);
-      setErrorMessage('Assignment Failed');
       const assignErrorMessage =
         (assignError as { message?: string })?.message ??
         'Failed to assign item. Please try again.';
-      setErrorSubtitle(assignErrorMessage);
-      showErrorModalWithAnimation();
+      showErrorModalWithAnimation('Assignment Failed', assignErrorMessage);
       setTimeout(hideErrorModalWithAnimation, 3000);
     }
   };
@@ -559,9 +444,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       ).unwrap();
 
       // Show success message
-      setSuccessMessage('Item Unassigned');
-      setSuccessSubtitle('Item assignment has been removed');
-      showSuccessModalWithAnimation();
+      showSuccessModalWithAnimation('Item Unassigned', 'Item assignment has been removed');
 
       // Close the assignment modal
       setShowAssignmentModal(false);
@@ -575,12 +458,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       setTimeout(hideSuccessModalWithAnimation, 2000);
     } catch (unassignError: unknown) {
       shoppingLogger.error('Error unassigning item:', unassignError);
-      setErrorMessage('Unassignment Failed');
       const unassignErrorMessage =
         (unassignError as { message?: string })?.message ??
         'Failed to unassign item. Please try again.';
-      setErrorSubtitle(unassignErrorMessage);
-      showErrorModalWithAnimation();
+      showErrorModalWithAnimation('Unassignment Failed', unassignErrorMessage);
       setTimeout(hideErrorModalWithAnimation, 3000);
     }
   };
@@ -634,79 +515,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     [user, shoppingLists, friends]
   );
 
-  // Success modal animation functions
-  const showSuccessModalWithAnimation = () => {
-    setShowSuccessModal(true);
-    Animated.parallel([
-      Animated.timing(successFadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.spring(successScaleAnim, {
-        toValue: 1,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const hideSuccessModalWithAnimation = () => {
-    Animated.parallel([
-      Animated.timing(successFadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(successScaleAnim, {
-        toValue: 0.3,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setShowSuccessModal(false);
-      setSuccessMessage('');
-      setSuccessSubtitle('');
-    });
-  };
-
-  // Error modal animation functions
-  const showErrorModalWithAnimation = () => {
-    setShowErrorModal(true);
-    Animated.parallel([
-      Animated.timing(errorFadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.spring(errorScaleAnim, {
-        toValue: 1,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const hideErrorModalWithAnimation = () => {
-    Animated.parallel([
-      Animated.timing(errorFadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(errorScaleAnim, {
-        toValue: 0.3,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setShowErrorModal(false);
-      setErrorMessage('');
-      setErrorSubtitle('');
-    });
-  };
+  // Modal functions REMOVED - Now handled by useListAnimation hook
 
   // Helper function to calculate time ago
   const getTimeAgo = (dateString: string): string => {
@@ -809,15 +618,15 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   };
 
   const renderHeader = () => (
-    <View style={styles.header}>
-      <Typography variant='h2' color={safeTheme.colors.text.primary} style={styles.headerTitle}>
+    <View style={baseStyles.header}>
+      <Typography variant='h2' color={safeTheme.colors.text.primary} style={baseStyles.headerTitle}>
         Shopping Lists
       </Typography>
 
-      <View style={styles.headerRightSection}>
+      <View style={baseStyles.headerRightSection}>
         <TouchableOpacity
           onPress={() => Alert.alert('Notifications', 'Coming soon!')}
-          style={styles.notificationButton}
+          style={baseStyles.notificationButton}
           accessibilityRole='button'
           accessibilityLabel='View notifications'>
           <Typography
@@ -830,8 +639,8 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
             {NotificationIcon}
           </Typography>
           {unreadCount > 0 && (
-            <View style={styles.notificationBadge}>
-              <Typography variant='caption' style={styles.notificationBadgeText}>
+            <View style={baseStyles.notificationBadge}>
+              <Typography variant='caption' style={baseStyles.notificationBadgeText}>
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Typography>
             </View>
@@ -840,7 +649,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
         <TouchableOpacity
           onPress={handleNavigateToCreateList}
-          style={styles.headerButton}
+          style={baseStyles.headerButton}
           accessibilityRole='button'
           accessibilityLabel='Add new list'>
           <Typography
@@ -864,9 +673,9 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       const isArchived = list.status === 'archived';
 
       return (
-        <View key={list.id} style={styles.listCardContainer}>
+        <View key={list.id} style={baseStyles.listCardContainer}>
           <TouchableOpacity
-            style={[styles.listCard, isArchived && styles.archivedListCard]}
+            style={[baseStyles.listCard, isArchived && baseStyles.archivedListCard]}
             onPress={
               isArchived ? () => handleViewArchivedList(list) : () => handleListSelection(list)
             }
@@ -875,20 +684,20 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
               isArchived ? `View archived ${list.name} list` : `Open ${list.name} list`
             }
             activeOpacity={0.8}>
-            <View style={styles.listHeader}>
-              <View style={styles.listInfo}>
-                <View style={styles.listTitleRow}>
+            <View style={baseStyles.listHeader}>
+              <View style={baseStyles.listInfo}>
+                <View style={baseStyles.listTitleRow}>
                   <Typography
                     variant='h5'
                     color={safeTheme?.colors?.text?.primary || '#000000'}
-                    style={styles.listTitle}>
+                    style={baseStyles.listTitle}>
                     {list.name}
                   </Typography>
                   {isShared && (
                     <Typography
                       variant='caption'
                       color={safeTheme?.colors?.text?.secondary || '#666666'}
-                      style={styles.sharedText}>
+                      style={baseStyles.sharedText}>
                       Shared
                     </Typography>
                   )}
@@ -897,12 +706,14 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                 <Typography
                   variant='body1'
                   color={safeTheme?.colors?.text?.secondary || '#666666'}
-                  style={styles.listSubtitle}>
+                  style={baseStyles.listSubtitle}>
                   {list.completedCount || 0} of {list.itemsCount || 0} items completed
                 </Typography>
 
                 {list.totalSpent > 0 && (
-                  <Typography variant='caption' style={{ color: '#16a34a', ...styles.totalSpent }}>
+                  <Typography
+                    variant='caption'
+                    style={{ color: '#16a34a', ...baseStyles.totalSpent }}>
                     💰 Total spent: {formatCurrency(list.totalSpent, userCurrency)}
                   </Typography>
                 )}
@@ -910,12 +721,12 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                 <Typography
                   variant='caption'
                   color={safeTheme?.colors?.text?.secondary || '#666666'}
-                  style={styles.lastUpdated}>
+                  style={baseStyles.lastUpdated}>
                   Created {timeAgo}
                 </Typography>
               </View>
 
-              <View style={styles.rightSection}>
+              <View style={baseStyles.rightSection}>
                 {!isArchived && (
                   <TouchableOpacity
                     onPress={event => {
@@ -936,11 +747,11 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                   </TouchableOpacity>
                 )}
                 {isArchived && (
-                  <View style={styles.archivedBadge}>
+                  <View style={baseStyles.archivedBadge}>
                     <Typography
                       variant='caption'
                       color={safeTheme?.colors?.text?.secondary || '#666666'}
-                      style={styles.archivedText}>
+                      style={baseStyles.archivedText}>
                       📦 Archived
                     </Typography>
                   </View>
@@ -949,10 +760,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
             </View>
 
             {/* Enhanced Progress Bar with Percentage Inside */}
-            <View style={styles.progressBarContainer}>
-              <View style={styles.progressBar}>
-                <View style={[styles.progressFill, { width: `${list.progress || 0}%` }]} />
-                <View style={styles.progressTextContainer}>
+            <View style={baseStyles.progressBarContainer}>
+              <View style={baseStyles.progressBar}>
+                <View style={[baseStyles.progressFill, { width: `${list.progress || 0}%` }]} />
+                <View style={baseStyles.progressTextContainer}>
                   <Typography
                     variant='caption'
                     color={
@@ -962,7 +773,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                           '#ffffff'
                         : safeTheme?.colors?.text?.secondary || '#666666'
                     }
-                    style={styles.progressText}>
+                    style={baseStyles.progressText}>
                     {list.progress || 0}% completed
                   </Typography>
                 </View>
@@ -971,14 +782,14 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
             {/* Collaborators */}
             {list.collaborators.length > 0 && (
-              <View style={styles.collaboratorsSection}>
+              <View style={baseStyles.collaboratorsSection}>
                 <Typography
                   variant='caption'
                   color={safeTheme?.colors?.text?.secondary || '#666666'}
-                  style={styles.collaboratorsLabel}>
+                  style={baseStyles.collaboratorsLabel}>
                   Collaborators:
                 </Typography>
-                <View style={styles.collaboratorsList}>
+                <View style={baseStyles.collaboratorsList}>
                   {list.collaborators.map((collaborator, index) => {
                     const displayName =
                       collaborator.name === 'You' || collaborator.name === user?.name
@@ -988,7 +799,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                     const avatar = getUserAvatar(collaborator.userId);
 
                     return (
-                      <View key={`${collaborator.id}-${index}`} style={styles.collaboratorChip}>
+                      <View key={`${collaborator.id}-${index}`} style={baseStyles.collaboratorChip}>
                         {renderAvatar(avatar, 20)}
                         <Typography
                           variant='caption'
@@ -1004,11 +815,11 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
             {/* Expanded List Items */}
             {selectedList === list.id && (
-              <View style={styles.listItems}>
+              <View style={baseStyles.listItems}>
                 <Typography
                   variant='body1'
                   color={safeTheme?.colors?.text?.primary || '#000000'}
-                  style={styles.itemsTitle}>
+                  style={baseStyles.itemsTitle}>
                   Items:
                 </Typography>
                 {list.items.map(item => {
@@ -1020,16 +831,20 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                     <TouchableOpacity
                       key={item.id}
                       style={[
-                        styles.listItem,
-                        !!item.assignedTo && styles.listItemAssigned, // PRODUCTION SAFE: Convert to boolean
-                        isArchived && styles.archivedListItem,
+                        baseStyles.listItem,
+                        !!item.assignedTo && baseStyles.listItemAssigned, // PRODUCTION SAFE: Convert to boolean
+                        isArchived && baseStyles.archivedListItem,
                       ]}
                       onLongPress={canAssign ? () => handleAssignItem(list.id, item) : undefined}
                       delayLongPress={500}
                       activeOpacity={isArchived ? 1 : 0.7}
                       disabled={isArchived}>
-                      <View style={styles.itemLeft}>
-                        <View style={[styles.checkbox, item.completed && styles.checkboxCompleted]}>
+                      <View style={baseStyles.itemLeft}>
+                        <View
+                          style={[
+                            baseStyles.checkbox,
+                            item.completed && baseStyles.checkboxCompleted,
+                          ]}>
                           {item.completed && (
                             <Typography
                               variant='caption'
@@ -1042,7 +857,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                             </Typography>
                           )}
                         </View>
-                        <View style={styles.itemInfo}>
+                        <View style={baseStyles.itemInfo}>
                           <Typography
                             variant='body1'
                             color={
@@ -1050,24 +865,27 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                                 ? safeTheme?.colors?.text?.secondary || '#666666'
                                 : safeTheme?.colors?.text?.primary || '#000000'
                             }
-                            style={[styles.itemName, item.completed && styles.itemNameCompleted]}>
+                            style={[
+                              baseStyles.itemName,
+                              item.completed && baseStyles.itemNameCompleted,
+                            ]}>
                             {item.icon} {item.name}
                           </Typography>
-                          <View style={styles.itemDetails}>
+                          <View style={baseStyles.itemDetails}>
                             <Typography
                               variant='caption'
                               color={safeTheme?.colors?.text?.secondary || '#666666'}>
                               {item.quantity} {item.unit} • {item.category.name}
                             </Typography>
                             {item.assignedTo && (
-                              <View style={styles.assignmentRow}>
+                              <View style={baseStyles.assignmentRow}>
                                 <Typography
                                   variant='caption'
                                   color='#3B82F6'
-                                  style={styles.assignmentIndicator}>
+                                  style={baseStyles.assignmentIndicator}>
                                   • Assigned to {getUserName(item.assignedTo)}
                                 </Typography>
-                                <View style={styles.assignedAvatarInline}>
+                                <View style={baseStyles.assignedAvatarInline}>
                                   {renderAvatar(getUserAvatar(item.assignedTo), 16)}
                                 </View>
                               </View>
@@ -1078,7 +896,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
                       {canAssign && (
                         <TouchableOpacity
-                          style={styles.assignButton}
+                          style={baseStyles.assignButton}
                           onPress={() => handleAssignItem(list.id, item)}>
                           <Typography
                             variant='caption'
@@ -1093,13 +911,13 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
                 {/* Edit button - only show for lists owned by current user */}
                 {!isArchived && user?.id === list.ownerId && (
-                  <View style={styles.editButtonContainer}>
+                  <View style={baseStyles.editButtonContainer}>
                     <Button
                       title='✏️ Edit List'
                       variant='primary'
                       size='md'
                       onPress={() => onEditListPress?.(list)}
-                      style={styles.editButton}
+                      style={baseStyles.editButton}
                     />
                   </View>
                 )}
@@ -1166,321 +984,18 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     return spending;
   }, [archivedListDetail?.items, archivedListDetail?.ownerId, getUserName]);
 
-  // Archived List Detail Modal
-  const renderArchivedDetailModal = () => (
-    <Modal
-      visible={showArchivedDetailModal}
-      transparent={true}
-      animationType='fade'
-      onRequestClose={() => setShowArchivedDetailModal(false)}>
-      <View style={styles.modalOverlay}>
-        <View style={styles.archivedModalContainer}>
-          <View style={styles.archivedModalHeader}>
-            <Typography variant='h4' style={styles.archivedModalTitle}>
-              📦 {archivedListDetail?.name} (Archived)
-            </Typography>
-          </View>
+  // Handle success animation complete
+  // REMOVED: duplicate handleSuccessAnimationComplete
 
-          <ScrollView style={styles.archivedModalBody} showsVerticalScrollIndicator={false}>
-            <Typography variant='body1' style={styles.archivedModalSubtitle}>
-              This list was completed and archived.
-            </Typography>
-
-            <View style={styles.archivedInfoSection}>
-              <View style={styles.archivedInfoRow}>
-                <Typography variant='body1' style={styles.archivedInfoLabel}>
-                  📅 Created:
-                </Typography>
-                <Typography variant='body1' style={styles.archivedInfoValue}>
-                  {archivedListDetail
-                    ? new Date(archivedListDetail.createdAt).toLocaleDateString()
-                    : ''}
-                </Typography>
-              </View>
-              <View style={styles.archivedInfoRow}>
-                <Typography variant='body1' style={styles.archivedInfoLabel}>
-                  📅 Archived:
-                </Typography>
-                <Typography variant='body1' style={styles.archivedInfoValue}>
-                  {archivedListDetail
-                    ? new Date(archivedListDetail.updatedAt).toLocaleDateString()
-                    : ''}
-                </Typography>
-              </View>
-              <View style={styles.archivedInfoRow}>
-                <Typography variant='body1' style={styles.archivedInfoLabel}>
-                  📦 Items:
-                </Typography>
-                <Typography variant='body1' style={styles.archivedInfoValue}>
-                  {archivedListDetail?.itemsCount || 0}
-                </Typography>
-              </View>
-              <View style={styles.archivedInfoRow}>
-                <Typography variant='body1' style={styles.archivedInfoLabel}>
-                  ✅ Completed:
-                </Typography>
-                <Typography variant='body1' style={styles.archivedInfoValue}>
-                  {archivedListDetail?.completedCount || 0}
-                </Typography>
-              </View>
-              <View style={styles.archivedInfoRow}>
-                <Typography variant='body1' style={styles.archivedInfoLabel}>
-                  💰 Total Spent:
-                </Typography>
-                <Typography variant='body1' style={styles.archivedInfoValue}>
-                  ${archivedListTotalSpent.toFixed(2)}
-                </Typography>
-              </View>
-            </View>
-
-            {/* Scroll Indicator */}
-            <View style={styles.scrollIndicator}>
-              <Typography variant='caption' style={styles.scrollIndicatorText}>
-                ⬇️ Scroll down for detailed items and spending breakdown ⬇️
-              </Typography>
-            </View>
-
-            <View style={styles.itemsSection}>
-              <Typography variant='h5' style={styles.sectionTitle}>
-                All Items ({archivedListDetail?.itemsCount || 0})
-              </Typography>
-
-              {archivedListDetail?.items.length ? (
-                archivedListDetail.items.map((item, index) => {
-                  // PRODUCTION SAFE: Prevent null/undefined crashes
-                  const purchasedAmount = item.purchasedAmount
-                    ? parseFloat(String(item.purchasedAmount))
-                    : 0;
-                  const actualPrice = (item as any).actualPrice
-                    ? parseFloat(String((item as any).actualPrice))
-                    : 0;
-                  const estimatedPrice = item.price ? parseFloat(String(item.price)) : 0;
-
-                  const amount = purchasedAmount || actualPrice || estimatedPrice || 0;
-                  const assignedUser = item.assignedTo ? getUserName(item.assignedTo) : null;
-
-                  return (
-                    <View
-                      key={index}
-                      style={[styles.itemRow, item.completed && styles.completedItemRow]}>
-                      <View style={styles.itemLeft}>
-                        <View
-                          style={[
-                            styles.itemCheckbox,
-                            item.completed && styles.itemCheckboxCompleted,
-                          ]}>
-                          {item.completed && (
-                            <Typography variant='caption' style={styles.checkmark}>
-                              ✓
-                            </Typography>
-                          )}
-                        </View>
-                        <View style={styles.itemInfo}>
-                          <Typography
-                            variant='body1'
-                            style={[styles.itemName, item.completed && styles.completedItemName]}>
-                            {item.name}
-                          </Typography>
-                          <View style={styles.itemMeta}>
-                            <Typography variant='caption' style={styles.itemQuantity}>
-                              {item.quantity} {item.unit}
-                            </Typography>
-                            {assignedUser && (
-                              <Typography variant='caption' style={styles.itemAssigned}>
-                                • Assigned to {assignedUser}
-                              </Typography>
-                            )}
-                          </View>
-                        </View>
-                      </View>
-                      <View style={styles.itemRight}>
-                        {item.completed ? (
-                          <View style={styles.purchaseInfo}>
-                            <Typography variant='body1' style={styles.purchaseAmount}>
-                              ${(typeof amount === 'number' ? amount : 0).toFixed(2)}
-                            </Typography>
-                            <Typography variant='caption' style={styles.purchasedBy}>
-                              by{' '}
-                              {assignedUser ||
-                                getUserName(archivedListDetail?.ownerId || '') ||
-                                'Unknown'}
-                            </Typography>
-                          </View>
-                        ) : (
-                          <Typography variant='caption' style={styles.notPurchased}>
-                            Not purchased
-                          </Typography>
-                        )}
-                      </View>
-                    </View>
-                  );
-                })
-              ) : (
-                <Typography variant='body1' style={styles.noItemsText}>
-                  No items in this list
-                </Typography>
-              )}
-            </View>
-
-            <View style={styles.spendingSummarySection}>
-              <Typography variant='h5' style={styles.sectionTitle}>
-                Spending Summary
-              </Typography>
-              {Object.keys(spendingByUser).length > 0 ? (
-                Object.entries(spendingByUser).map(([userName, data]) => (
-                  <View key={userName} style={styles.spendingRow}>
-                    <Typography variant='body1' style={styles.spendingUser}>
-                      {userName}
-                    </Typography>
-                    <View style={styles.spendingDetails}>
-                      <Typography variant='body1' style={styles.spendingAmount}>
-                        ${data.total.toFixed(2)}
-                      </Typography>
-                      <Typography variant='caption' style={styles.spendingItems}>
-                        ({data.items} item{data.items > 1 ? 's' : ''})
-                      </Typography>
-                    </View>
-                  </View>
-                ))
-              ) : (
-                <Typography variant='body1' style={styles.noSpendingText}>
-                  No purchases recorded
-                </Typography>
-              )}
-            </View>
-
-            <View style={styles.collaboratorsSection}>
-              <Typography variant='h5' style={styles.sectionTitle}>
-                Collaborators
-              </Typography>
-              <Typography variant='body1' style={styles.archivedCollaboratorsList}>
-                {archivedListDetail?.collaborators.map(c => c.name).join(', ') || 'None'}
-              </Typography>
-            </View>
-          </ScrollView>
-
-          <View style={styles.archivedModalFooter}>
-            <TouchableOpacity
-              style={styles.archivedCloseButton}
-              onPress={() => setShowArchivedDetailModal(false)}>
-              <Typography variant='button' style={styles.archivedCloseButtonText}>
-                Close
-              </Typography>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-
-  // Success Modal
-  const renderSuccessModal = () => (
-    <Modal
-      visible={showSuccessModal}
-      transparent={true}
-      animationType='none'
-      statusBarTranslucent={true}>
-      <View style={styles.successModalOverlay}>
-        <Animated.View
-          style={[
-            styles.successModalContainer,
-            {
-              opacity: successFadeAnim,
-              transform: [{ scale: successScaleAnim }],
-            },
-          ]}>
-          {/* Success Icon */}
-          <View style={styles.successIconContainer}>
-            <Typography variant='h1' style={styles.successIcon}>
-              🎉
-            </Typography>
-          </View>
-
-          {/* Success Message */}
-          <Typography
-            variant='h3'
-            color={safeTheme.colors.text.primary}
-            style={styles.successTitle}>
-            {successMessage}
-          </Typography>
-
-          <Typography
-            variant='body1'
-            color={safeTheme.colors.text.secondary}
-            style={styles.successSubtitle}>
-            {successSubtitle}
-          </Typography>
-
-          {/* Action Button */}
-          <TouchableOpacity
-            style={styles.successButton}
-            onPress={hideSuccessModalWithAnimation}
-            activeOpacity={0.8}>
-            <Typography variant='body1' style={styles.successButtonText}>
-              Great!
-            </Typography>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </Modal>
-  );
-
-  // Error Modal
-  const renderErrorModal = () => (
-    <Modal
-      visible={showErrorModal}
-      transparent={true}
-      animationType='none'
-      statusBarTranslucent={true}>
-      <View style={styles.errorModalOverlay}>
-        <Animated.View
-          style={[
-            styles.errorModalContainer,
-            {
-              opacity: errorFadeAnim,
-              transform: [{ scale: errorScaleAnim }],
-            },
-          ]}>
-          {/* Error Icon */}
-          <View style={styles.errorIconContainer}>
-            <Typography variant='h1' style={styles.errorIcon}>
-              ⚠️
-            </Typography>
-          </View>
-
-          {/* Error Message */}
-          <Typography variant='h3' color={safeTheme.colors.text.primary} style={styles.errorTitle}>
-            {errorMessage}
-          </Typography>
-
-          <Typography
-            variant='body1'
-            color={safeTheme.colors.text.secondary}
-            style={styles.errorSubtitle}>
-            {errorSubtitle}
-          </Typography>
-
-          {/* Action Button */}
-          <TouchableOpacity
-            style={styles.errorButton}
-            onPress={hideErrorModalWithAnimation}
-            activeOpacity={0.8}>
-            <Typography variant='body1' style={styles.errorButtonText}>
-              Try Again
-            </Typography>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </Modal>
-  );
+  // Modal render functions REMOVED - Now using extracted modal components
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={baseStyles.container}>
       {renderHeader()}
 
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={baseStyles.scrollView}
+        contentContainerStyle={baseStyles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -1489,13 +1004,13 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
             tintColor={safeTheme.colors.primary['500']}
           />
         }>
-        <View style={styles.listsContainer}>
+        <View style={baseStyles.listsContainer}>
           {isLoading ? (
-            <View style={styles.loadingContainer}>
+            <View style={baseStyles.loadingContainer}>
               <Typography
                 variant='body1'
                 color={safeTheme.colors.text.secondary}
-                style={styles.loadingText}>
+                style={baseStyles.loadingText}>
                 Loading your lists...
               </Typography>
             </View>
@@ -1503,17 +1018,17 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
             archivedLists.length > 0 ? (
               archivedLists.map(renderListCard)
             ) : (
-              <View style={styles.emptyContainer}>
+              <View style={baseStyles.emptyContainer}>
                 <Typography
                   variant='h3'
                   color={safeTheme.colors.text.secondary}
-                  style={styles.emptyTitle}>
+                  style={baseStyles.emptyTitle}>
                   No Archived Lists
                 </Typography>
                 <Typography
                   variant='body1'
                   color={safeTheme.colors.text.secondary}
-                  style={styles.emptyText}>
+                  style={baseStyles.emptyText}>
                   Archived lists will appear here when you finish shopping.
                 </Typography>
               </View>
@@ -1521,17 +1036,17 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
           ) : activeLists.length > 0 ? (
             activeLists.map(renderListCard)
           ) : (
-            <View style={styles.emptyContainer}>
+            <View style={baseStyles.emptyContainer}>
               <Typography
                 variant='h3'
                 color={safeTheme.colors.text.secondary}
-                style={styles.emptyTitle}>
+                style={baseStyles.emptyTitle}>
                 No Lists Yet
               </Typography>
               <Typography
                 variant='body1'
                 color={safeTheme.colors.text.secondary}
-                style={styles.emptyText}>
+                style={baseStyles.emptyText}>
                 Create your first shopping list to get started!
               </Typography>
             </View>
@@ -1539,19 +1054,19 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         </View>
 
         {/* Add New List Button */}
-        <View style={styles.addButtonContainer}>
+        <View style={baseStyles.addButtonContainer}>
           <Button
             title='Create New List'
             variant='primary'
             size='md'
             onPress={onAddListPress || (() => {})}
-            style={styles.addButton}
+            style={baseStyles.addButton}
           />
         </View>
 
         {/* Show Archived Lists Button */}
         {archivedCount > 0 && (
-          <View style={styles.archiveButtonContainer}>
+          <View style={baseStyles.archiveButtonContainer}>
             <Button
               title={
                 showArchivedLists ? 'Show Active Lists' : `Show ${archivedCount} Archived Lists`
@@ -1559,7 +1074,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
               variant='outline'
               size='md'
               onPress={() => setShowArchivedLists(!showArchivedLists)}
-              style={styles.archiveButton}
+              style={baseStyles.archiveButton}
             />
           </View>
         )}
@@ -1601,16 +1116,36 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
             : null
         }
         onAddContributor={handleAddContributorToList}
-        onRemoveContributor={handleRemoveContributorFromList}
+        onRemoveContributor={(friendId: string) =>
+          handleRemoveContributorFromList(selectedListForContributor || '', friendId)
+        }
         isLoading={false}
       />
 
-      {/* Archived List Detail Modal */}
-      {renderArchivedDetailModal()}
+      {/* Modals - Using extracted components */}
+      <ArchivedListModal
+        visible={showArchivedDetailModal}
+        list={archivedListDetail}
+        onClose={handleCloseArchivedModal}
+      />
 
-      {/* Success and Error Modals */}
-      {renderSuccessModal()}
-      {renderErrorModal()}
+      <ListSuccessModal
+        visible={showSuccessModal}
+        message={successMessage}
+        subtitle={successSubtitle}
+        fadeAnim={successFadeAnim}
+        scaleAnim={successScaleAnim}
+        onClose={hideSuccessModalWithAnimation}
+      />
+
+      <ListErrorModal
+        visible={showErrorModal}
+        message={errorMessage}
+        subtitle={errorSubtitle}
+        fadeAnim={errorFadeAnim}
+        scaleAnim={errorScaleAnim}
+        onClose={hideErrorModalWithAnimation}
+      />
 
       {/* List Creation Success Animation */}
       <ListCreationSuccessAnimation
@@ -1619,862 +1154,4 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       />
     </SafeAreaView>
   );
-};
-
-// ========================================
-// Styles - Enhanced with all features
-// ========================================
-
-const styles = {
-  container: {
-    flex: 1,
-    backgroundColor: '#F9F9F9',
-  } as ViewStyle,
-
-  listCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 20,
-    marginVertical: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  } as ViewStyle,
-
-  header: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  } as ViewStyle,
-
-  headerButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  headerTitle: {
-    fontWeight: '700',
-    fontSize: 18,
-  } as ViewStyle,
-
-  headerRightSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  } as ViewStyle,
-
-  notificationButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  } as ViewStyle,
-
-  notificationBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: '#ef4444',
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
-  } as ViewStyle,
-
-  notificationBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
-  } as ViewStyle,
-
-  scrollView: {
-    flex: 1,
-  } as ViewStyle,
-
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 32,
-  } as ViewStyle,
-
-  listsContainer: {
-    marginBottom: 32,
-  } as ViewStyle,
-
-  listCardContainer: {
-    marginBottom: 20,
-  } as ViewStyle,
-
-  listHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  } as ViewStyle,
-
-  listInfo: {
-    flex: 1,
-    marginRight: 16,
-  } as ViewStyle,
-
-  listTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  } as ViewStyle,
-
-  listTitle: {
-    fontWeight: '600',
-    marginRight: 12,
-  } as ViewStyle,
-
-  sharedText: {
-    fontSize: 11,
-    fontWeight: '500',
-    fontStyle: 'italic',
-    marginTop: 2,
-  } as ViewStyle,
-
-  listSubtitle: {
-    marginBottom: 8,
-  } as ViewStyle,
-
-  totalSpent: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 8,
-  } as ViewStyle,
-
-  lastUpdated: {
-    fontSize: 12,
-  } as ViewStyle,
-
-  rightSection: {
-    alignItems: 'flex-end',
-    justifyContent: 'flex-start',
-    minHeight: 32,
-    paddingTop: 2,
-  } as ViewStyle,
-
-  addContributorButton: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-    marginBottom: 8,
-    minHeight: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#22c55e',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-  } as ViewStyle,
-
-  addContributorText: {
-    fontSize: 11,
-    fontWeight: '600',
-    lineHeight: 14,
-    letterSpacing: 0.3,
-  } as ViewStyle,
-
-  editButtonContainer: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F4F2',
-    alignItems: 'center',
-  } as ViewStyle,
-
-  editButton: {
-    minWidth: 200,
-    maxWidth: 300,
-    height: 44,
-    paddingVertical: 12,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-  } as ViewStyle,
-
-  progressBarContainer: {
-    marginBottom: 16,
-  } as ViewStyle,
-
-  progressBar: {
-    width: '100%',
-    height: 24,
-    backgroundColor: '#F0F4F2',
-    borderRadius: 12,
-    position: 'relative',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  progressFill: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    height: '100%',
-    backgroundColor: '#4ADE80',
-    borderRadius: 12,
-    minWidth: 2,
-  } as ViewStyle,
-
-  progressTextContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  } as ViewStyle,
-
-  progressText: {
-    fontWeight: '600',
-    fontSize: 11,
-    textAlign: 'center',
-  } as ViewStyle,
-
-  collaboratorsSection: {
-    marginBottom: 16,
-  } as ViewStyle,
-
-  collaboratorsLabel: {
-    marginBottom: 8,
-    fontWeight: '500',
-  } as ViewStyle,
-
-  collaboratorsList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  } as ViewStyle,
-
-  collaboratorChip: {
-    backgroundColor: '#F0F4F2',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  } as ViewStyle,
-
-  listItems: {
-    borderTopWidth: 1,
-    borderTopColor: '#F0F4F2',
-    paddingTop: 16,
-  } as ViewStyle,
-
-  itemsTitle: {
-    fontWeight: '600',
-    marginBottom: 16,
-  } as ViewStyle,
-
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-  } as ViewStyle,
-
-  itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  } as ViewStyle,
-
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  } as ViewStyle,
-
-  checkboxCompleted: {
-    backgroundColor: '#4ADE80',
-    borderColor: '#4ADE80',
-  } as ViewStyle,
-
-  itemInfo: {
-    flex: 1,
-  } as ViewStyle,
-
-  itemNameCompleted: {
-    textDecorationLine: 'line-through',
-  } as ViewStyle,
-
-  listItemAssigned: {
-    backgroundColor: '#F0F9FF',
-    borderRadius: 8,
-    marginHorizontal: -8,
-    paddingHorizontal: 8,
-  } as ViewStyle,
-
-  itemDetails: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  } as ViewStyle,
-
-  assignmentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 4,
-  } as ViewStyle,
-
-  assignmentIndicator: {
-    fontSize: 12,
-    fontWeight: '500',
-  } as ViewStyle,
-
-  assignedAvatarInline: {
-    marginLeft: 8,
-  } as ViewStyle,
-
-  assignButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#F0F9FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#22c55e30',
-  } as ViewStyle,
-
-  addButtonContainer: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  addButton: {
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    minWidth: 200,
-    maxWidth: 300,
-  } as ViewStyle,
-
-  loadingContainer: {
-    paddingVertical: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  loadingText: {
-    textAlign: 'center',
-    fontStyle: 'italic',
-  } as ViewStyle,
-
-  emptyContainer: {
-    paddingVertical: 32,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  emptyTitle: {
-    marginBottom: 16,
-    textAlign: 'center',
-  } as ViewStyle,
-
-  emptyText: {
-    textAlign: 'center',
-    fontStyle: 'italic',
-  } as ViewStyle,
-
-  archiveButtonContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  archiveButton: {
-    borderColor: '#6B7280',
-    borderWidth: 1,
-    minWidth: 200,
-    maxWidth: 300,
-    height: 44,
-    paddingVertical: 12,
-  } as ViewStyle,
-
-  archivedListCard: {
-    opacity: 0.7,
-    backgroundColor: '#f8f9fa',
-    borderColor: '#e9ecef',
-  } as ViewStyle,
-
-  archivedBadge: {
-    backgroundColor: '#e9ecef',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  archivedText: {
-    fontWeight: '500',
-    fontSize: 11,
-  } as ViewStyle,
-
-  archivedListItem: {
-    opacity: 0.7,
-    backgroundColor: '#f8f9fa',
-  } as ViewStyle,
-
-  // Success Modal Styles
-  successModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  } as ViewStyle,
-
-  successModalContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 32,
-    alignItems: 'center',
-    maxWidth: 320,
-    width: '100%',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  } as ViewStyle,
-
-  successIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#F0FDF4',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  } as ViewStyle,
-
-  successIcon: {
-    fontSize: 40,
-  } as ViewStyle,
-
-  successTitle: {
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12,
-  } as ViewStyle,
-
-  successSubtitle: {
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 32,
-  } as ViewStyle,
-
-  successButton: {
-    backgroundColor: '#4ADE80',
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 12,
-    minWidth: 120,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  successButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 16,
-  } as ViewStyle,
-
-  // Error Modal Styles
-  errorModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  } as ViewStyle,
-
-  errorModalContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 32,
-    alignItems: 'center',
-    maxWidth: 320,
-    width: '100%',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  } as ViewStyle,
-
-  errorIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FEF2F2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  } as ViewStyle,
-
-  errorIcon: {
-    fontSize: 40,
-  } as ViewStyle,
-
-  errorTitle: {
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12,
-  } as ViewStyle,
-
-  errorSubtitle: {
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 32,
-  } as ViewStyle,
-
-  errorButton: {
-    backgroundColor: '#EF4444',
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 12,
-    minWidth: 120,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  errorButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 16,
-  } as ViewStyle,
-
-  // Archived Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  } as ViewStyle,
-
-  archivedModalContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    width: '100%',
-    maxWidth: 500,
-    maxHeight: '90%',
-    minHeight: '60%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
-  } as ViewStyle,
-
-  archivedModalHeader: {
-    padding: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  } as ViewStyle,
-
-  archivedModalTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    textAlign: 'center',
-  } as ViewStyle,
-
-  archivedModalBody: {
-    flex: 1,
-    padding: 24,
-    paddingBottom: 0,
-  } as ViewStyle,
-
-  archivedModalSubtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 24,
-  } as ViewStyle,
-
-  archivedInfoSection: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-  } as ViewStyle,
-
-  archivedInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  } as ViewStyle,
-
-  archivedInfoLabel: {
-    fontSize: 16,
-    color: '#4a4a4a',
-    fontWeight: '500',
-  } as ViewStyle,
-
-  archivedInfoValue: {
-    fontSize: 16,
-    color: '#1a1a1a',
-    fontWeight: '600',
-  } as ViewStyle,
-
-  scrollIndicator: {
-    backgroundColor: '#e3f2fd',
-    borderRadius: 8,
-    padding: 12,
-    marginVertical: 16,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  scrollIndicatorText: {
-    fontSize: 12,
-    color: '#1976d2',
-    fontWeight: '500',
-    textAlign: 'center',
-  } as ViewStyle,
-
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 16,
-  } as ViewStyle,
-
-  // Items Section Styles
-  itemsSection: {
-    marginBottom: 24,
-  } as ViewStyle,
-
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  } as ViewStyle,
-
-  completedItemRow: {
-    backgroundColor: '#f0f9ff',
-    borderColor: '#bae6fd',
-  } as ViewStyle,
-
-  itemCheckbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#d1d5db',
-    marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  itemCheckboxCompleted: {
-    backgroundColor: '#22c55e',
-    borderColor: '#22c55e',
-  } as ViewStyle,
-
-  checkmark: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  } as ViewStyle,
-
-  itemName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1a1a1a',
-    marginBottom: 4,
-  } as ViewStyle,
-
-  completedItemName: {
-    color: '#6b7280',
-    textDecorationLine: 'line-through',
-  } as ViewStyle,
-
-  itemMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  } as ViewStyle,
-
-  itemQuantity: {
-    fontSize: 12,
-    color: '#6b7280',
-  } as ViewStyle,
-
-  itemAssigned: {
-    fontSize: 12,
-    color: '#3b82f6',
-    marginLeft: 8,
-  } as ViewStyle,
-
-  itemRight: {
-    alignItems: 'flex-end',
-  } as ViewStyle,
-
-  purchaseInfo: {
-    alignItems: 'flex-end',
-  } as ViewStyle,
-
-  purchaseAmount: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#16a34a',
-  } as ViewStyle,
-
-  purchasedBy: {
-    fontSize: 12,
-    color: '#6b7280',
-    fontStyle: 'italic',
-  } as ViewStyle,
-
-  notPurchased: {
-    fontSize: 12,
-    color: '#9ca3af',
-    fontStyle: 'italic',
-  } as ViewStyle,
-
-  noItemsText: {
-    fontSize: 14,
-    color: '#9ca3af',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    padding: 16,
-  } as ViewStyle,
-
-  // Spending Summary Styles
-  spendingSummarySection: {
-    marginBottom: 24,
-  } as ViewStyle,
-
-  spendingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
-    marginBottom: 8,
-  } as ViewStyle,
-
-  spendingUser: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1a1a1a',
-  } as ViewStyle,
-
-  spendingDetails: {
-    alignItems: 'flex-end',
-  } as ViewStyle,
-
-  spendingAmount: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#16a34a',
-  } as ViewStyle,
-
-  spendingItems: {
-    fontSize: 12,
-    color: '#6b7280',
-  } as ViewStyle,
-
-  noSpendingText: {
-    fontSize: 14,
-    color: '#9ca3af',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    padding: 16,
-  } as ViewStyle,
-
-  archivedCollaboratorsList: {
-    fontSize: 14,
-    color: '#4a4a4a',
-    backgroundColor: '#f8f9fa',
-    padding: 12,
-    borderRadius: 8,
-  } as ViewStyle,
-
-  archivedModalFooter: {
-    padding: 24,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-  } as ViewStyle,
-
-  archivedCloseButton: {
-    backgroundColor: '#22c55e',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  archivedCloseButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-  } as ViewStyle,
 };

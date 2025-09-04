@@ -265,6 +265,8 @@ export const Input = forwardRef<TextInput, InputProps>(
       variantStyles.border,
       sizeStyles.container,
       {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
         opacity: disabled ? 0.6 : 1,
       },
       containerStyle,

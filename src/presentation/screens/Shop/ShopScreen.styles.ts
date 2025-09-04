@@ -39,6 +39,8 @@ export const baseStyles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 0,
+    position: 'relative',
+    paddingBottom: 20,
   } as ViewStyle,
 
   headerCenter: {
@@ -102,7 +104,7 @@ export const baseStyles = StyleSheet.create({
   } as ViewStyle,
 
   finishButtonText: {
-    fontWeight: '600',
+    fontWeight: 'bold',
   } as ViewStyle,
 
   // List cards
@@ -174,6 +176,15 @@ export const baseStyles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     overflow: 'hidden',
+  } as ViewStyle,
+
+  integratedProgressBar: {
+    backgroundColor: 'transparent',
+    marginTop: 8,
+    position: 'absolute',
+    bottom: 0,
+    left: 16,
+    right: 16,
   } as ViewStyle,
 
   progressFillLarge: {

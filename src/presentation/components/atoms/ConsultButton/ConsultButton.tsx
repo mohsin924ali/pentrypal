@@ -229,13 +229,13 @@ export const ConsultButton: FC<ConsultButtonProps> = ({
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
-    borderRadius: 30,
-    elevation: 8,
-    height: 60,
+    borderRadius: 22.5,
+    elevation: 6,
+    height: 45,
     justifyContent: 'center',
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    width: 60,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 9,
+    width: 45,
     zIndex: 10, // Ensure button stays on top of waves
     ...Platform.select({
       ios: {
@@ -248,24 +248,24 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: 'center',
-    height: 60,
+    height: 45,
     justifyContent: 'center',
     position: 'relative',
-    width: 60,
+    width: 45,
   },
   disabled: {
     opacity: 0.5,
   },
   icon: {
-    height: 24,
+    height: 20,
     tintColor: '#ffffff',
-    width: 24,
+    width: 20,
   },
   wave: {
-    borderRadius: 30,
-    height: 60,
+    borderRadius: 22.5,
+    height: 45,
     opacity: 0.3,
     position: 'absolute',
-    width: 60,
+    width: 45,
   },
 });
