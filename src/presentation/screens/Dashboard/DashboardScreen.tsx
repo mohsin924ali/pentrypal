@@ -806,17 +806,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       variant='body2'
                       color={theme.colors.primary[500]}
                       style={{ fontWeight: '600' }}>
-                      {categorySpending[0]?.name}
+                      {typeof categorySpending[0]?.name === 'string'
+                        ? categorySpending[0]?.name
+                        : categorySpending[0]?.name?.name || 'Unknown Category'}
                     </Typography>
-                    {' at $'}
                     <Typography variant='body2' color={theme.colors.text.secondary}>
-                      {categorySpending[0]?.amount.toFixed(2)}
+                      {` at $${categorySpending[0]?.amount.toFixed(2)} (${categorySpending[0]?.percentage.toFixed(0)}% of total)`}
                     </Typography>
-                    {' ('}
-                    <Typography variant='body2' color={theme.colors.text.secondary}>
-                      {categorySpending[0]?.percentage.toFixed(0)}
-                    </Typography>
-                    {'% of total)'}
                   </Typography>
                 </View>
               )}

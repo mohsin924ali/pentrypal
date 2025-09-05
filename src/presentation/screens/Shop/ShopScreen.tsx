@@ -120,6 +120,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   const [showUnfinishedModal, setShowUnfinishedModal] = useState(false);
   const [showConsultModal, setShowConsultModal] = useState(false);
   const [animatedHeight] = useState(new Animated.Value(0));
+  const [flatListRef, setFlatListRef] = useState<FlatList<ShoppingItem> | null>(null);
 
   // Load shopping lists on mount
   useEffect(() => {
@@ -443,6 +444,21 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         // Expand
         setExpandedItemId(item.id);
         setAmountInput(item.price?.toString() || '');
+
+        // Scroll to item to ensure it's visible when expanded
+        if (flatListRef && selectedList?.items) {
+          const itemIndex = selectedList.items.findIndex(listItem => listItem.id === item.id);
+          if (itemIndex !== -1) {
+            setTimeout(() => {
+              flatListRef.scrollToIndex({
+                index: itemIndex,
+                animated: true,
+                viewPosition: 0.5, // Center the item
+              });
+            }, 100); // Small delay to ensure state is updated
+          }
+        }
+
         Animated.timing(animatedHeight, {
           toValue: 40, // Even more compact height for single row
           duration: 200,
@@ -873,9 +889,22 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
       {/* Shopping Items */}
       <FlatList
+        ref={setFlatListRef}
         style={{ marginTop: 16 }}
         data={selectedList?.items || []}
         keyExtractor={item => item.id}
+        onScrollToIndexFailed={info => {
+          // Fallback scroll for when scrollToIndex fails
+          const wait = new Promise(resolve => setTimeout(resolve, 500));
+          wait.then(() => {
+            if (flatListRef) {
+              flatListRef.scrollToOffset({
+                offset: info.averageItemLength * info.index,
+                animated: true,
+              });
+            }
+          });
+        }}
         renderItem={({ item }) => (
           <View style={baseStyles.shoppingItemContainer}>
             <TouchableOpacity
@@ -1043,8 +1072,9 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             )}
           </View>
         )}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: hasContributors ? 160 : 40 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps='handled'
       />
 
       {/* Floating Consult Contributors Button */}

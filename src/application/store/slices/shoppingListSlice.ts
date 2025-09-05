@@ -162,7 +162,7 @@ export const loadShoppingLists = createAsyncThunk(
           assignedTo: item.assigned_to,
           completed: item.completed || false,
           price: item.estimated_price,
-          purchasedAmount: item.actual_price,
+          purchasedAmount: item.actual_price ? parseFloat(String(item.actual_price)) : undefined,
           notes: item.notes,
           barcode: (item as any).barcode || undefined,
           icon: undefined,
@@ -357,7 +357,7 @@ export const loadShoppingList = createAsyncThunk(
           assignedTo: item.assigned_to,
           completed: item.completed,
           price: item.estimated_price,
-          purchasedAmount: item.actual_price,
+          purchasedAmount: item.actual_price ? parseFloat(String(item.actual_price)) : undefined,
           notes: item.notes,
           barcode: undefined,
           icon: undefined,
@@ -523,7 +523,9 @@ export const addShoppingItem = createAsyncThunk(
         assignedTo: backendItem.assigned_to,
         completed: backendItem.completed,
         price: backendItem.estimated_price,
-        purchasedAmount: backendItem.actual_price,
+        purchasedAmount: backendItem.actual_price
+          ? parseFloat(String(backendItem.actual_price))
+          : undefined,
         notes: backendItem.notes,
         barcode: undefined,
         icon: undefined,
@@ -598,7 +600,9 @@ export const updateShoppingItem = createAsyncThunk(
         assignedTo: backendItem.assigned_to,
         completed: backendItem.completed,
         price: backendItem.estimated_price,
-        purchasedAmount: backendItem.actual_price,
+        purchasedAmount: backendItem.actual_price
+          ? parseFloat(String(backendItem.actual_price))
+          : undefined,
         notes: backendItem.notes,
         barcode: undefined,
         icon: undefined,
@@ -665,7 +669,9 @@ export const assignShoppingItem = createAsyncThunk(
         assignedTo: backendItem.assigned_to,
         completed: backendItem.completed,
         price: backendItem.estimated_price,
-        purchasedAmount: backendItem.actual_price,
+        purchasedAmount: backendItem.actual_price
+          ? parseFloat(String(backendItem.actual_price))
+          : undefined,
         notes: backendItem.notes,
         barcode: undefined,
         icon: undefined,
@@ -731,7 +737,9 @@ export const unassignShoppingItem = createAsyncThunk(
         assignedTo: backendItem.assigned_to,
         completed: backendItem.completed,
         price: backendItem.estimated_price,
-        purchasedAmount: backendItem.actual_price,
+        purchasedAmount: backendItem.actual_price
+          ? parseFloat(String(backendItem.actual_price))
+          : undefined,
         notes: backendItem.notes,
         barcode: undefined,
         icon: undefined,

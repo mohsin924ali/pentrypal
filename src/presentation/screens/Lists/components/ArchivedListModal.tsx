@@ -4,11 +4,17 @@
 
 import React from 'react';
 import { Modal, ScrollView, TouchableOpacity, View } from 'react-native';
+import ViewShot from 'react-native-view-shot';
 import { Typography } from '../../../components/atoms/Typography/Typography';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { baseStyles } from '../EnhancedListsScreen.styles';
 import { DEFAULT_CURRENCY, formatCurrency } from '../../../../shared/utils/currencyUtils';
 import type { ShoppingList } from '../../../../shared/types/lists';
+
+// Receipt sharing components and hooks
+import { ReceiptTemplate } from './ReceiptTemplate';
+import { ShareReceiptButton } from './ShareReceiptButton';
+import { useReceiptSharing } from '../hooks/useReceiptSharing';
 
 interface ArchivedListModalProps {
   visible: boolean;
@@ -19,16 +25,17 @@ interface ArchivedListModalProps {
 export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, list, onClose }) => {
   const { theme } = useTheme();
 
-  if (!list) return null;
-
-  // Calculate spending summary
+  // Calculate spending summary from completed items - safe with null check
   const spendingSummary =
-    list.items
-      ?.filter(item => item.completed && item.purchasedAmount && item.assignedTo)
+    list?.items
+      ?.filter(item => item.completed && item.purchasedAmount)
       .reduce(
         (acc: Record<string, { amount: number; items: number }>, item) => {
-          const userId = item.assignedTo!;
+          const userId = item.assignedTo || 'unassigned';
           const userSpending = acc[userId] || { amount: 0, items: 0 };
+          if (!acc[userId]) {
+            acc[userId] = { amount: 0, items: 0 };
+          }
           acc[userId] = {
             amount: userSpending.amount + (item.purchasedAmount || 0),
             items: userSpending.items + 1,
@@ -38,11 +45,35 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
         {} as Record<string, { amount: number; items: number }>
       ) || {};
 
-  const totalSpent = Object.values(spendingSummary).reduce((sum, user) => sum + user.amount, 0);
+  // Use list.totalSpent if available, otherwise calculate manually - safe with null check
+  const totalSpent =
+    list?.totalSpent || Object.values(spendingSummary).reduce((sum, user) => sum + user.amount, 0);
 
-  // Get collaborator names (would need to be passed as prop in real implementation)
+  // Receipt sharing functionality - hooks must be called in consistent order
+  // Always call hooks, even if list is null
+  const { isGenerating, isSharing, viewShotRef, shareReceipt, canShare } = useReceiptSharing(
+    list,
+    totalSpent,
+    spendingSummary
+  );
+
+  // Early return AFTER all hooks are called
+  if (!list) return null;
+
+  // Get collaborator names from the actual collaborators list
   const getCollaboratorName = (userId: string) => {
-    // In real implementation, this would look up user names from collaborators list
+    if (!userId || userId === 'unassigned') return 'Unassigned';
+
+    // Check if it's the list owner
+    if (userId === list.ownerId) return list.ownerName || 'Owner';
+
+    // Look up in collaborators list
+    const collaborator = list.collaborators?.find(c => c.userId === userId);
+    if (collaborator) {
+      return collaborator.name || collaborator.user?.name || collaborator.email;
+    }
+
+    // Fallback to user ID substring
     return `User ${userId.substring(0, 8)}`;
   };
 
@@ -52,9 +83,19 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
         <View style={baseStyles.archivedModalContainer}>
           {/* Header */}
           <View style={baseStyles.archivedModalHeader}>
-            <Typography variant='h3' style={baseStyles.archivedModalTitle}>
-              📋 {list.name}
-            </Typography>
+            <View style={{ flex: 1 }}>
+              <Typography variant='h3' style={baseStyles.archivedModalTitle}>
+                📋 {list.name}
+              </Typography>
+            </View>
+            {canShare && (
+              <ShareReceiptButton
+                onPress={shareReceipt}
+                isGenerating={isGenerating}
+                isSharing={isSharing}
+                disabled={!canShare}
+              />
+            )}
           </View>
 
           <ScrollView style={baseStyles.archivedModalBody} showsVerticalScrollIndicator={false}>
@@ -85,8 +126,10 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
                 <Typography variant='body1' style={baseStyles.archivedInfoLabel}>
                   Total Spent:
                 </Typography>
-                <Typography variant='body1' style={baseStyles.archivedInfoValue}>
-                  {formatCurrency(totalSpent, DEFAULT_CURRENCY)}
+                <Typography
+                  variant='body1'
+                  style={[baseStyles.archivedInfoValue, { fontWeight: 'bold' }]}>
+                  {formatCurrency(totalSpent, (list.budget?.currency as any) || DEFAULT_CURRENCY)}
                 </Typography>
               </View>
 
@@ -161,10 +204,15 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
 
                     {/* Purchase Info */}
                     <View style={baseStyles.itemRight}>
-                      {item.completed && item.purchasedAmount ? (
+                      {item.completed ? (
                         <View style={baseStyles.purchaseInfo}>
                           <Typography variant='body1' style={baseStyles.purchaseAmount}>
-                            {formatCurrency(item.purchasedAmount, DEFAULT_CURRENCY)}
+                            {item.purchasedAmount
+                              ? formatCurrency(
+                                  item.purchasedAmount,
+                                  (list.budget?.currency as any) || DEFAULT_CURRENCY
+                                )
+                              : 'No price set'}
                           </Typography>
                           {item.assignedTo && (
                             <Typography variant='caption' style={baseStyles.purchasedBy}>
@@ -201,14 +249,44 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
                     </Typography>
                     <View style={baseStyles.spendingDetails}>
                       <Typography variant='body1' style={baseStyles.spendingAmount}>
-                        {formatCurrency(summary.amount, DEFAULT_CURRENCY)}
+                        {formatCurrency(
+                          summary.amount,
+                          (list.budget?.currency as any) || DEFAULT_CURRENCY
+                        )}
                       </Typography>
                       <Typography variant='caption' style={baseStyles.spendingItems}>
-                        {summary.items} items
+                        {summary.items} item{summary.items !== 1 ? 's' : ''}
                       </Typography>
                     </View>
                   </View>
                 ))}
+
+                {/* Total spending row */}
+                <View
+                  style={[
+                    baseStyles.spendingRow,
+                    { borderTopWidth: 1, borderTopColor: '#E5E5E5', marginTop: 8, paddingTop: 8 },
+                  ]}>
+                  <Typography
+                    variant='body1'
+                    style={[baseStyles.spendingUser, { fontWeight: 'bold' }]}>
+                    Total Spent:
+                  </Typography>
+                  <View style={baseStyles.spendingDetails}>
+                    <Typography
+                      variant='body1'
+                      style={[baseStyles.spendingAmount, { fontWeight: 'bold' }]}>
+                      {formatCurrency(
+                        totalSpent,
+                        (list.budget?.currency as any) || DEFAULT_CURRENCY
+                      )}
+                    </Typography>
+                    <Typography variant='caption' style={baseStyles.spendingItems}>
+                      {Object.values(spendingSummary).reduce((sum, user) => sum + user.items, 0)}{' '}
+                      total items
+                    </Typography>
+                  </View>
+                </View>
               </View>
             )}
           </ScrollView>
@@ -223,6 +301,40 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
                 Close
               </Typography>
             </TouchableOpacity>
+          </View>
+
+          {/* Hidden Receipt Template for Image Generation */}
+          <View
+            style={{
+              position: 'absolute',
+              left: -10000,
+              top: -10000,
+              width: 400,
+              height: 1000,
+              backgroundColor: 'white',
+            }}>
+            <ViewShot
+              ref={viewShotRef}
+              style={{
+                width: 400,
+                height: 1000,
+                backgroundColor: 'white',
+              }}
+              options={{
+                format: 'png',
+                quality: 1.0,
+                result: 'tmpfile',
+                width: 800, // Higher resolution for better quality
+                height: 2000, // Higher resolution for better quality
+              }}>
+              <ReceiptTemplate
+                list={list}
+                theme={theme}
+                totalSpent={totalSpent}
+                spendingSummary={spendingSummary}
+                getCollaboratorName={getCollaboratorName}
+              />
+            </ViewShot>
           </View>
         </View>
       </View>

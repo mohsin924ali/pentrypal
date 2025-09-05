@@ -616,6 +616,9 @@ export const baseStyles = StyleSheet.create({
   } as ViewStyle,
 
   archivedModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 24,
     paddingBottom: 16,
     borderBottomWidth: 1,

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch } from '../../../../application/store';
 import {
   addCollaboratorToList,
+  loadShoppingList,
   removeCollaboratorFromList,
 } from '../../../../application/store/slices/shoppingListSlice';
 import { selectUser } from '../../../../application/store/slices/authSlice';
@@ -59,11 +60,10 @@ export const useContributorManagement = (): UseContributorManagementReturn => {
           currentUserId: currentUser.id,
         });
 
-        // Note: addCollaboratorToList is a reducer action, not async thunk
-        // In a real implementation, this would be an API call first
-        const mockCollaborator = {
+        // Create optimistic collaborator for immediate UI update
+        const optimisticCollaborator = {
           id: `temp-${Date.now()}`,
-          userId: `user-${email}`,
+          userId: email, // Use email as userId for now
           name: email.split('@')[0] || 'Unknown',
           email: email.trim(),
           listId: selectedListForContributor,
@@ -72,14 +72,56 @@ export const useContributorManagement = (): UseContributorManagementReturn => {
           invitedAt: new Date().toISOString(),
         };
 
+        // Optimistically update Redux state immediately
         dispatch(
           addCollaboratorToList({
             listId: selectedListForContributor,
-            collaborator: mockCollaborator,
+            collaborator: optimisticCollaborator,
           })
         );
 
-        shoppingLogger.debug('✅ Contributor added successfully:', mockCollaborator);
+        try {
+          // Import shopping list API
+          const { shoppingListApi } = await import('../../../../infrastructure/api');
+
+          // Add collaborator via API - using email as user_id since that's what the logs show
+          const response = await shoppingListApi.addCollaborator(selectedListForContributor, {
+            user_id: email,
+            role: 'editor',
+            permissions: {
+              can_edit_items: true,
+              can_add_items: true,
+              can_delete_items: false,
+              can_invite_others: false,
+            },
+          });
+
+          if (!response.data) {
+            // Revert optimistic update on failure
+            dispatch(
+              removeCollaboratorFromList({
+                listId: selectedListForContributor,
+                userId: email,
+              })
+            );
+            throw new Error(response.detail ?? 'Failed to add contributor');
+          }
+
+          shoppingLogger.debug('✅ Contributor added successfully to backend:', response.data);
+
+          // Refresh the current list to sync with server
+          dispatch(loadShoppingList(selectedListForContributor)).catch(console.error);
+        } catch (apiError) {
+          // Revert optimistic update on API failure
+          dispatch(
+            removeCollaboratorFromList({
+              listId: selectedListForContributor,
+              userId: email,
+            })
+          );
+          shoppingLogger.error('❌ Failed to add contributor to backend:', apiError);
+          throw apiError;
+        }
 
         // Close modal after successful addition
         handleCloseContributorModal();
@@ -106,6 +148,7 @@ export const useContributorManagement = (): UseContributorManagementReturn => {
           currentUserId: currentUser.id,
         });
 
+        // Optimistically update Redux state immediately
         dispatch(
           removeCollaboratorFromList({
             listId,
@@ -113,7 +156,30 @@ export const useContributorManagement = (): UseContributorManagementReturn => {
           })
         );
 
-        shoppingLogger.debug('✅ Contributor removed successfully');
+        try {
+          // Import shopping list API
+          const { shoppingListApi } = await import('../../../../infrastructure/api');
+
+          // Remove collaborator via API
+          const response = await shoppingListApi.removeCollaborator(listId, userId);
+
+          if (response.detail) {
+            // Revert optimistic update on failure - would need to re-add the collaborator
+            // For now, just refresh the list to sync with server
+            dispatch(loadShoppingList(listId)).catch(console.error);
+            throw new Error(response.detail ?? 'Failed to remove contributor');
+          }
+
+          shoppingLogger.debug('✅ Contributor removed successfully from backend');
+
+          // Refresh the current list to sync with server
+          dispatch(loadShoppingList(listId)).catch(console.error);
+        } catch (apiError) {
+          // Refresh list to sync with actual server state since we can't easily revert the optimistic update
+          dispatch(loadShoppingList(listId)).catch(console.error);
+          shoppingLogger.error('❌ Failed to remove contributor from backend:', apiError);
+          throw apiError;
+        }
       } catch (error) {
         shoppingLogger.error('❌ Failed to remove contributor:', error);
         throw error; // Re-throw for component to handle
