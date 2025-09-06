@@ -15,6 +15,7 @@ import {
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 import { useTheme } from '../../providers/ThemeProvider';
 
 // Types
@@ -284,79 +285,80 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
   const isLastSlide = currentSlide === slides.length - 1;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.colors.surface.background }]}>
-        {/* Skip Button */}
-        <View style={styles.header}>
-          <Button
-            title='Skip'
-            variant='ghost'
-            size='sm'
-            onPress={onSkip}
-            style={{ alignSelf: 'flex-end' }}
-          />
-        </View>
-
-        {/* Progress Indicator */}
-        {renderProgressDots()}
-
-        {/* Slides Container */}
-        <PanGestureHandler
-          onGestureEvent={onPanGestureEvent}
-          onHandlerStateChange={onPanHandlerStateChange}>
-          <Animated.View style={styles.slidesContainer}>
-            <Animated.View
-              style={[
-                styles.slidesWrapper,
-                {
-                  flexDirection: 'row',
-                  transform: [
-                    {
-                      translateX: slideTransform,
-                    },
-                  ],
-                },
-              ]}>
-              {slides.map((slide, index) => renderSlideContent(slide, index))}
-            </Animated.View>
-          </Animated.View>
-        </PanGestureHandler>
-
-        {/* Navigation Buttons */}
-        <View style={styles.footer}>
-          {isLastSlide ? (
+    <GradientBackground>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.container}>
+          {/* Skip Button */}
+          <View style={styles.header}>
             <Button
-              title='Get Started'
-              variant='primary'
-              size='lg'
-              fullWidth
-              onPress={onComplete}
-              style={{ marginBottom: theme.spacing.md }}
+              title='Skip'
+              variant='ghost'
+              size='sm'
+              onPress={onSkip}
+              style={{ alignSelf: 'flex-end' }}
             />
-          ) : (
-            <View style={styles.navigationButtons}>
-              <Button
-                title='Previous'
-                variant='outline'
-                size='md'
-                onPress={handlePrevious}
-                disabled={currentSlide === 0}
-                style={{ flex: 1, marginRight: theme.spacing.sm }}
-              />
+          </View>
 
+          {/* Progress Indicator */}
+          {renderProgressDots()}
+
+          {/* Slides Container */}
+          <PanGestureHandler
+            onGestureEvent={onPanGestureEvent}
+            onHandlerStateChange={onPanHandlerStateChange}>
+            <Animated.View style={styles.slidesContainer}>
+              <Animated.View
+                style={[
+                  styles.slidesWrapper,
+                  {
+                    flexDirection: 'row',
+                    transform: [
+                      {
+                        translateX: slideTransform,
+                      },
+                    ],
+                  },
+                ]}>
+                {slides.map((slide, index) => renderSlideContent(slide, index))}
+              </Animated.View>
+            </Animated.View>
+          </PanGestureHandler>
+
+          {/* Navigation Buttons */}
+          <View style={styles.footer}>
+            {isLastSlide ? (
               <Button
-                title={isLastSlide ? 'Get Started' : 'Next'}
+                title='Get Started'
                 variant='primary'
-                size='md'
-                onPress={handleNext}
-                style={{ flex: 1, marginLeft: theme.spacing.sm }}
+                size='lg'
+                fullWidth
+                onPress={onComplete}
+                style={{ marginBottom: theme.spacing.md }}
               />
-            </View>
-          )}
-        </View>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+            ) : (
+              <View style={styles.navigationButtons}>
+                <Button
+                  title='Previous'
+                  variant='outline'
+                  size='md'
+                  onPress={handlePrevious}
+                  disabled={currentSlide === 0}
+                  style={{ flex: 1, marginRight: theme.spacing.sm }}
+                />
+
+                <Button
+                  title={isLastSlide ? 'Get Started' : 'Next'}
+                  variant='primary'
+                  size='md'
+                  onPress={handleNext}
+                  style={{ flex: 1, marginLeft: theme.spacing.sm }}
+                />
+              </View>
+            )}
+          </View>
+        </SafeAreaView>
+      </GestureHandlerRootView>
+    </GradientBackground>
   );
 };
 

@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 import {
   type CreateListFormData,
   CreateListModal,
@@ -300,97 +301,101 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
   // Render error state
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.surface.background }}>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: theme.spacing.xl,
-          }}>
-          <Typography
-            variant='h2'
+      <GradientBackground>
+        <SafeAreaView style={{ flex: 1 }}>
+          <View
             style={{
-              color: theme.colors.semantic.error[500],
-              marginBottom: theme.spacing.md,
-              textAlign: 'center',
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: theme.spacing.xl,
             }}>
-            Error Loading Lists
-          </Typography>
-          <Typography
-            variant='body1'
-            style={{
-              color: theme.colors.text.secondary,
-              marginBottom: theme.spacing.xl,
-              textAlign: 'center',
-            }}>
-            {error}
-          </Typography>
-          <Button title='Try Again' onPress={onRefresh} variant='outline' />
-        </View>
-      </SafeAreaView>
+            <Typography
+              variant='h2'
+              style={{
+                color: theme.colors.semantic.error[500],
+                marginBottom: theme.spacing.md,
+                textAlign: 'center',
+              }}>
+              Error Loading Lists
+            </Typography>
+            <Typography
+              variant='body1'
+              style={{
+                color: theme.colors.text.secondary,
+                marginBottom: theme.spacing.xl,
+                textAlign: 'center',
+              }}>
+              {error}
+            </Typography>
+            <Button title='Try Again' onPress={onRefresh} variant='outline' />
+          </View>
+        </SafeAreaView>
+      </GradientBackground>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.surface.background }}>
-      {/* Header */}
-      <View
-        style={{
-          padding: theme.spacing.md,
-          borderBottomWidth: 1,
-          borderBottomColor: theme.colors.border.primary,
-        }}>
+    <GradientBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        {/* Header */}
         <View
-          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View>
-            <Typography variant='h1' style={{ color: theme.colors.text.primary }}>
-              Shopping Lists
-            </Typography>
-            <Typography variant='body2' style={{ color: theme.colors.text.secondary }}>
-              {stats.totalLists} lists • {stats.activeLists} active
-            </Typography>
+          style={{
+            padding: theme.spacing.md,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.colors.border.primary,
+          }}>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View>
+              <Typography variant='h1' style={{ color: theme.colors.text.primary }}>
+                Shopping Lists
+              </Typography>
+              <Typography variant='body2' style={{ color: theme.colors.text.secondary }}>
+                {stats.totalLists} lists • {stats.activeLists} active
+              </Typography>
+            </View>
+
+            <Button title='New List' onPress={handleCreateList} />
           </View>
-
-          <Button title='New List' onPress={handleCreateList} />
         </View>
-      </View>
 
-      {/* Lists */}
-      <FlatList
-        data={lists}
-        renderItem={renderListItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingVertical: theme.spacing.md,
-        }}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading}
-            onRefresh={onRefresh}
-            colors={[theme.colors.primary[500]]}
-            tintColor={theme.colors.primary[500]}
-          />
-        }
-        ListEmptyComponent={!isLoading ? renderEmptyState : null}
-        showsVerticalScrollIndicator={false}
-      />
+        {/* Lists */}
+        <FlatList
+          data={lists}
+          renderItem={renderListItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingVertical: theme.spacing.md,
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={onRefresh}
+              colors={[theme.colors.primary[500]]}
+              tintColor={theme.colors.primary[500]}
+            />
+          }
+          ListEmptyComponent={!isLoading ? renderEmptyState : null}
+          showsVerticalScrollIndicator={false}
+        />
 
-      {/* Create List Modal */}
-      <CreateListModal
-        visible={showCreateListModal}
-        onClose={handleCloseModal}
-        onCreateList={handleCreateListFromModal}
-        isLoading={isCreatingList}
-        error={error}
-      />
+        {/* Create List Modal */}
+        <CreateListModal
+          visible={showCreateListModal}
+          onClose={handleCloseModal}
+          onCreateList={handleCreateListFromModal}
+          isLoading={isCreatingList}
+          error={error}
+        />
 
-      {/* List Creation Success Animation */}
-      <ListCreationSuccessAnimation
-        visible={showSuccessAnimation}
-        onAnimationComplete={handleSuccessAnimationComplete}
-      />
-    </SafeAreaView>
+        {/* List Creation Success Animation */}
+        <ListCreationSuccessAnimation
+          visible={showSuccessAnimation}
+          onAnimationComplete={handleSuccessAnimationComplete}
+        />
+      </SafeAreaView>
+    </GradientBackground>
   );
 };

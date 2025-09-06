@@ -21,6 +21,7 @@ import { useNavigation } from '@react-navigation/native';
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
@@ -1098,96 +1099,97 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
     );
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: safeTheme.colors.surface.background }]}>
-      {renderHeader()}
+    <GradientBackground>
+      <SafeAreaView style={styles.container}>
+        {renderHeader()}
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
-        {renderListNameInput()}
-        {renderSearchInput()}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          {renderListNameInput()}
+          {renderSearchInput()}
 
-        {/* Loading state */}
-        {isLoading && (
-          <View style={styles.loadingContainer}>
-            <Typography
-              variant='body1'
-              color={safeTheme.colors.text.secondary}
-              style={styles.loadingText}>
-              Loading grocery items...
-            </Typography>
-          </View>
-        )}
+          {/* Loading state */}
+          {isLoading && (
+            <View style={styles.loadingContainer}>
+              <Typography
+                variant='body1'
+                color={safeTheme.colors.text.secondary}
+                style={styles.loadingText}>
+                Loading grocery items...
+              </Typography>
+            </View>
+          )}
 
-        {/* Show categories section only when user has selected items and NOT searching */}
-        {showCategories && !searchQuery.trim() && (
-          <View style={styles.categoriesSection}>
-            <Typography
-              variant='h5'
-              color={safeTheme.colors.text.primary}
-              style={styles.sectionTitle}>
-              Selected Items ({selectedItems.size} selected)
-            </Typography>
-            {visibleCategories.length > 0 ? (
-              visibleCategories.map(renderCategory)
-            ) : (
-              <View style={styles.emptyState}>
-                <Typography
-                  variant='body1'
-                  color={safeTheme.colors.text.secondary}
-                  style={styles.emptyStateText}>
-                  Start searching to add items to your list
-                </Typography>
-              </View>
-            )}
-          </View>
-        )}
+          {/* Show categories section only when user has selected items and NOT searching */}
+          {showCategories && !searchQuery.trim() && (
+            <View style={styles.categoriesSection}>
+              <Typography
+                variant='h3'
+                color={safeTheme.colors.text.primary}
+                style={styles.sectionTitle}>
+                Selected Items ({selectedItems.size} selected)
+              </Typography>
+              {visibleCategories.length > 0 ? (
+                visibleCategories.map(renderCategory)
+              ) : (
+                <View style={styles.emptyState}>
+                  <Typography
+                    variant='body1'
+                    color={safeTheme.colors.text.secondary}
+                    style={styles.emptyStateText}>
+                    Start searching to add items to your list
+                  </Typography>
+                </View>
+              )}
+            </View>
+          )}
 
-        {/* Initial state - show helpful message when no search/selection */}
-        {!showCategories && (
-          <View style={styles.initialState}>
-            <Typography
-              variant='h5'
-              color={safeTheme.colors.text.primary}
-              style={styles.initialStateTitle}>
-              🛒 Ready to create your list?
-            </Typography>
-            <Typography
-              variant='body1'
-              color={safeTheme.colors.text.secondary}
-              style={styles.initialStateDescription}>
-              1. Give your list a name above{'\n'}
-              2. Search for items to add{'\n'}
-              3. Select items you need{'\n'}
-              4. Create your list!
-            </Typography>
-          </View>
-        )}
-      </ScrollView>
+          {/* Initial state - show helpful message when no search/selection */}
+          {!showCategories && (
+            <View style={styles.initialState}>
+              <Typography
+                variant='h3'
+                color={safeTheme.colors.text.primary}
+                style={styles.initialStateTitle}>
+                🛒 Ready to create your list?
+              </Typography>
+              <Typography
+                variant='body1'
+                color={safeTheme.colors.text.secondary}
+                style={styles.initialStateDescription}>
+                1. Give your list a name above{'\n'}
+                2. Search for items to add{'\n'}
+                3. Select items you need{'\n'}
+                4. Create your list!
+              </Typography>
+            </View>
+          )}
+        </ScrollView>
 
-      {/* Fixed Bottom Button */}
-      <View style={[styles.bottomSection, { backgroundColor: safeTheme.colors.surface.card }]}>
-        <Button
-          title={`${editMode ? 'Update' : 'Create'} List${selectedItems.size > 0 ? ` (${selectedItems.size} items)` : ''}`}
-          variant='primary'
-          onPress={handleCreateList}
-          disabled={
-            !listName.trim() ||
-            selectedItems.size === 0 ||
-            (editMode && !hasChanges) ||
-            isCreatingList
-          }
-          style={styles.createButton}
-        />
-      </View>
+        {/* Fixed Bottom Button */}
+        <View style={[styles.bottomSection, { backgroundColor: safeTheme.colors.surface.card }]}>
+          <Button
+            title={`${editMode ? 'Update' : 'Create'} List${selectedItems.size > 0 ? ` (${selectedItems.size} items)` : ''}`}
+            variant='primary'
+            onPress={handleCreateList}
+            disabled={
+              !listName.trim() ||
+              selectedItems.size === 0 ||
+              (editMode && !hasChanges) ||
+              isCreatingList
+            }
+            style={styles.createButton}
+          />
+        </View>
 
-      {/* Modals */}
-      {renderQuantityModal()}
-      {renderDuplicateModal()}
-      {renderCustomItemModal()}
-    </SafeAreaView>
+        {/* Modals */}
+        {renderQuantityModal()}
+        {renderDuplicateModal()}
+        {renderCustomItemModal()}
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 

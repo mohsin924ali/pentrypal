@@ -9,10 +9,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Components
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 import { AddFriendModal } from '../../components/molecules/AddFriendModal';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
+
+// Styles
+import { baseStyles, createDynamicStyles, createThemedStyles } from './SocialScreen.styles';
 
 // Redux
 import { useDispatch, useSelector } from 'react-redux';
@@ -71,6 +75,10 @@ interface Notification {
 export const SocialScreen: React.FC<SocialScreenProps> = () => {
   const { theme } = useTheme();
   const dispatch = useDispatch<AppDispatch>();
+
+  // Styles
+  const themedStyles = createThemedStyles(theme);
+  const dynamicStyles = createDynamicStyles({ theme });
 
   // Redux state
   const socialState = useSelector(selectSocialState);
@@ -187,19 +195,19 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
   const renderFriendRequest = ({ item }: { item: FriendRequest }) => (
     <View
       style={[
-        styles.friendRequestCard,
+        baseStyles.friendRequestCard,
         {
           backgroundColor: theme.colors.surface.card,
           borderColor: theme.colors.border.primary,
         },
       ]}>
-      <View style={styles.friendRequestInfo}>
+      <View style={baseStyles.friendRequestInfo}>
         {/* Avatar */}
-        <View style={[styles.avatar, { backgroundColor: theme.colors.primary[100] }]}>
+        <View style={[baseStyles.avatar, { backgroundColor: theme.colors.primary[100] }]}>
           {item.fromUser?.avatar ? (
             <Image
               source={{ uri: item.fromUser.avatar }}
-              style={styles.avatarImage as any}
+              style={baseStyles.avatarImage as any}
               resizeMode='cover'
             />
           ) : (
@@ -210,7 +218,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
         </View>
 
         {/* Info */}
-        <View style={styles.friendRequestDetails}>
+        <View style={baseStyles.friendRequestDetails}>
           <Typography variant='h6' color={theme.colors.text.primary}>
             {item.fromUser?.name || 'Unknown User'}
           </Typography>
@@ -229,20 +237,20 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
       </View>
 
       {/* Actions */}
-      <View style={styles.friendRequestActions}>
+      <View style={baseStyles.friendRequestActions}>
         <Button
           title='Accept'
           variant='primary'
           size='sm'
           onPress={() => handleFriendRequestResponse(item.id, 'accept')}
-          style={styles.friendRequestButton}
+          style={baseStyles.friendRequestButton}
         />
         <Button
           title='Decline'
           variant='outline'
           size='sm'
           onPress={() => handleFriendRequestResponse(item.id, 'reject')}
-          style={[styles.friendRequestButton, { marginLeft: 8 }]}
+          style={[baseStyles.friendRequestButton, { marginLeft: 8 }]}
         />
       </View>
     </View>
@@ -259,19 +267,19 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
     return (
       <View
         style={[
-          styles.friendCard,
+          baseStyles.friendCard,
           {
             backgroundColor: theme.colors.surface.card,
             borderColor: theme.colors.border.primary,
           },
         ]}>
-        <View style={styles.friendInfo}>
+        <View style={baseStyles.friendInfo}>
           {/* Avatar */}
-          <View style={[styles.avatar, { backgroundColor: theme.colors.primary[100] }]}>
+          <View style={[baseStyles.avatar, { backgroundColor: theme.colors.primary[100] }]}>
             {friendUser?.avatar ? (
               <Image
                 source={{ uri: friendUser.avatar }}
-                style={styles.avatarImage as any}
+                style={baseStyles.avatarImage as any}
                 resizeMode='cover'
               />
             ) : (
@@ -282,13 +290,15 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
           </View>
 
           {/* Info */}
-          <View style={styles.friendDetails}>
-            <View style={styles.friendHeader}>
+          <View style={baseStyles.friendDetails}>
+            <View style={baseStyles.friendHeader}>
               <Typography variant='h6' color={theme.colors.text.primary}>
                 {friendUser?.name || 'Unknown Friend'}
               </Typography>
 
-              <View style={[styles.statusDot, { backgroundColor: getStatusColor('offline') }]} />
+              <View
+                style={[baseStyles.statusDot, { backgroundColor: getStatusColor('offline') }]}
+              />
             </View>
 
             <Typography variant='body2' color={theme.colors.text.secondary}>
@@ -302,7 +312,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
         </View>
 
         {/* Actions */}
-        <View style={styles.friendActions}>
+        <View style={baseStyles.friendActions}>
           <Button
             title='💬'
             variant='ghost'
@@ -325,19 +335,19 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
   const renderNotification = ({ item }: { item: Notification }) => (
     <View
       style={[
-        styles.notificationCard,
+        baseStyles.notificationCard,
         {
           backgroundColor: item.read ? theme.colors.surface.card : theme.colors.primary[50],
           borderColor: theme.colors.border.primary,
         },
       ]}>
-      <View style={styles.notificationContent}>
-        <View style={styles.notificationHeader}>
+      <View style={baseStyles.notificationContent}>
+        <View style={baseStyles.notificationHeader}>
           <Typography variant='h6' style={{ fontSize: 20 }}>
             {getNotificationIcon(item.type)}
           </Typography>
 
-          <View style={styles.notificationInfo}>
+          <View style={baseStyles.notificationInfo}>
             <Typography variant='h6' color={theme.colors.text.primary}>
               {item.title}
             </Typography>
@@ -348,7 +358,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
           </View>
 
           {!item.read && (
-            <View style={[styles.unreadDot, { backgroundColor: theme.colors.primary[500] }]} />
+            <View style={[baseStyles.unreadDot, { backgroundColor: theme.colors.primary[500] }]} />
           )}
         </View>
 
@@ -358,13 +368,13 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
 
         {/* Actions for friend requests */}
         {item.type === 'friend_request' && (
-          <View style={styles.notificationActions}>
+          <View style={baseStyles.notificationActions}>
             <Button
               title='Accept'
               variant='primary'
               size='sm'
               onPress={() => console.log('Accept friend request', item.id)}
-              style={styles.notificationButton}
+              style={baseStyles.notificationButton}
             />
 
             <Button
@@ -372,7 +382,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
               variant='outline'
               size='sm'
               onPress={() => console.log('Decline friend request', item.id)}
-              style={styles.notificationButton}
+              style={baseStyles.notificationButton}
             />
           </View>
         )}
@@ -381,407 +391,222 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Typography variant='h3' color={theme.colors.text.primary}>
-          Social
-        </Typography>
-
-        <Button
-          title='Add Friend'
-          variant='primary'
-          size='sm'
-          onPress={handleAddFriendPress}
-          leftIcon={
-            {
-              component: ({ size, color }: { size: number; color: string }) => (
-                <Image
-                  source={AddFriendIcon}
-                  style={{
-                    width: size,
-                    height: size,
-                    tintColor: '#FFFFFF', // White color for visibility on primary button
-                  }}
-                  resizeMode='contain'
-                />
-              ),
-              name: 'add-friend',
-              size: 16,
-            } as any
-          }
-        />
-      </View>
-
-      {/* Stats */}
-      <View style={styles.statsContainer}>
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-          <Typography variant='h5' color={theme.colors.primary[500]}>
-            {friends.length}
+    <GradientBackground>
+      <SafeAreaView style={baseStyles.container}>
+        {/* Header */}
+        <View style={baseStyles.header}>
+          <Typography variant='h3' color={theme.colors.text.primary}>
+            Social
           </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Friends
-          </Typography>
-        </View>
 
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-          <Typography variant='h5' color={theme.colors.secondary[500]}>
-            0
-          </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Shared Lists
-          </Typography>
-        </View>
-
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
-          <Typography variant='h5' color={theme.colors.semantic.warning[500]}>
-            {pendingRequestsCount}
-          </Typography>
-          <Typography variant='caption' color={theme.colors.text.secondary}>
-            Unread
-          </Typography>
-        </View>
-      </View>
-
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <Button
-          title='Friends'
-          variant={activeTab === 'friends' ? 'primary' : 'outline'}
-          size='sm'
-          onPress={() => setActiveTab('friends')}
-          style={styles.tabButton}
-        />
-
-        <Button
-          title='Activity'
-          variant={activeTab === 'activity' ? 'primary' : 'outline'}
-          size='sm'
-          onPress={() => setActiveTab('activity')}
-          style={styles.tabButton}
-        />
-
-        <View style={styles.tabButtonContainer}>
           <Button
-            title='Invites'
-            variant={activeTab === 'invites' ? 'primary' : 'outline'}
+            title='Add Friend'
+            variant='primary'
             size='sm'
-            onPress={() => setActiveTab('invites')}
-            style={styles.tabButton}
+            onPress={handleAddFriendPress}
+            leftIcon={
+              {
+                component: ({ size, color }: { size: number; color: string }) => (
+                  <Image
+                    source={AddFriendIcon}
+                    style={{
+                      width: size,
+                      height: size,
+                      tintColor: '#FFFFFF', // White color for visibility on primary button
+                    }}
+                    resizeMode='contain'
+                  />
+                ),
+                name: 'add-friend',
+                size: 16,
+              } as any
+            }
           />
-          {pendingRequestsCount > 0 && (
-            <View style={[styles.badge, { backgroundColor: theme.colors.semantic.error['500'] }]}>
-              <Typography variant='caption' color='#FFFFFF' style={styles.badgeText}>
-                {pendingRequestsCount}
-              </Typography>
-            </View>
-          )}
         </View>
-      </View>
 
-      {/* Content */}
-      {activeTab === 'friends' && (
-        <FlatList
-          data={friends}
-          renderItem={renderFriend}
-          keyExtractor={item => item.id}
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.colors.primary[500]}
+        {/* Stats */}
+        <View style={baseStyles.statsContainer}>
+          <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+            <Typography variant='h5' color={theme.colors.primary[500]}>
+              {friends.length}
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Friends
+            </Typography>
+          </View>
+
+          <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+            <Typography variant='h5' color={theme.colors.secondary[500]}>
+              0
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Shared Lists
+            </Typography>
+          </View>
+
+          <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+            <Typography variant='h5' color={theme.colors.semantic.warning[500]}>
+              {pendingRequestsCount}
+            </Typography>
+            <Typography variant='caption' color={theme.colors.text.secondary}>
+              Unread
+            </Typography>
+          </View>
+        </View>
+
+        {/* Tab Navigation */}
+        <View style={baseStyles.tabContainer}>
+          <Button
+            title='Friends'
+            variant={activeTab === 'friends' ? 'primary' : 'outline'}
+            size='sm'
+            onPress={() => setActiveTab('friends')}
+            style={baseStyles.tabButton}
+          />
+
+          <Button
+            title='Activity'
+            variant={activeTab === 'activity' ? 'primary' : 'outline'}
+            size='sm'
+            onPress={() => setActiveTab('activity')}
+            style={baseStyles.tabButton}
+          />
+
+          <View style={baseStyles.tabButtonContainer}>
+            <Button
+              title='Invites'
+              variant={activeTab === 'invites' ? 'primary' : 'outline'}
+              size='sm'
+              onPress={() => setActiveTab('invites')}
+              style={baseStyles.tabButton}
             />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
-                👥
-              </Typography>
-              <Typography
-                variant='h6'
-                color={theme.colors.text.secondary}
-                align='center'
-                style={{ marginTop: theme.spacing.md }}>
-                No friends yet
-              </Typography>
-              <Typography
-                variant='body2'
-                color={theme.colors.text.tertiary}
-                align='center'
-                style={{ marginTop: theme.spacing.sm }}>
-                Invite friends to collaborate on lists
-              </Typography>
-              <Button
-                title='Invite Friends'
-                variant='primary'
-                size='md'
-                onPress={handleAddFriendPress}
-                style={{ marginTop: theme.spacing.lg }}
+            {pendingRequestsCount > 0 && (
+              <View
+                style={[baseStyles.badge, { backgroundColor: theme.colors.semantic.error['500'] }]}>
+                <Typography variant='caption' color='#FFFFFF' style={baseStyles.badgeText}>
+                  {pendingRequestsCount}
+                </Typography>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Content */}
+        {activeTab === 'friends' && (
+          <FlatList
+            data={friends}
+            renderItem={renderFriend}
+            keyExtractor={item => item.id}
+            style={baseStyles.content}
+            contentContainerStyle={baseStyles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.colors.primary[500]}
               />
-            </View>
-          }
-        />
-      )}
+            }
+            ListEmptyComponent={
+              <View style={baseStyles.emptyContainer}>
+                <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
+                  👥
+                </Typography>
+                <Typography
+                  variant='h6'
+                  color={theme.colors.text.secondary}
+                  align='center'
+                  style={{ marginTop: theme.spacing.md }}>
+                  No friends yet
+                </Typography>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.tertiary}
+                  align='center'
+                  style={{ marginTop: theme.spacing.sm }}>
+                  Invite friends to collaborate on lists
+                </Typography>
+                <Button
+                  title='Invite Friends'
+                  variant='primary'
+                  size='md'
+                  onPress={handleAddFriendPress}
+                  style={{ marginTop: theme.spacing.lg }}
+                />
+              </View>
+            }
+          />
+        )}
 
-      {activeTab === 'activity' && (
-        <FlatList
-          data={[]}
-          renderItem={renderNotification}
-          keyExtractor={item => item.id}
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.colors.primary[500]}
-            />
-          }
-        />
-      )}
+        {activeTab === 'activity' && (
+          <FlatList
+            data={[]}
+            renderItem={renderNotification}
+            keyExtractor={item => item.id}
+            style={baseStyles.content}
+            contentContainerStyle={baseStyles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.colors.primary[500]}
+              />
+            }
+          />
+        )}
 
-      {activeTab === 'invites' && (
-        <FlatList
-          data={friendRequests.received}
-          renderItem={renderFriendRequest}
-          keyExtractor={item => item.id}
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.colors.primary[500]}
-            />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
-                📧
-              </Typography>
-              <Typography
-                variant='h6'
-                color={theme.colors.text.secondary}
-                align='center'
-                style={{ marginTop: theme.spacing.md }}>
-                No pending invites
-              </Typography>
-              <Typography
-                variant='body2'
-                color={theme.colors.text.tertiary}
-                align='center'
-                style={{ marginTop: theme.spacing.sm }}>
-                Friend requests will appear here
-              </Typography>
-            </View>
-          }
-        />
-      )}
+        {activeTab === 'invites' && (
+          <FlatList
+            data={friendRequests.received}
+            renderItem={renderFriendRequest}
+            keyExtractor={item => item.id}
+            style={baseStyles.content}
+            contentContainerStyle={baseStyles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.colors.primary[500]}
+              />
+            }
+            ListEmptyComponent={
+              <View style={baseStyles.emptyContainer}>
+                <Typography variant='h5' color={theme.colors.text.secondary} align='center'>
+                  📧
+                </Typography>
+                <Typography
+                  variant='h6'
+                  color={theme.colors.text.secondary}
+                  align='center'
+                  style={{ marginTop: theme.spacing.md }}>
+                  No pending invites
+                </Typography>
+                <Typography
+                  variant='body2'
+                  color={theme.colors.text.tertiary}
+                  align='center'
+                  style={{ marginTop: theme.spacing.sm }}>
+                  Friend requests will appear here
+                </Typography>
+              </View>
+            }
+          />
+        )}
 
-      {/* Add Friend Modal */}
-      <AddFriendModal
-        visible={socialState.showAddFriendModal}
-        onClose={handleCloseAddFriendModal}
-        onSendRequest={async request => {
-          // This is handled by the modal internally via Redux
-          console.log('Send friend request:', request);
-        }}
-        isLoading={socialState.isSendingRequest}
-        error={socialState.error}
-      />
-    </SafeAreaView>
+        {/* Add Friend Modal */}
+        <AddFriendModal
+          visible={socialState.showAddFriendModal}
+          onClose={handleCloseAddFriendModal}
+          onSendRequest={async request => {
+            // This is handled by the modal internally via Redux
+            console.log('Send friend request:', request);
+          }}
+          isLoading={socialState.isSendingRequest}
+          error={socialState.error}
+        />
+      </SafeAreaView>
+    </GradientBackground>
   );
-};
-
-// ========================================
-// Styles
-// ========================================
-
-const styles = {
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  statsContainer: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    paddingHorizontal: 24,
-    marginBottom: 16,
-  },
-  statCard: {
-    flex: 0.3,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center' as const,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  tabContainer: {
-    flexDirection: 'row' as const,
-    paddingHorizontal: 24,
-    marginBottom: 16,
-    gap: 8,
-  },
-  tabButton: {
-    flex: 1,
-  },
-  tabButtonContainer: {
-    position: 'relative' as const,
-    flex: 1,
-  },
-  badge: {
-    position: 'absolute' as const,
-    top: -8,
-    right: 8,
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 6,
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: 'bold' as const,
-    lineHeight: 16,
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-  },
-  friendCard: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  friendInfo: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    flex: 1,
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    marginRight: 12,
-    overflow: 'hidden' as const,
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 24,
-  },
-  friendDetails: {
-    flex: 1,
-  },
-  friendHeader: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginLeft: 8,
-  },
-  friendActions: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-  },
-  friendRequestCard: {
-    flexDirection: 'column' as const,
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  friendRequestInfo: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    marginBottom: 12,
-  },
-  friendRequestDetails: {
-    flex: 1,
-  },
-  friendRequestActions: {
-    flexDirection: 'row' as const,
-    justifyContent: 'flex-end' as const,
-  },
-  friendRequestButton: {
-    minWidth: 80,
-  },
-  notificationCard: {
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  notificationContent: {
-    flex: 1,
-  },
-  notificationHeader: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-  },
-  notificationInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  notificationActions: {
-    flexDirection: 'row' as const,
-    marginTop: 12,
-    gap: 8,
-  },
-  notificationButton: {
-    flex: 1,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    paddingVertical: 64,
-  },
 };

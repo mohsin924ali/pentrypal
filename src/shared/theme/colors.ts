@@ -155,6 +155,11 @@ export const colors: ColorPalette = {
     focus: '#19e680',
     error: '#ef4444',
   },
+
+  // Gradient Colors - Background gradients
+  gradients: {
+    screenBackground: ['#B4C7E3', '#FCF2E8'], // Top-left to bottom-right
+  },
 };
 
 // Dark theme variant (for future implementation)
@@ -183,5 +188,8 @@ export const darkColors: ColorPalette = {
     divider: '#1e293b',
     focus: '#19e680',
     error: '#ef4444',
+  },
+  gradients: {
+    screenBackground: ['#1e293b', '#0f172a'], // Dark theme gradient
   },
 };
