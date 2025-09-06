@@ -4,17 +4,15 @@
 
 import React from 'react';
 import { Modal, ScrollView, TouchableOpacity, View } from 'react-native';
-import ViewShot from 'react-native-view-shot';
 import { Typography } from '../../../components/atoms/Typography/Typography';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { baseStyles } from '../EnhancedListsScreen.styles';
 import { DEFAULT_CURRENCY, formatCurrency } from '../../../../shared/utils/currencyUtils';
 import type { ShoppingList } from '../../../../shared/types/lists';
 
-// Receipt sharing components and hooks
-import { ReceiptTemplate } from './ReceiptTemplate';
+// PDF sharing components and hooks
 import { ShareReceiptButton } from './ShareReceiptButton';
-import { useReceiptSharing } from '../hooks/useReceiptSharing';
+import { usePdfReceiptSharing } from '../hooks/usePdfReceiptSharing';
 
 interface ArchivedListModalProps {
   visible: boolean;
@@ -49,20 +47,10 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
   const totalSpent =
     list?.totalSpent || Object.values(spendingSummary).reduce((sum, user) => sum + user.amount, 0);
 
-  // Receipt sharing functionality - hooks must be called in consistent order
-  // Always call hooks, even if list is null
-  const { isGenerating, isSharing, viewShotRef, shareReceipt, canShare } = useReceiptSharing(
-    list,
-    totalSpent,
-    spendingSummary
-  );
-
-  // Early return AFTER all hooks are called
-  if (!list) return null;
-
   // Get collaborator names from the actual collaborators list
   const getCollaboratorName = (userId: string) => {
     if (!userId || userId === 'unassigned') return 'Unassigned';
+    if (!list) return 'Unknown';
 
     // Check if it's the list owner
     if (userId === list.ownerId) return list.ownerName || 'Owner';
@@ -76,6 +64,18 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
     // Fallback to user ID substring
     return `User ${userId.substring(0, 8)}`;
   };
+
+  // PDF receipt sharing functionality - hooks must be called in consistent order
+  // Always call hooks, even if list is null
+  const { isGenerating, isSharing, shareReceipt, canShare } = usePdfReceiptSharing(
+    list,
+    totalSpent,
+    spendingSummary,
+    getCollaboratorName
+  );
+
+  // Early return AFTER all hooks are called
+  if (!list) return null;
 
   return (
     <Modal visible={visible} transparent={true} animationType='fade' onRequestClose={onClose}>
@@ -301,40 +301,6 @@ export const ArchivedListModal: React.FC<ArchivedListModalProps> = ({ visible, l
                 Close
               </Typography>
             </TouchableOpacity>
-          </View>
-
-          {/* Hidden Receipt Template for Image Generation */}
-          <View
-            style={{
-              position: 'absolute',
-              left: -10000,
-              top: -10000,
-              width: 400,
-              height: 1000,
-              backgroundColor: 'white',
-            }}>
-            <ViewShot
-              ref={viewShotRef}
-              style={{
-                width: 400,
-                height: 1000,
-                backgroundColor: 'white',
-              }}
-              options={{
-                format: 'png',
-                quality: 1.0,
-                result: 'tmpfile',
-                width: 800, // Higher resolution for better quality
-                height: 2000, // Higher resolution for better quality
-              }}>
-              <ReceiptTemplate
-                list={list}
-                theme={theme}
-                totalSpent={totalSpent}
-                spendingSummary={spendingSummary}
-                getCollaboratorName={getCollaboratorName}
-              />
-            </ViewShot>
           </View>
         </View>
       </View>

@@ -807,8 +807,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       color={theme.colors.primary[500]}
                       style={{ fontWeight: '600' }}>
                       {typeof categorySpending[0]?.name === 'string'
-                        ? categorySpending[0]?.name
-                        : categorySpending[0]?.name?.name || 'Unknown Category'}
+                        ? categorySpending[0].name
+                        : (categorySpending[0]?.name as any)?.name || 'Unknown Category'}
                     </Typography>
                     <Typography variant='body2' color={theme.colors.text.secondary}>
                       {` at $${categorySpending[0]?.amount.toFixed(2)} (${categorySpending[0]?.percentage.toFixed(0)}% of total)`}

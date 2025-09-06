@@ -26,14 +26,14 @@ export const ShareReceiptButton: React.FC<ShareReceiptButtonProps> = ({
   const isDisabled = disabled || isLoading;
 
   const getButtonText = () => {
-    if (isGenerating) return 'Generating Receipt...';
-    if (isSharing) return 'Sharing...';
-    return 'Share Receipt';
+    if (isGenerating) return 'Generating PDF...';
+    if (isSharing) return 'Sharing PDF...';
+    return 'Share as PDF';
   };
 
   const getButtonIcon = () => {
     if (isLoading) return null;
-    return '📤';
+    return '📄';
   };
 
   return (
