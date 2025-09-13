@@ -93,15 +93,19 @@ export const baseStyles = StyleSheet.create({
     textAlign: 'center',
   } as TextStyle,
 
-  // Header
-  headerContainer: {
-    borderBottomWidth: 1,
-  } as ViewStyle,
-
-  headerContent: {
+  // Header - consistent with other screens
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+  } as ViewStyle,
+
+  // Header Stats Container
+  headerStatsContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 16,
   } as ViewStyle,
 
   // FlatList Content
@@ -119,12 +123,6 @@ export const createThemedStyles = (theme: Theme) =>
     listItemThemed: {
       backgroundColor: theme.colors.surface.card,
       shadowColor: (theme.colors as any).shadow || '#000',
-    } as ViewStyle,
-
-    // Header with theme colors
-    headerContainerThemed: {
-      padding: theme.spacing.md,
-      borderBottomColor: theme.colors.border.primary,
     } as ViewStyle,
   });
 
@@ -214,16 +212,6 @@ export const createDynamicStyles = (theme: Theme) => ({
     color,
     marginBottom,
     textAlign: 'center' as const,
-  }),
-
-  // Header title with dynamic color
-  headerTitle: (color: string) => ({
-    color,
-  }),
-
-  // Header subtitle with dynamic color
-  headerSubtitle: (color: string) => ({
-    color,
   }),
 
   // FlatList content with dynamic padding

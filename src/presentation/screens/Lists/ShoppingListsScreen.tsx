@@ -312,21 +312,19 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
     <GradientBackground>
       <SafeAreaView style={baseStyles.container}>
         {/* Header */}
-        <View style={[baseStyles.headerContainer, themedStyles.headerContainerThemed]}>
-          <View style={baseStyles.headerContent}>
-            <View>
-              <Typography variant='h1' style={dynamicStyles.headerTitle(theme.colors.text.primary)}>
-                Shopping Lists
-              </Typography>
-              <Typography
-                variant='body2'
-                style={dynamicStyles.headerSubtitle(theme.colors.text.secondary)}>
-                {stats.totalLists} lists • {stats.activeLists} active
-              </Typography>
-            </View>
+        <View style={baseStyles.header}>
+          <Typography variant='h3' color={theme.colors.text.primary}>
+            Shopping Lists
+          </Typography>
 
-            <Button title='New List' onPress={handleCreateList} />
-          </View>
+          <Button title='New List' onPress={handleCreateList} />
+        </View>
+
+        {/* Stats */}
+        <View style={baseStyles.headerStatsContainer}>
+          <Typography variant='body2' color={theme.colors.text.secondary}>
+            {stats.totalLists} lists • {stats.activeLists} active
+          </Typography>
         </View>
 
         {/* Lists */}

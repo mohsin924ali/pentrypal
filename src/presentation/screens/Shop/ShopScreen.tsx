@@ -716,8 +716,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
           <RefreshControl
             refreshing={isLoadingLists}
             onRefresh={onRefresh}
-            colors={[safeTheme?.colors?.primary?.['500'] || '#22c55e']}
-            tintColor={safeTheme?.colors?.primary?.['500'] || '#22c55e'}
+            colors={[safeTheme?.colors?.primary?.['500'] || '#3b82f6']}
+            tintColor={safeTheme?.colors?.primary?.['500'] || '#3b82f6'}
           />
         }>
         {error ? (

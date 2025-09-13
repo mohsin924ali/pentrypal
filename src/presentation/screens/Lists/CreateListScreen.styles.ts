@@ -14,19 +14,13 @@ export const baseStyles = StyleSheet.create({
     flex: 1,
   } as ViewStyle,
 
-  // Header Section
+  // Header Section - consistent with other screens
   header: {
-    backgroundColor: '#ffffff',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
   } as ViewStyle,
 
   headerButton: {
@@ -35,11 +29,6 @@ export const baseStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   } as ViewStyle,
-
-  headerTitle: {
-    fontWeight: '700',
-    fontSize: 18,
-  } as TextStyle,
 
   // Scroll View
   scrollView: {

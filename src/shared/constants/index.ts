@@ -104,10 +104,10 @@ export const PAGINATION = {
 } as const;
 
 export const COLORS = {
-  // Brand Colors
-  primary: '#19e680',
-  primaryDark: '#16c472',
-  primaryLight: '#4cffb3',
+  // Brand Colors - Professional Blue Theme
+  primary: '#3b82f6',
+  primaryDark: '#2563eb',
+  primaryLight: '#60a5fa',
 
   // Semantic Colors
   success: '#10b981',

@@ -9,7 +9,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native';
  */
 export const createFallbackTheme = () => ({
   colors: {
-    primary: { '500': '#22c55e' },
+    primary: { '500': '#3b82f6' },
     text: { primary: '#000000', secondary: '#666666', tertiary: '#999999' },
     background: { primary: '#ffffff' },
     surface: { background: '#ffffff', secondary: '#f5f5f5', card: '#ffffff' },

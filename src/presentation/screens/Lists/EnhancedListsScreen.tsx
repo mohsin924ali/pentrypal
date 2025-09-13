@@ -11,7 +11,6 @@ import {
   Image,
   Modal,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   View,
@@ -19,8 +18,10 @@ import {
 } from 'react-native';
 
 // Components
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Typography } from '../../components/atoms/Typography/Typography';
 import { Button } from '../../components/atoms/Button/Button';
+import { GradientBackground } from '../../components/atoms/GradientBackground';
 import { AssignmentModal } from '../../components/molecules/AssignmentModal';
 import { AddContributorModal } from '../../components/molecules/AddContributorModal';
 import { ListCreationSuccessAnimation } from '../../components/molecules/ListCreationSuccessAnimation';
@@ -31,10 +32,6 @@ import { useTheme } from '../../providers/ThemeProvider';
 import { useContributorManagement, useListAnimation, useListManagement } from './hooks';
 import { shoppingLogger } from '../../../shared/utils/logger';
 
-// Note: Using emoji icons instead of imports to avoid module resolution issues
-// In production, these would be actual icon imports
-const CreateListIcon = '📝';
-const NotificationIcon = '🔔';
 const ShareIcon = '📤';
 import { DEFAULT_CURRENCY, formatCurrency } from '../../../shared/utils/currencyUtils';
 import { getAvatarProps, getFallbackAvatar } from '../../../shared/utils/avatarUtils';
@@ -43,7 +40,6 @@ import { getAvatarProps, getFallbackAvatar } from '../../../shared/utils/avatarU
 import { baseStyles, createDynamicStyles, createThemedStyles } from './EnhancedListsScreen.styles';
 
 // Services
-import NotificationService from '../../../infrastructure/services/notificationService';
 
 // Redux
 import type { AppDispatch } from '../../../application/store';
@@ -95,6 +91,16 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   onNavigationTabPress: _onNavigationTabPress,
 }) => {
   const { theme } = useTheme();
+  const navigation = useNavigation<NavigationProp>();
+
+  // Navigation handlers
+  const handleNavigateToCreateList = () => {
+    navigation.navigate('CreateList', {
+      editMode: false,
+      existingListName: '',
+      existingItems: [],
+    });
+  };
 
   // Use extracted hooks
   const {
@@ -102,7 +108,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     isLoading,
     error,
     handleRefresh,
-    handleNavigateToCreateList,
     handleViewArchivedList,
     showArchivedDetailModal,
     archivedListDetail,
@@ -196,7 +201,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   );
 
   // Notification state
-  const [unreadCount, setUnreadCount] = useState(0);
 
   // Assignment state
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
@@ -238,23 +242,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       setShowSuccessAnimation(true);
     }
   }, [shoppingLists?.length, previousListCount]);
-
-  // Subscribe to notifications
-  useEffect(() => {
-    const updateNotifications = (notificationList: Notification[]) => {
-      setUnreadCount(notificationList.filter(n => !n.isRead).length);
-    };
-
-    // Set current user for notifications
-    if (typeof user?.id === 'string' && user.id.length > 0) {
-      NotificationService.setCurrentUser(user.id);
-    }
-
-    // Subscribe to updates from global service
-    const unsubscribe = NotificationService.subscribe(updateNotifications);
-
-    return unsubscribe;
-  }, [user]);
 
   // Load friends when modal opens
   useEffect(() => {
@@ -409,7 +396,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       const listName = shoppingLists.find(l => l.id === selectedListForAssignment)?.name ?? 'list';
       const itemName = selectedItemForAssignment?.name ?? 'item';
 
-      NotificationService.notifyItemAssigned(listName, itemName, assignedUserName, currentUserName);
+      // Notification would be sent here in production
 
       // Refresh lists to get updated data with a small delay to ensure DB transaction is committed
       setTimeout(() => {
@@ -616,55 +603,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       );
     }
   };
-
-  const renderHeader = () => (
-    <View style={baseStyles.header}>
-      <Typography variant='h2' color={safeTheme.colors.text.primary} style={baseStyles.headerTitle}>
-        Shopping Lists
-      </Typography>
-
-      <View style={baseStyles.headerRightSection}>
-        <TouchableOpacity
-          onPress={() => Alert.alert('Notifications', 'Coming soon!')}
-          style={baseStyles.notificationButton}
-          accessibilityRole='button'
-          accessibilityLabel='View notifications'>
-          <Typography
-            variant='h3'
-            style={{
-              fontSize: 26,
-              lineHeight: 26,
-              color: safeTheme?.colors?.primary?.['500'] || '#22c55e',
-            }}>
-            {NotificationIcon}
-          </Typography>
-          {unreadCount > 0 && (
-            <View style={baseStyles.notificationBadge}>
-              <Typography variant='caption' style={baseStyles.notificationBadgeText}>
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </Typography>
-            </View>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={handleNavigateToCreateList}
-          style={baseStyles.headerButton}
-          accessibilityRole='button'
-          accessibilityLabel='Add new list'>
-          <Typography
-            variant='h3'
-            style={{
-              fontSize: 26,
-              lineHeight: 26,
-              color: safeTheme?.colors?.primary?.['500'] || '#22c55e',
-            }}>
-            {CreateListIcon}
-          </Typography>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
 
   const renderListCard = useCallback(
     (list: ShoppingList) => {
@@ -990,168 +928,176 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   // Modal render functions REMOVED - Now using extracted modal components
 
   return (
-    <SafeAreaView style={baseStyles.container}>
-      {renderHeader()}
+    <GradientBackground>
+      <SafeAreaView style={baseStyles.container}>
+        {/* Header */}
+        <View style={baseStyles.header}>
+          <Typography variant='h3' color={safeTheme.colors.text.primary}>
+            Shopping Lists
+          </Typography>
+        </View>
 
-      <ScrollView
-        style={baseStyles.scrollView}
-        contentContainerStyle={baseStyles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading}
-            onRefresh={handleRefresh}
-            tintColor={safeTheme.colors.primary['500']}
-          />
-        }>
-        <View style={baseStyles.listsContainer}>
-          {isLoading ? (
-            <View style={baseStyles.loadingContainer}>
-              <Typography
-                variant='body1'
-                color={safeTheme.colors.text.secondary}
-                style={baseStyles.loadingText}>
-                Loading your lists...
-              </Typography>
-            </View>
-          ) : showArchivedLists ? (
-            archivedLists.length > 0 ? (
-              archivedLists.map(renderListCard)
+        <ScrollView
+          style={baseStyles.scrollView}
+          contentContainerStyle={baseStyles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={handleRefresh}
+              tintColor={safeTheme.colors.primary['500']}
+            />
+          }>
+          <View style={baseStyles.listsContainer}>
+            {isLoading ? (
+              <View style={baseStyles.loadingContainer}>
+                <Typography
+                  variant='body1'
+                  color={safeTheme.colors.text.secondary}
+                  style={baseStyles.loadingText}>
+                  Loading your lists...
+                </Typography>
+              </View>
+            ) : showArchivedLists ? (
+              archivedLists.length > 0 ? (
+                archivedLists.map(renderListCard)
+              ) : (
+                <View style={baseStyles.emptyContainer}>
+                  <Typography
+                    variant='h3'
+                    color={safeTheme.colors.text.secondary}
+                    style={baseStyles.emptyTitle}>
+                    No Archived Lists
+                  </Typography>
+                  <Typography
+                    variant='body1'
+                    color={safeTheme.colors.text.secondary}
+                    style={baseStyles.emptyText}>
+                    Archived lists will appear here when you finish shopping.
+                  </Typography>
+                </View>
+              )
+            ) : activeLists.length > 0 ? (
+              activeLists.map(renderListCard)
             ) : (
               <View style={baseStyles.emptyContainer}>
                 <Typography
                   variant='h3'
                   color={safeTheme.colors.text.secondary}
                   style={baseStyles.emptyTitle}>
-                  No Archived Lists
+                  No Lists Yet
                 </Typography>
                 <Typography
                   variant='body1'
                   color={safeTheme.colors.text.secondary}
                   style={baseStyles.emptyText}>
-                  Archived lists will appear here when you finish shopping.
+                  Create your first shopping list to get started!
                 </Typography>
               </View>
-            )
-          ) : activeLists.length > 0 ? (
-            activeLists.map(renderListCard)
-          ) : (
-            <View style={baseStyles.emptyContainer}>
-              <Typography
-                variant='h3'
-                color={safeTheme.colors.text.secondary}
-                style={baseStyles.emptyTitle}>
-                No Lists Yet
-              </Typography>
-              <Typography
-                variant='body1'
-                color={safeTheme.colors.text.secondary}
-                style={baseStyles.emptyText}>
-                Create your first shopping list to get started!
-              </Typography>
-            </View>
-          )}
-        </View>
+            )}
+          </View>
 
-        {/* Add New List Button */}
-        <View style={baseStyles.addButtonContainer}>
-          <Button
-            title='Create New List'
-            variant='primary'
-            size='md'
-            onPress={onAddListPress || (() => {})}
-            style={baseStyles.addButton}
-          />
-        </View>
-
-        {/* Show Archived Lists Button */}
-        {archivedCount > 0 && (
-          <View style={baseStyles.archiveButtonContainer}>
+          {/* Add New List Button */}
+          <View style={baseStyles.addButtonContainer}>
             <Button
-              title={
-                showArchivedLists ? 'Show Active Lists' : `Show ${archivedCount} Archived Lists`
-              }
-              variant='outline'
+              title='Create New List'
+              variant='primary'
               size='md'
-              onPress={() => setShowArchivedLists(!showArchivedLists)}
-              style={baseStyles.archiveButton}
+              onPress={onAddListPress || handleNavigateToCreateList}
+              style={baseStyles.addButton}
             />
           </View>
-        )}
-      </ScrollView>
 
-      {/* Assignment Modal */}
-      <AssignmentModal
-        visible={showAssignmentModal}
-        onClose={() => {
-          setShowAssignmentModal(false);
-          setSelectedItemForAssignment(null);
-          setSelectedListForAssignment(null);
-        }}
-        item={selectedItemForAssignment}
-        collaborators={
-          selectedListForAssignment
-            ? shoppingLists.find(list => list.id === selectedListForAssignment)?.collaborators || []
-            : []
-        }
-        currentUserId={user?.id || ''}
-        listOwnerId={
-          selectedListForAssignment
-            ? shoppingLists.find(list => list.id === selectedListForAssignment)?.ownerId || ''
-            : ''
-        }
-        onAssign={handleAssignToUser}
-        onUnassign={handleUnassignItem}
-        getUserName={getUserName}
-        getUserAvatar={getUserAvatar}
-      />
+          {/* Show Archived Lists Button */}
+          {archivedCount > 0 && (
+            <View style={baseStyles.archiveButtonContainer}>
+              <Button
+                title={
+                  showArchivedLists ? 'Show Active Lists' : `Show ${archivedCount} Archived Lists`
+                }
+                variant='outline'
+                size='md'
+                onPress={() => setShowArchivedLists(!showArchivedLists)}
+                style={baseStyles.archiveButton}
+              />
+            </View>
+          )}
+        </ScrollView>
 
-      {/* Add Contributor Modal */}
-      <AddContributorModal
-        visible={showAddContributorModal}
-        onClose={handleCloseContributorModal}
-        selectedList={
-          selectedListForContributor
-            ? shoppingLists.find(list => list.id === selectedListForContributor) || null
-            : null
-        }
-        onAddContributor={handleAddContributorToList}
-        onRemoveContributor={(friendId: string) =>
-          handleRemoveContributorFromList(selectedListForContributor || '', friendId)
-        }
-        isLoading={false}
-      />
+        {/* Assignment Modal */}
+        <AssignmentModal
+          visible={showAssignmentModal}
+          onClose={() => {
+            setShowAssignmentModal(false);
+            setSelectedItemForAssignment(null);
+            setSelectedListForAssignment(null);
+          }}
+          item={selectedItemForAssignment}
+          collaborators={
+            selectedListForAssignment
+              ? shoppingLists.find(list => list.id === selectedListForAssignment)?.collaborators ||
+                []
+              : []
+          }
+          currentUserId={user?.id || ''}
+          listOwnerId={
+            selectedListForAssignment
+              ? shoppingLists.find(list => list.id === selectedListForAssignment)?.ownerId || ''
+              : ''
+          }
+          onAssign={handleAssignToUser}
+          onUnassign={handleUnassignItem}
+          getUserName={getUserName}
+          getUserAvatar={getUserAvatar}
+        />
 
-      {/* Modals - Using extracted components */}
-      <ArchivedListModal
-        visible={showArchivedDetailModal}
-        list={archivedListDetail}
-        onClose={handleCloseArchivedModal}
-      />
+        {/* Add Contributor Modal */}
+        <AddContributorModal
+          visible={showAddContributorModal}
+          onClose={handleCloseContributorModal}
+          selectedList={
+            selectedListForContributor
+              ? shoppingLists.find(list => list.id === selectedListForContributor) || null
+              : null
+          }
+          onAddContributor={handleAddContributorToList}
+          onRemoveContributor={(friendId: string) =>
+            handleRemoveContributorFromList(selectedListForContributor || '', friendId)
+          }
+          isLoading={false}
+        />
 
-      <ListSuccessModal
-        visible={showSuccessModal}
-        message={successMessage}
-        subtitle={successSubtitle}
-        fadeAnim={successFadeAnim}
-        scaleAnim={successScaleAnim}
-        onClose={hideSuccessModalWithAnimation}
-      />
+        {/* Modals - Using extracted components */}
+        <ArchivedListModal
+          visible={showArchivedDetailModal}
+          list={archivedListDetail}
+          onClose={handleCloseArchivedModal}
+        />
 
-      <ListErrorModal
-        visible={showErrorModal}
-        message={errorMessage}
-        subtitle={errorSubtitle}
-        fadeAnim={errorFadeAnim}
-        scaleAnim={errorScaleAnim}
-        onClose={hideErrorModalWithAnimation}
-      />
+        <ListSuccessModal
+          visible={showSuccessModal}
+          message={successMessage}
+          subtitle={successSubtitle}
+          fadeAnim={successFadeAnim}
+          scaleAnim={successScaleAnim}
+          onClose={hideSuccessModalWithAnimation}
+        />
 
-      {/* List Creation Success Animation */}
-      <ListCreationSuccessAnimation
-        visible={showSuccessAnimation}
-        onAnimationComplete={handleSuccessAnimationComplete}
-      />
-    </SafeAreaView>
+        <ListErrorModal
+          visible={showErrorModal}
+          message={errorMessage}
+          subtitle={errorSubtitle}
+          fadeAnim={errorFadeAnim}
+          scaleAnim={errorScaleAnim}
+          onClose={hideErrorModalWithAnimation}
+        />
+
+        {/* List Creation Success Animation */}
+        <ListCreationSuccessAnimation
+          visible={showSuccessAnimation}
+          onAnimationComplete={handleSuccessAnimationComplete}
+        />
+      </SafeAreaView>
+    </GradientBackground>
   );
 };

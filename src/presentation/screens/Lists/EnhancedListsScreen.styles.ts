@@ -12,7 +12,6 @@ export const baseStyles = StyleSheet.create({
   // Container & Layout Styles
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
   } as ViewStyle,
 
   scrollView: {
@@ -34,20 +33,11 @@ export const baseStyles = StyleSheet.create({
 
   // Header Styles
   header: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
   } as ViewStyle,
 
   headerButton: {

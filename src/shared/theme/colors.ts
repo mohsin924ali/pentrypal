@@ -5,24 +5,24 @@
 import type { ColorPalette } from '../types/ui';
 
 /**
- * Color system based on the existing PentryPal brand
- * Primary: #19e680 (bright green)
+ * Color system based on the PentryPal brand
+ * Primary: #3b82f6 (professional blue)
  * Maintains accessibility and semantic meaning
  */
 export const colors: ColorPalette = {
-  // Primary Brand Colors - Green theme from existing app
+  // Primary Brand Colors - Professional Blue theme
   primary: {
-    50: '#ecfdf5',
-    100: '#d1fae5',
-    200: '#a7f3d0',
-    300: '#6ee7b7',
-    400: '#34d399',
-    500: '#19e680', // Main brand color
-    600: '#16c472',
-    700: '#15803d',
-    800: '#166534',
-    900: '#14532d',
-    950: '#052e16',
+    50: '#eff6ff',
+    100: '#dbeafe',
+    200: '#bfdbfe',
+    300: '#93c5fd',
+    400: '#60a5fa',
+    500: '#1d4ed8', // Main professional blue brand color
+    600: '#2563eb',
+    700: '#1d4ed8',
+    800: '#1e40af',
+    900: '#1e3a8a',
+    950: '#172554',
   },
 
   // Secondary Colors - Complementary orange/amber
@@ -152,13 +152,13 @@ export const colors: ColorPalette = {
     primary: '#e5e7eb',
     secondary: '#d1d5db',
     divider: '#f3f4f6',
-    focus: '#19e680',
+    focus: '#3b82f6',
     error: '#ef4444',
   },
 
   // Gradient Colors - Background gradients
   gradients: {
-    screenBackground: ['#B4C7E3', '#FCF2E8'], // Top-left to bottom-right
+    screenBackground: ['#FCF2E8', '#FFFFFF'], // Top-left (Beige) to bottom-right (White)
   },
 };
 
@@ -186,10 +186,10 @@ export const darkColors: ColorPalette = {
     primary: '#334155',
     secondary: '#475569',
     divider: '#1e293b',
-    focus: '#19e680',
+    focus: '#3b82f6',
     error: '#ef4444',
   },
   gradients: {
-    screenBackground: ['#1e293b', '#0f172a'], // Dark theme gradient
+    screenBackground: ['#374151', '#1f2937'], // Dark theme gradient (Dark Beige-like to Dark Gray)
   },
 };

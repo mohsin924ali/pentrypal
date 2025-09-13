@@ -8,13 +8,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Dimensions,
-  SafeAreaView,
   ScrollView,
   TextInput,
   TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
@@ -590,7 +590,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         </Typography>
       </TouchableOpacity>
 
-      <Typography variant='h2' color={safeTheme.colors.text.primary} style={baseStyles.headerTitle}>
+      <Typography variant='h3' color={safeTheme.colors.text.primary}>
         {editMode ? 'Edit List' : 'Create New List'}
       </Typography>
 

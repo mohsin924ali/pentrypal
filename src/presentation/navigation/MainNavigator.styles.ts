@@ -11,7 +11,7 @@ import type { Theme } from '../../shared/types/ui';
  */
 export const createFallbackTheme = () => ({
   colors: {
-    primary: { '500': '#22c55e' },
+    primary: { '500': '#3b82f6' },
     text: { primary: '#000000', secondary: '#666666', tertiary: '#999999' },
     surface: { background: '#ffffff' },
     border: { primary: '#e5e5e5' },
