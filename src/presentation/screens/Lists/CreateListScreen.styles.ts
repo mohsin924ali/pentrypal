@@ -343,19 +343,26 @@ export const baseStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
+    paddingVertical: 40,
   } as ViewStyle,
 
   modalContent: {
     borderRadius: 20,
     padding: 24,
     margin: 24,
-    width: '85%',
+    width: '90%',
     maxWidth: 400,
+    maxHeight: '80%',
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
+  } as ViewStyle,
+
+  modalScrollView: {
+    flexGrow: 1,
+    maxHeight: 400,
   } as ViewStyle,
 
   modalTitle: {
@@ -382,6 +389,76 @@ export const baseStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E7EB',
     textAlign: 'center',
+  } as ViewStyle,
+
+  dropdownWrapper: {
+    position: 'relative',
+    zIndex: 1,
+  } as ViewStyle,
+
+  dropdownContainer: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginTop: 4,
+    maxHeight: 150,
+    elevation: 10,
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  } as ViewStyle,
+
+  unitDropdownContainer: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginTop: 4,
+    maxHeight: 150,
+    elevation: 15,
+    zIndex: 1500,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  } as ViewStyle,
+
+  categoryDropdownContainer: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginTop: 4,
+    maxHeight: 150,
+    elevation: 20,
+    zIndex: 2000,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  } as ViewStyle,
+
+  dropdownScroll: {
+    flex: 1,
+  } as ViewStyle,
+
+  dropdownItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   } as ViewStyle,
 
   unitSection: {

@@ -4,10 +4,11 @@
  * Exact implementation matching the old project's user experience
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Dimensions,
+  Keyboard,
   ScrollView,
   TextInput,
   TouchableOpacity,
@@ -109,6 +110,9 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   const [customItemName, setCustomItemName] = useState('');
   const [customItemQuantity, setCustomItemQuantity] = useState('1');
   const [customItemUnit, setCustomItemUnit] = useState('pieces');
+  const [customItemCategory, setCustomItemCategory] = useState('');
+  const [showUnitDropdown, setShowUnitDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [duplicateItemData, setDuplicateItemData] = useState<{
     existingItem: SelectedItemData;
@@ -124,6 +128,13 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   // Track original values for edit mode
   const [originalListName, setOriginalListName] = useState('');
   const [originalItems, setOriginalItems] = useState<Map<string, SelectedItemData>>(new Map());
+
+  // Keyboard state for UX improvements
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // ScrollView ref for programmatic scrolling
+  const scrollViewRef = useRef<ScrollView>(null);
+  const modalScrollViewRef = useRef<ScrollView>(null);
 
   // Safe theme with fallbacks
   const safeTheme = theme?.colors
@@ -169,6 +180,22 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
       setSearchResults([]);
     }
   }, [searchQuery]);
+
+  // Keyboard visibility detection for better UX
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardVisible(true);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const loadCategories = async () => {
     try {
@@ -363,11 +390,11 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   };
 
   const handleAddCustomItem = () => {
-    if (customItemName.trim()) {
-      // Check if a custom item with the same name already exists
+    if (customItemName.trim() && customItemCategory.trim()) {
+      // Check if a custom item with the same name already exists in the same category
       const existingCustomItem = Array.from(selectedItems.values()).find(
         item =>
-          item.category === 'custom' &&
+          item.category === customItemCategory &&
           item.name.toLowerCase() === customItemName.trim().toLowerCase()
       );
 
@@ -412,13 +439,15 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
       } else {
         // New custom item, add normally
         const customId = `custom_${Date.now()}`;
+        // Find the selected category to get its icon
+        const selectedCategory = categories.find(cat => cat.id === customItemCategory);
         const customItem: SelectedItemData = {
           id: customId,
           name: customItemName.trim(),
           quantity: customItemQuantity.trim(),
           unit: customItemUnit,
-          icon: '📦',
-          category: 'custom',
+          icon: selectedCategory?.icon || '📦',
+          category: customItemCategory,
         };
 
         const newSelected = new Map(selectedItems);
@@ -429,6 +458,9 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         setCustomItemName('');
         setCustomItemQuantity('1');
         setCustomItemUnit('pieces');
+        setCustomItemCategory('');
+        setShowUnitDropdown(false);
+        setShowCategoryDropdown(false);
 
         if (!showCategories) {
           setShowCategories(true);
@@ -441,33 +473,19 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
     setCustomItemName(searchTerm);
     setCustomItemQuantity('1');
     setCustomItemUnit('pieces');
+    // Set first category as default, or empty if no categories
+    setCustomItemCategory(categories.length > 0 && categories[0] ? categories[0].id : '');
     setShowCustomItemModal(true);
   };
 
   // Group search results and selected items by category
   const getVisibleCategories = () => {
-    let categoriesToShow = [...categories];
+    const categoriesToShow = [...categories];
 
-    // Add custom category if there are custom items
-    const customItems = Array.from(selectedItems.values()).filter(
-      item => item.category === 'custom'
+    // Get all custom items (items with IDs starting with 'custom_')
+    const customItems = Array.from(selectedItems.values()).filter(item =>
+      item.id.startsWith('custom_')
     );
-    if (customItems.length > 0) {
-      const customCategory: Category = {
-        id: 'custom',
-        name: 'Custom Items',
-        icon: '📦',
-        items: customItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          icon: item.icon,
-          category: item.category,
-          defaultUnit: item.unit,
-          commonUnits: ['pieces', 'lbs', 'container', 'kg', 'oz', 'cup', 'tbsp', 'tsp'],
-        })),
-      };
-      categoriesToShow = [...categories, customCategory];
-    }
 
     if (searchQuery.trim()) {
       // During search, group search results by category
@@ -480,13 +498,24 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         searchResultsByCategory.get(item.category)!.push(item);
       });
 
-      // Add custom items that match search
-      const customSearchItems = customItems.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      if (customSearchItems.length > 0) {
-        searchResultsByCategory.set('custom', customSearchItems as any);
-      }
+      // Add custom items that match search to their respective categories
+      customItems.forEach(customItem => {
+        if (customItem.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+          if (!searchResultsByCategory.has(customItem.category)) {
+            searchResultsByCategory.set(customItem.category, []);
+          }
+          // Convert custom item to GroceryItem format for display
+          const groceryItem: GroceryItem = {
+            id: customItem.id,
+            name: customItem.name,
+            icon: customItem.icon,
+            category: customItem.category,
+            defaultUnit: customItem.unit,
+            commonUnits: ['pieces', 'lbs', 'container', 'kg', 'oz', 'cup', 'tbsp', 'tsp'],
+          };
+          searchResultsByCategory.get(customItem.category)!.push(groceryItem);
+        }
+      });
 
       // Return categories with search results
       return categoriesToShow
@@ -496,20 +525,60 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         }))
         .filter(category => category.items.length > 0);
     } else {
-      // When not searching, only show categories that have selected items
+      // When not searching, show categories with selected items (including custom items)
       return categoriesToShow
-        .map(category => ({
-          ...category,
-          items:
-            category.id === 'custom'
-              ? category.items
-              : category.items.filter(item => selectedItems.has(item.id)),
-        }))
+        .map(category => {
+          // Get regular selected items for this category
+          const regularItems = category.items.filter(item => selectedItems.has(item.id));
+
+          // Get custom items for this category
+          const categoryCustomItems = customItems
+            .filter(customItem => customItem.category === category.id)
+            .map(customItem => ({
+              id: customItem.id,
+              name: customItem.name,
+              icon: customItem.icon,
+              category: customItem.category,
+              defaultUnit: customItem.unit,
+              commonUnits: ['pieces', 'lbs', 'container', 'kg', 'oz', 'cup', 'tbsp', 'tsp'],
+            }));
+
+          return {
+            ...category,
+            items: [...regularItems, ...categoryCustomItems],
+          };
+        })
         .filter(category => category.items.length > 0);
     }
   };
 
   const visibleCategories = getVisibleCategories();
+
+  // Handle search field focus - scroll up to make space for dropdown
+  const handleSearchFieldFocus = () => {
+    // Small delay to ensure keyboard animation starts
+    setTimeout(() => {
+      const screenHeight = Dimensions.get('window').height;
+      // Calculate optimal scroll position based on screen size
+      // Scroll up by about 15% of screen height to create good space for dropdown
+      const scrollOffset = Math.min(150, screenHeight * 0.15);
+
+      scrollViewRef.current?.scrollTo({
+        y: scrollOffset,
+        animated: true,
+      });
+    }, 100);
+  };
+
+  // Handle modal dropdown scroll adjustment
+  const handleModalDropdownScroll = (yOffset: number) => {
+    setTimeout(() => {
+      modalScrollViewRef.current?.scrollTo({
+        y: yOffset,
+        animated: true,
+      });
+    }, 100);
+  };
 
   const handleCreateList = async () => {
     if (listName.trim() && selectedItems.size > 0) {
@@ -585,12 +654,12 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         style={baseStyles.headerButton}
         accessibilityRole='button'
         accessibilityLabel='Go back'>
-        <Typography variant='h3' color={safeTheme.colors.text.primary}>
+        <Typography variant='h5' color={safeTheme.colors.text.primary}>
           ←
         </Typography>
       </TouchableOpacity>
 
-      <Typography variant='h3' color={safeTheme.colors.text.primary}>
+      <Typography variant='h4' color={safeTheme.colors.text.primary}>
         {editMode ? 'Edit List' : 'Create New List'}
       </Typography>
 
@@ -640,6 +709,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             setShowCategories(true);
           }
         }}
+        onFocus={handleSearchFieldFocus}
         placeholder='Search for items to add to your list...'
         placeholderTextColor={safeTheme.colors.text.secondary}
       />
@@ -654,7 +724,8 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
           <ScrollView
             style={baseStyles.searchDropdownScroll}
             showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}>
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps='always'>
             {searchResults.length > 0 ? (
               // Show search results
               searchResults.map(item => (
@@ -662,6 +733,8 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                   key={item.id}
                   style={baseStyles.searchResultItem}
                   onPress={() => {
+                    // Dismiss keyboard immediately for better UX
+                    Keyboard.dismiss();
                     // Show quantity/unit modal for the selected item
                     setCurrentItem(item);
                     setQuantity('1');
@@ -685,7 +758,13 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
               // Show "Add Custom Item" option when no results found
               <TouchableOpacity
                 style={baseStyles.searchResultItem}
-                onPress={() => handleCreateFromSearch(searchQuery.trim())}>
+                onPress={() => {
+                  // Dismiss keyboard immediately for better UX
+                  Keyboard.dismiss();
+                  handleCreateFromSearch(searchQuery.trim());
+                  setSearchQuery('');
+                  setSearchResults([]);
+                }}>
                 <Typography variant='body1' style={baseStyles.searchItemIcon}>
                   ➕
                 </Typography>
@@ -714,7 +793,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         accessibilityRole='button'
         accessibilityLabel={`${isCollapsed ? 'Expand' : 'Collapse'} ${category.name} category`}>
         <View style={baseStyles.categoryLeft}>
-          <Typography variant='h3' style={baseStyles.categoryIcon}>
+          <Typography variant='h6' style={baseStyles.categoryIcon}>
             {category.icon}
           </Typography>
           <View style={baseStyles.categoryInfo}>
@@ -730,7 +809,10 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             </Typography>
           </View>
         </View>
-        <Typography variant='h3' color={safeTheme.colors.text.secondary} style={baseStyles.chevron}>
+        <Typography
+          variant='body1'
+          color={safeTheme.colors.text.secondary}
+          style={baseStyles.chevron}>
           {isCollapsed ? '▼' : '▲'}
         </Typography>
       </TouchableOpacity>
@@ -759,7 +841,11 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
       <TouchableOpacity
         key={item.id}
         style={baseStyles.itemRow}
-        onPress={() => toggleItem(item.id)}
+        onPress={() => {
+          // Dismiss keyboard if it's open for better UX
+          Keyboard.dismiss();
+          toggleItem(item.id);
+        }}
         accessibilityRole='button'
         accessibilityLabel={`${isSelected ? 'Remove' : 'Add'} ${item.name}`}>
         <View style={baseStyles.itemLeft}>
@@ -878,7 +964,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             dynamicStyles.modalContentDynamic(safeTheme.colors.surface.card),
           ]}>
           <Typography
-            variant='h3'
+            variant='h5'
             color={safeTheme.colors.text.primary}
             style={baseStyles.modalTitle}>
             Add {currentItem.name}
@@ -977,7 +1063,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             dynamicStyles.modalContentDynamic(safeTheme.colors.surface.card),
           ]}>
           <Typography
-            variant='h3'
+            variant='h5'
             color={safeTheme.colors.text.primary}
             style={baseStyles.modalTitle}>
             Item Already Added
@@ -1035,104 +1121,228 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             dynamicStyles.modalContentDynamic(safeTheme.colors.surface.card),
           ]}>
           <Typography
-            variant='h3'
+            variant='h5'
             color={safeTheme.colors.text.primary}
             style={baseStyles.modalTitle}>
             Add Custom Item
           </Typography>
 
-          <View style={baseStyles.quantitySection}>
-            <Typography
-              variant='body1'
-              color={safeTheme.colors.text.primary}
-              style={baseStyles.modalLabel}>
-              Item Name
-            </Typography>
-            <TextInput
-              style={[
-                baseStyles.quantityInput,
-                dynamicStyles.quantityInputDynamic(
-                  '#F9F9F9',
-                  '#E5E7EB',
-                  safeTheme.colors.text.primary
-                ),
-              ]}
-              value={customItemName}
-              onChangeText={setCustomItemName}
-              placeholder='Enter item name'
-              placeholderTextColor={safeTheme.colors.text.secondary}
-              autoFocus={true}
-            />
-          </View>
+          <ScrollView
+            ref={modalScrollViewRef}
+            style={baseStyles.modalScrollView}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps='handled'
+            bounces={false}>
+            <View style={baseStyles.quantitySection}>
+              <Typography
+                variant='body1'
+                color={safeTheme.colors.text.primary}
+                style={baseStyles.modalLabel}>
+                Item Name
+              </Typography>
+              <TextInput
+                style={[
+                  baseStyles.quantityInput,
+                  dynamicStyles.quantityInputDynamic(
+                    '#F9F9F9',
+                    '#E5E7EB',
+                    safeTheme.colors.text.primary
+                  ),
+                ]}
+                value={customItemName}
+                onChangeText={setCustomItemName}
+                placeholder='Enter item name'
+                placeholderTextColor={safeTheme.colors.text.secondary}
+                autoFocus={true}
+              />
+            </View>
 
-          <View style={baseStyles.quantitySection}>
-            <Typography
-              variant='body1'
-              color={safeTheme.colors.text.primary}
-              style={baseStyles.modalLabel}>
-              Quantity
-            </Typography>
-            <TextInput
-              style={[
-                baseStyles.quantityInput,
-                dynamicStyles.quantityInputDynamic(
-                  '#F9F9F9',
-                  '#E5E7EB',
-                  safeTheme.colors.text.primary
-                ),
-              ]}
-              value={customItemQuantity}
-              onChangeText={setCustomItemQuantity}
-              placeholder='1'
-              placeholderTextColor={safeTheme.colors.text.secondary}
-              keyboardType='numeric'
-            />
-          </View>
+            <View style={baseStyles.quantitySection}>
+              <Typography
+                variant='body1'
+                color={safeTheme.colors.text.primary}
+                style={baseStyles.modalLabel}>
+                Quantity
+              </Typography>
+              <TextInput
+                style={[
+                  baseStyles.quantityInput,
+                  dynamicStyles.quantityInputDynamic(
+                    '#F9F9F9',
+                    '#E5E7EB',
+                    safeTheme.colors.text.primary
+                  ),
+                ]}
+                value={customItemQuantity}
+                onChangeText={setCustomItemQuantity}
+                placeholder='1'
+                placeholderTextColor={safeTheme.colors.text.secondary}
+                keyboardType='numeric'
+              />
+            </View>
 
-          <View style={baseStyles.quantitySection}>
-            <Typography
-              variant='body1'
-              color={safeTheme.colors.text.primary}
-              style={baseStyles.modalLabel}>
-              Unit
-            </Typography>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={baseStyles.unitsScrollView}>
-              {[
-                'pieces',
-                'lbs',
-                'kg',
-                'container',
-                'bag',
-                'box',
-                'bottle',
-                'jar',
-                'pack',
-                'oz',
-                'cup',
-                'tbsp',
-                'tsp',
-              ].map(unit => (
+            <View style={baseStyles.quantitySection}>
+              <Typography
+                variant='body1'
+                color={safeTheme.colors.text.primary}
+                style={baseStyles.modalLabel}>
+                Unit
+              </Typography>
+              <View style={baseStyles.dropdownWrapper}>
                 <TouchableOpacity
-                  key={unit}
                   style={[
-                    baseStyles.unitButton,
-                    customItemUnit === unit && {
-                      backgroundColor: safeTheme.colors.primary['500'],
-                    },
+                    baseStyles.quantityInput,
+                    dynamicStyles.quantityInputDynamic(
+                      '#F9F9F9',
+                      '#E5E7EB',
+                      safeTheme.colors.text.primary
+                    ),
+                    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
                   ]}
-                  onPress={() => setCustomItemUnit(unit)}>
-                  <Typography
-                    variant='caption'
-                    color={customItemUnit === unit ? '#ffffff' : safeTheme.colors.text.primary}>
-                    {unit}
+                  onPress={() => {
+                    setShowUnitDropdown(!showUnitDropdown);
+                    // Close other dropdowns when this one opens
+                    if (!showUnitDropdown) {
+                      setShowCategoryDropdown(false);
+                      // Scroll to make dropdown visible (unit dropdown is around 150px from top)
+                      handleModalDropdownScroll(100);
+                    }
+                  }}>
+                  <Typography variant='body1' color={safeTheme.colors.text.primary}>
+                    {customItemUnit}
+                  </Typography>
+                  <Typography variant='body1' color={safeTheme.colors.text.secondary}>
+                    {showUnitDropdown ? '▲' : '▼'}
                   </Typography>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
+                {showUnitDropdown && (
+                  <View
+                    style={[
+                      baseStyles.unitDropdownContainer,
+                      { backgroundColor: safeTheme.colors.surface.card },
+                    ]}>
+                    <ScrollView
+                      style={baseStyles.dropdownScroll}
+                      showsVerticalScrollIndicator={false}>
+                      {[
+                        'pieces',
+                        'lbs',
+                        'kg',
+                        'container',
+                        'bag',
+                        'box',
+                        'bottle',
+                        'jar',
+                        'pack',
+                        'oz',
+                        'cup',
+                        'tbsp',
+                        'tsp',
+                      ].map(unit => (
+                        <TouchableOpacity
+                          key={unit}
+                          style={[
+                            baseStyles.dropdownItem,
+                            customItemUnit === unit && {
+                              backgroundColor: `${safeTheme.colors.primary['500']}20`,
+                            },
+                          ]}
+                          onPress={() => {
+                            setCustomItemUnit(unit);
+                            setShowUnitDropdown(false);
+                          }}>
+                          <Typography
+                            variant='body1'
+                            color={
+                              customItemUnit === unit
+                                ? safeTheme.colors.primary['500']
+                                : safeTheme.colors.text.primary
+                            }>
+                            {unit}
+                          </Typography>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            <View style={baseStyles.quantitySection}>
+              <Typography
+                variant='body1'
+                color={safeTheme.colors.text.primary}
+                style={baseStyles.modalLabel}>
+                Category
+              </Typography>
+              <View style={baseStyles.dropdownWrapper}>
+                <TouchableOpacity
+                  style={[
+                    baseStyles.quantityInput,
+                    dynamicStyles.quantityInputDynamic(
+                      '#F9F9F9',
+                      '#E5E7EB',
+                      safeTheme.colors.text.primary
+                    ),
+                    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+                  ]}
+                  onPress={() => {
+                    setShowCategoryDropdown(!showCategoryDropdown);
+                    // Close other dropdowns when this one opens
+                    if (!showCategoryDropdown) {
+                      setShowUnitDropdown(false);
+                      // Scroll to make dropdown visible (category dropdown is around 250px from top)
+                      handleModalDropdownScroll(200);
+                    }
+                  }}>
+                  <Typography variant='body1' color={safeTheme.colors.text.primary}>
+                    {customItemCategory
+                      ? `${categories.find(cat => cat.id === customItemCategory)?.icon} ${categories.find(cat => cat.id === customItemCategory)?.name}`
+                      : 'Select category'}
+                  </Typography>
+                  <Typography variant='body1' color={safeTheme.colors.text.secondary}>
+                    {showCategoryDropdown ? '▲' : '▼'}
+                  </Typography>
+                </TouchableOpacity>
+                {showCategoryDropdown && (
+                  <View
+                    style={[
+                      baseStyles.categoryDropdownContainer,
+                      { backgroundColor: safeTheme.colors.surface.card },
+                    ]}>
+                    <ScrollView
+                      style={baseStyles.dropdownScroll}
+                      showsVerticalScrollIndicator={false}>
+                      {categories.map(category => (
+                        <TouchableOpacity
+                          key={category.id}
+                          style={[
+                            baseStyles.dropdownItem,
+                            customItemCategory === category.id && {
+                              backgroundColor: `${safeTheme.colors.primary['500']}20`,
+                            },
+                          ]}
+                          onPress={() => {
+                            setCustomItemCategory(category.id);
+                            setShowCategoryDropdown(false);
+                          }}>
+                          <Typography
+                            variant='body1'
+                            color={
+                              customItemCategory === category.id
+                                ? safeTheme.colors.primary['500']
+                                : safeTheme.colors.text.primary
+                            }>
+                            {category.icon} {category.name}
+                          </Typography>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </View>
+            </View>
+          </ScrollView>
 
           <View style={baseStyles.modalButtons}>
             <TouchableOpacity
@@ -1145,6 +1355,9 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 setCustomItemName('');
                 setCustomItemQuantity('1');
                 setCustomItemUnit('pieces');
+                setCustomItemCategory('');
+                setShowUnitDropdown(false);
+                setShowCategoryDropdown(false);
               }}>
               <Typography variant='body1' color={safeTheme.colors.text.secondary}>
                 Cancel
@@ -1153,9 +1366,15 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             <TouchableOpacity
               style={[
                 baseStyles.modalButtonPrimary,
-                { backgroundColor: safeTheme.colors.primary['500'] },
+                {
+                  backgroundColor:
+                    !customItemName.trim() || !customItemCategory.trim()
+                      ? safeTheme.colors.text.secondary
+                      : safeTheme.colors.primary['500'],
+                },
               ]}
-              onPress={handleAddCustomItem}>
+              onPress={handleAddCustomItem}
+              disabled={!customItemName.trim() || !customItemCategory.trim()}>
               <Typography variant='body1' color='#ffffff'>
                 Add Item
               </Typography>
@@ -1171,9 +1390,12 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         {renderHeader()}
 
         <ScrollView
+          ref={scrollViewRef}
           style={baseStyles.scrollView}
           contentContainerStyle={baseStyles.scrollContent}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps='handled'
+          keyboardDismissMode='interactive'>
           {renderListNameInput()}
           {renderSearchInput()}
 
@@ -1193,7 +1415,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
           {showCategories && !searchQuery.trim() && (
             <View style={baseStyles.categoriesSection}>
               <Typography
-                variant='h3'
+                variant='h6'
                 color={safeTheme.colors.text.primary}
                 style={baseStyles.sectionTitle}>
                 Selected Items ({selectedItems.size} selected)
@@ -1217,7 +1439,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
           {!showCategories && (
             <View style={baseStyles.initialState}>
               <Typography
-                variant='h3'
+                variant='h5'
                 color={safeTheme.colors.text.primary}
                 style={baseStyles.initialStateTitle}>
                 🛒 Ready to create your list?
@@ -1235,25 +1457,27 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
           )}
         </ScrollView>
 
-        {/* Fixed Bottom Button */}
-        <View
-          style={[
-            baseStyles.bottomSection,
-            dynamicStyles.bottomSectionDynamic(safeTheme.colors.surface.card),
-          ]}>
-          <Button
-            title={`${editMode ? 'Update' : 'Create'} List${selectedItems.size > 0 ? ` (${selectedItems.size} items)` : ''}`}
-            variant='primary'
-            onPress={handleCreateList}
-            disabled={
-              !listName.trim() ||
-              selectedItems.size === 0 ||
-              (editMode && !hasChanges) ||
-              isCreatingList
-            }
-            style={baseStyles.createButton}
-          />
-        </View>
+        {/* Fixed Bottom Button - Hidden when keyboard is visible */}
+        {!isKeyboardVisible && (
+          <View
+            style={[
+              baseStyles.bottomSection,
+              dynamicStyles.bottomSectionDynamic(safeTheme.colors.surface.card),
+            ]}>
+            <Button
+              title={`${editMode ? 'Update' : 'Create'} List${selectedItems.size > 0 ? ` (${selectedItems.size} items)` : ''}`}
+              variant='primary'
+              onPress={handleCreateList}
+              disabled={
+                !listName.trim() ||
+                selectedItems.size === 0 ||
+                (editMode && !hasChanges) ||
+                isCreatingList
+              }
+              style={baseStyles.createButton}
+            />
+          </View>
+        )}
 
         {/* Modals */}
         {renderQuantityModal()}
