@@ -18,6 +18,9 @@ import { Button } from '../../components/atoms/Button/Button';
 import { GradientBackground } from '../../components/atoms/GradientBackground';
 import { useTheme } from '../../providers/ThemeProvider';
 
+// Styles
+import { baseStyles, createDynamicStyles } from './OnboardingScreen.styles';
+
 // Types
 interface OnboardingSlide {
   readonly id: string;
@@ -44,6 +47,9 @@ export interface OnboardingScreenProps {
 export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip }) => {
   const { theme } = useTheme();
   const { width: screenWidth } = Dimensions.get('window');
+
+  // Create dynamic styles
+  const dynamicStyles = createDynamicStyles(theme);
 
   // State
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -174,7 +180,7 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
   // Progress indicator dots
   const renderProgressDots = () => {
     return (
-      <View style={styles.progressContainer}>
+      <View style={baseStyles.progressContainer}>
         {slides.map((_, index) => {
           const dotOpacity = progressAnimation.interpolate({
             inputRange: [index - 1, index, index + 1],
@@ -192,12 +198,8 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
             <Animated.View
               key={index}
               style={[
-                styles.progressDot,
-                {
-                  backgroundColor: theme.colors.primary[500],
-                  opacity: dotOpacity,
-                  transform: [{ scale: dotScale }],
-                },
+                baseStyles.progressDot,
+                dynamicStyles.progressDotDynamic(theme.colors.primary[500], dotOpacity, dotScale),
               ]}
             />
           );
@@ -213,31 +215,18 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
     return (
       <Animated.View
         key={slide.id}
-        style={
-          [
-            styles.slideContainer,
-            {
-              width: screenWidth,
-              // Removed translateY animation to prevent text shivering
-            },
-          ] as any
-        }>
+        style={[baseStyles.slideContainer, dynamicStyles.slideContainerDynamic(screenWidth)]}>
         {/* Image */}
-        <Animated.View style={styles.imageContainer}>
+        <Animated.View style={baseStyles.imageContainer}>
           {slide.image ? (
-            <Image source={slide.image} style={styles.slideImage} resizeMode='contain' />
+            <Image source={slide.image} style={baseStyles.slideImage} resizeMode='contain' />
           ) : (
             <View
-              style={[
-                styles.slideImage,
-                {
-                  backgroundColor: theme.colors.primary[100],
-                  borderRadius: theme.borders.radius.lg,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                },
-              ]}>
-              <Typography variant='h1' style={{ fontSize: 64 }}>
+              style={dynamicStyles.fallbackImageContainerDynamic(
+                theme.colors.primary[100],
+                theme.borders.radius.lg
+              )}>
+              <Typography variant='h1' style={baseStyles.fallbackImageEmoji}>
                 {slide.id === 'create-lists'
                   ? '📝'
                   : slide.id === 'share-assign'
@@ -251,17 +240,12 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
         </Animated.View>
 
         {/* Text Content */}
-        <View style={styles.textContent}>
+        <View style={baseStyles.textContent}>
           <Typography
             variant='h2'
             color={theme.colors.text.primary}
             align='center'
-            style={{
-              marginBottom: theme.spacing.lg,
-              fontSize: 28,
-              fontWeight: '700',
-              textAlign: 'center',
-            }}>
+            style={dynamicStyles.slideTitleDynamic(theme.spacing.lg)}>
             {slide.title}
           </Typography>
 
@@ -269,12 +253,7 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
             variant='body1'
             color={theme.colors.text.secondary}
             align='center'
-            style={{
-              lineHeight: 26,
-              fontSize: 16,
-              textAlign: 'center',
-              maxWidth: 320,
-            }}>
+            style={baseStyles.slideDescription}>
             {slide.description}
           </Typography>
         </View>
@@ -286,16 +265,16 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
 
   return (
     <GradientBackground>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaView style={styles.container}>
+      <GestureHandlerRootView style={baseStyles.gestureHandlerRoot}>
+        <SafeAreaView style={baseStyles.container}>
           {/* Skip Button */}
-          <View style={styles.header}>
+          <View style={baseStyles.header}>
             <Button
               title='Skip'
               variant='ghost'
               size='sm'
               onPress={onSkip}
-              style={{ alignSelf: 'flex-end' }}
+              style={baseStyles.skipButtonContainer}
             />
           </View>
 
@@ -306,18 +285,11 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
           <PanGestureHandler
             onGestureEvent={onPanGestureEvent}
             onHandlerStateChange={onPanHandlerStateChange}>
-            <Animated.View style={styles.slidesContainer}>
+            <Animated.View style={baseStyles.slidesContainer}>
               <Animated.View
                 style={[
-                  styles.slidesWrapper,
-                  {
-                    flexDirection: 'row',
-                    transform: [
-                      {
-                        translateX: slideTransform,
-                      },
-                    ],
-                  },
+                  baseStyles.slidesWrapper,
+                  dynamicStyles.slidesWrapperDynamic(slideTransform),
                 ]}>
                 {slides.map((slide, index) => renderSlideContent(slide, index))}
               </Animated.View>
@@ -325,7 +297,7 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
           </PanGestureHandler>
 
           {/* Navigation Buttons */}
-          <View style={styles.footer}>
+          <View style={baseStyles.footer}>
             {isLastSlide ? (
               <Button
                 title='Get Started'
@@ -333,17 +305,17 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
                 size='lg'
                 fullWidth
                 onPress={onComplete}
-                style={{ marginBottom: theme.spacing.md }}
+                style={dynamicStyles.getStartedButtonDynamic(theme.spacing.md)}
               />
             ) : (
-              <View style={styles.navigationButtons}>
+              <View style={baseStyles.navigationButtons}>
                 <Button
                   title='Previous'
                   variant='outline'
                   size='md'
                   onPress={handlePrevious}
                   disabled={currentSlide === 0}
-                  style={{ flex: 1, marginRight: theme.spacing.sm }}
+                  style={dynamicStyles.previousButtonDynamic(theme.spacing.sm)}
                 />
 
                 <Button
@@ -351,7 +323,7 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
                   variant='primary'
                   size='md'
                   onPress={handleNext}
-                  style={{ flex: 1, marginLeft: theme.spacing.sm }}
+                  style={dynamicStyles.nextButtonDynamic(theme.spacing.sm)}
                 />
               </View>
             )}
@@ -360,65 +332,4 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ onComplete, onSkip
       </GestureHandlerRootView>
     </GradientBackground>
   );
-};
-
-// Styles
-const styles = {
-  container: {
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  progressContainer: {
-    flexDirection: 'row' as const,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    paddingVertical: 24,
-  },
-  progressDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 6,
-  },
-  slidesContainer: {
-    flex: 1,
-    overflow: 'hidden' as const,
-  },
-  slidesWrapper: {
-    flex: 1,
-  },
-  slideContainer: {
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 24,
-    height: '100%',
-  },
-  imageContainer: {
-    flex: 0.6,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-  },
-  slideImage: {
-    width: 280,
-    height: 280,
-    borderRadius: 20,
-  },
-  textContent: {
-    flex: 0.4,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-  },
-  footer: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-  },
-  navigationButtons: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-  },
 };

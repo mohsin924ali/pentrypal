@@ -26,6 +26,9 @@ import { GradientBackground } from '../../components/atoms/GradientBackground';
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
 
+// Styles
+import { baseStyles, createDynamicStyles } from './CreateListScreen.styles';
+
 // Services
 import groceryItemsService, {
   type Category,
@@ -81,6 +84,9 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation<NavigationProp>();
   const { theme } = useTheme();
+
+  // Create dynamic styles
+  const dynamicStyles = createDynamicStyles(theme);
 
   // Redux selectors
   const isCreatingList = useSelector(selectIsCreatingList);
@@ -573,10 +579,10 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   // [Continuing with render functions...]
 
   const renderHeader = () => (
-    <View style={styles.header}>
+    <View style={baseStyles.header}>
       <TouchableOpacity
         onPress={() => navigation.goBack()}
-        style={styles.headerButton}
+        style={baseStyles.headerButton}
         accessibilityRole='button'
         accessibilityLabel='Go back'>
         <Typography variant='h3' color={safeTheme.colors.text.primary}>
@@ -584,21 +590,27 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         </Typography>
       </TouchableOpacity>
 
-      <Typography variant='h2' color={safeTheme.colors.text.primary} style={styles.headerTitle}>
+      <Typography variant='h2' color={safeTheme.colors.text.primary} style={baseStyles.headerTitle}>
         {editMode ? 'Edit List' : 'Create New List'}
       </Typography>
 
-      <View style={styles.headerButton} />
+      <View style={baseStyles.headerButton} />
     </View>
   );
 
   const renderListNameInput = () => (
-    <View style={styles.inputSection}>
-      <Typography variant='body1' color={safeTheme.colors.text.primary} style={styles.inputLabel}>
+    <View style={baseStyles.inputSection}>
+      <Typography
+        variant='body1'
+        color={safeTheme.colors.text.primary}
+        style={baseStyles.inputLabel}>
         List Name
       </Typography>
       <TextInput
-        style={[styles.textInput, { color: safeTheme.colors.text.primary }]}
+        style={[
+          baseStyles.textInput,
+          dynamicStyles.textInputDynamic('#ffffff', '#e5e5e5', safeTheme.colors.text.primary),
+        ]}
         value={listName}
         onChangeText={setListName}
         placeholder='Enter list name (e.g., Weekly Groceries)'
@@ -608,12 +620,18 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   );
 
   const renderSearchInput = () => (
-    <View style={styles.inputSection}>
-      <Typography variant='body1' color={safeTheme.colors.text.primary} style={styles.inputLabel}>
+    <View style={baseStyles.inputSection}>
+      <Typography
+        variant='body1'
+        color={safeTheme.colors.text.primary}
+        style={baseStyles.inputLabel}>
         Search & Add Items
       </Typography>
       <TextInput
-        style={[styles.textInput, { color: safeTheme.colors.text.primary }]}
+        style={[
+          baseStyles.textInput,
+          dynamicStyles.textInputDynamic('#ffffff', '#e5e5e5', safeTheme.colors.text.primary),
+        ]}
         value={searchQuery}
         onChangeText={text => {
           setSearchQuery(text);
@@ -628,9 +646,13 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
       {/* Search Results Dropdown */}
       {searchQuery.trim() && (
-        <View style={[styles.searchDropdown, { backgroundColor: safeTheme.colors.surface.card }]}>
+        <View
+          style={[
+            baseStyles.searchDropdown,
+            dynamicStyles.searchDropdownDynamic(safeTheme.colors.surface.card),
+          ]}>
           <ScrollView
-            style={styles.searchDropdownScroll}
+            style={baseStyles.searchDropdownScroll}
             showsVerticalScrollIndicator={false}
             nestedScrollEnabled={true}>
             {searchResults.length > 0 ? (
@@ -638,7 +660,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
               searchResults.map(item => (
                 <TouchableOpacity
                   key={item.id}
-                  style={styles.searchResultItem}
+                  style={baseStyles.searchResultItem}
                   onPress={() => {
                     // Show quantity/unit modal for the selected item
                     setCurrentItem(item);
@@ -648,13 +670,13 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                     setSearchQuery('');
                     setSearchResults([]);
                   }}>
-                  <Typography variant='body1' style={styles.searchItemIcon}>
+                  <Typography variant='body1' style={baseStyles.searchItemIcon}>
                     {item.icon}
                   </Typography>
                   <Typography
                     variant='body1'
                     color={safeTheme.colors.text.primary}
-                    style={styles.searchItemName}>
+                    style={baseStyles.searchItemName}>
                     {item.name}
                   </Typography>
                 </TouchableOpacity>
@@ -662,15 +684,15 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             ) : (
               // Show "Add Custom Item" option when no results found
               <TouchableOpacity
-                style={styles.searchResultItem}
+                style={baseStyles.searchResultItem}
                 onPress={() => handleCreateFromSearch(searchQuery.trim())}>
-                <Typography variant='body1' style={styles.searchItemIcon}>
+                <Typography variant='body1' style={baseStyles.searchItemIcon}>
                   ➕
                 </Typography>
                 <Typography
                   variant='body1'
                   color={safeTheme.colors.primary['500']}
-                  style={styles.searchItemName}>
+                  style={baseStyles.searchItemName}>
                   Add "{searchQuery.trim()}" as custom item
                 </Typography>
               </TouchableOpacity>
@@ -687,19 +709,19 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
     return (
       <TouchableOpacity
-        style={styles.categoryHeader}
+        style={baseStyles.categoryHeader}
         onPress={() => toggleCategory(category.id)}
         accessibilityRole='button'
         accessibilityLabel={`${isCollapsed ? 'Expand' : 'Collapse'} ${category.name} category`}>
-        <View style={styles.categoryLeft}>
-          <Typography variant='h3' style={styles.categoryIcon}>
+        <View style={baseStyles.categoryLeft}>
+          <Typography variant='h3' style={baseStyles.categoryIcon}>
             {category.icon}
           </Typography>
-          <View style={styles.categoryInfo}>
+          <View style={baseStyles.categoryInfo}>
             <Typography
               variant='h5'
               color={safeTheme.colors.text.primary}
-              style={styles.categoryName}>
+              style={baseStyles.categoryName}>
               {category.name}
             </Typography>
             <Typography variant='caption' color={safeTheme.colors.text.secondary}>
@@ -708,7 +730,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             </Typography>
           </View>
         </View>
-        <Typography variant='h3' color={safeTheme.colors.text.secondary} style={styles.chevron}>
+        <Typography variant='h3' color={safeTheme.colors.text.secondary} style={baseStyles.chevron}>
           {isCollapsed ? '▼' : '▲'}
         </Typography>
       </TouchableOpacity>
@@ -736,31 +758,31 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
     return (
       <TouchableOpacity
         key={item.id}
-        style={styles.itemRow}
+        style={baseStyles.itemRow}
         onPress={() => toggleItem(item.id)}
         accessibilityRole='button'
         accessibilityLabel={`${isSelected ? 'Remove' : 'Add'} ${item.name}`}>
-        <View style={styles.itemLeft}>
-          <Typography variant='body1' style={styles.itemIcon}>
+        <View style={baseStyles.itemLeft}>
+          <Typography variant='body1' style={baseStyles.itemIcon}>
             {item.icon}
           </Typography>
-          <View style={styles.itemInfo}>
+          <View style={baseStyles.itemInfo}>
             <Typography
               variant='body1'
               color={safeTheme.colors.text.primary}
-              style={styles.itemName}>
+              style={baseStyles.itemName}>
               {item.name}
             </Typography>
             {isSelected && selectedItemData && (
-              <View style={styles.quantityControls}>
+              <View style={baseStyles.quantityControls}>
                 <View
                   style={[
-                    styles.quantityContainer,
+                    baseStyles.quantityContainer,
                     { backgroundColor: safeTheme.colors.surface.card },
                   ]}>
                   <TouchableOpacity
                     style={[
-                      styles.quantityButton,
+                      baseStyles.quantityButton,
                       { borderRightWidth: 1, borderRightColor: '#E5E7EB' },
                     ]}
                     onPress={e => {
@@ -769,31 +791,31 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                     }}
                     accessibilityRole='button'
                     accessibilityLabel={`Decrease quantity for ${item.name}`}>
-                    <Typography variant='body1' style={styles.quantityButtonText}>
+                    <Typography variant='body1' style={baseStyles.quantityButtonText}>
                       -
                     </Typography>
                   </TouchableOpacity>
                   <View
                     style={[
-                      styles.quantityDisplay,
+                      baseStyles.quantityDisplay,
                       { backgroundColor: safeTheme.colors.surface.card },
                     ]}>
                     <Typography
                       variant='caption'
                       color={safeTheme.colors.text.primary}
-                      style={styles.quantityText}>
+                      style={baseStyles.quantityText}>
                       {selectedItemData.quantity}
                     </Typography>
                   </View>
                   <TouchableOpacity
-                    style={[styles.quantityButton, { borderRightWidth: 0 }]}
+                    style={[baseStyles.quantityButton, baseStyles.quantityButtonLast]}
                     onPress={e => {
                       e.stopPropagation();
                       handleQuantityChange(true);
                     }}
                     accessibilityRole='button'
                     accessibilityLabel={`Increase quantity for ${item.name}`}>
-                    <Typography variant='body1' style={styles.quantityButtonText}>
+                    <Typography variant='body1' style={baseStyles.quantityButtonText}>
                       +
                     </Typography>
                   </TouchableOpacity>
@@ -801,7 +823,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 <Typography
                   variant='caption'
                   color={safeTheme.colors.text.secondary}
-                  style={styles.unitText}>
+                  style={baseStyles.unitText}>
                   {selectedItemData.unit}
                 </Typography>
               </View>
@@ -810,7 +832,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         </View>
         {isSelected && (
           <TouchableOpacity
-            style={styles.removeButton}
+            style={baseStyles.removeButton}
             onPress={e => {
               e.stopPropagation();
               const newSelected = new Map(selectedItems);
@@ -819,7 +841,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             }}
             accessibilityRole='button'
             accessibilityLabel={`Remove ${item.name} from list`}>
-            <Typography variant='body1' color='#ffffff' style={styles.removeButtonText}>
+            <Typography variant='body1' color='#ffffff' style={baseStyles.removeButtonText}>
               ✕
             </Typography>
           </TouchableOpacity>
@@ -834,10 +856,13 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
     return (
       <View
         key={category.id}
-        style={[styles.categoryContainer, { backgroundColor: safeTheme.colors.surface.card }]}>
+        style={[
+          baseStyles.categoryContainer,
+          dynamicStyles.categoryContainerDynamic(safeTheme.colors.surface.card),
+        ]}>
         {renderCategoryHeader(category)}
         {!isCollapsed && (
-          <View style={styles.itemsContainer}>{category.items.map(renderItem)}</View>
+          <View style={baseStyles.itemsContainer}>{category.items.map(renderItem)}</View>
         )}
       </View>
     );
@@ -846,21 +871,35 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   const renderQuantityModal = () =>
     showQuantityModal &&
     currentItem && (
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: safeTheme.colors.surface.card }]}>
-          <Typography variant='h3' color={safeTheme.colors.text.primary} style={styles.modalTitle}>
+      <View style={baseStyles.modalOverlay}>
+        <View
+          style={[
+            baseStyles.modalContent,
+            dynamicStyles.modalContentDynamic(safeTheme.colors.surface.card),
+          ]}>
+          <Typography
+            variant='h3'
+            color={safeTheme.colors.text.primary}
+            style={baseStyles.modalTitle}>
             Add {currentItem.name}
           </Typography>
 
-          <View style={styles.quantitySection}>
+          <View style={baseStyles.quantitySection}>
             <Typography
               variant='body1'
               color={safeTheme.colors.text.primary}
-              style={styles.modalLabel}>
+              style={baseStyles.modalLabel}>
               Quantity
             </Typography>
             <TextInput
-              style={[styles.quantityInput, { color: safeTheme.colors.text.primary }]}
+              style={[
+                baseStyles.quantityInput,
+                dynamicStyles.quantityInputDynamic(
+                  '#F9F9F9',
+                  '#E5E7EB',
+                  safeTheme.colors.text.primary
+                ),
+              ]}
               value={quantity}
               onChangeText={setQuantity}
               placeholder='1'
@@ -869,21 +908,21 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             />
           </View>
 
-          <View style={styles.unitSection}>
+          <View style={baseStyles.unitSection}>
             <Typography
               variant='body1'
               color={safeTheme.colors.text.primary}
-              style={styles.modalLabel}>
+              style={baseStyles.modalLabel}>
               Unit
             </Typography>
-            <View style={styles.unitsContainer}>
+            <View style={baseStyles.unitsContainer}>
               {currentItem.commonUnits.map(unit => (
                 <TouchableOpacity
                   key={unit}
                   style={[
-                    styles.unitButton,
+                    baseStyles.unitButton,
                     selectedUnit === unit && [
-                      styles.unitButtonSelected,
+                      baseStyles.unitButtonSelected,
                       { backgroundColor: safeTheme.colors.primary['500'] },
                     ],
                   ]}
@@ -891,7 +930,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                   <Typography
                     variant='caption'
                     color={selectedUnit === unit ? '#ffffff' : safeTheme.colors.text.primary}
-                    style={styles.unitButtonText}>
+                    style={baseStyles.unitButtonText}>
                     {unit}
                   </Typography>
                 </TouchableOpacity>
@@ -899,10 +938,10 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             </View>
           </View>
 
-          <View style={styles.modalButtons}>
+          <View style={baseStyles.modalButtons}>
             <TouchableOpacity
               style={[
-                styles.modalButtonSecondary,
+                baseStyles.modalButtonSecondary,
                 { backgroundColor: (safeTheme.colors.surface as any).secondary },
               ]}
               onPress={() => {
@@ -915,7 +954,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               style={[
-                styles.modalButtonPrimary,
+                baseStyles.modalButtonPrimary,
                 { backgroundColor: safeTheme.colors.primary['500'] },
               ]}
               onPress={handleAddItemWithQuantity}>
@@ -931,33 +970,40 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
   const renderDuplicateModal = () =>
     showDuplicateModal &&
     duplicateItemData && (
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: safeTheme.colors.surface.card }]}>
-          <Typography variant='h3' color={safeTheme.colors.text.primary} style={styles.modalTitle}>
+      <View style={baseStyles.modalOverlay}>
+        <View
+          style={[
+            baseStyles.modalContent,
+            dynamicStyles.modalContentDynamic(safeTheme.colors.surface.card),
+          ]}>
+          <Typography
+            variant='h3'
+            color={safeTheme.colors.text.primary}
+            style={baseStyles.modalTitle}>
             Item Already Added
           </Typography>
 
-          <View style={styles.duplicateMessage}>
+          <View style={baseStyles.duplicateMessage}>
             <Typography
               variant='body1'
               color={safeTheme.colors.text.primary}
-              style={styles.duplicateText}>
+              style={baseStyles.duplicateText}>
               {duplicateItemData.existingItem.name} with {duplicateItemData.existingItem.quantity}{' '}
               {duplicateItemData.existingItem.unit} is already in your list.
             </Typography>
             <Typography
               variant='body1'
               color={safeTheme.colors.text.primary}
-              style={styles.duplicateText}>
+              style={baseStyles.duplicateText}>
               Do you really want to add {duplicateItemData.newQuantity} {duplicateItemData.newUnit}{' '}
               more?
             </Typography>
           </View>
 
-          <View style={styles.modalButtons}>
+          <View style={baseStyles.modalButtons}>
             <TouchableOpacity
               style={[
-                styles.modalButtonSecondary,
+                baseStyles.modalButtonSecondary,
                 { backgroundColor: (safeTheme.colors.surface as any).secondary },
               ]}
               onPress={handleDuplicateCancel}>
@@ -967,7 +1013,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               style={[
-                styles.modalButtonPrimary,
+                baseStyles.modalButtonPrimary,
                 { backgroundColor: safeTheme.colors.primary['500'] },
               ]}
               onPress={handleDuplicateConfirm}>
@@ -982,21 +1028,35 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
   const renderCustomItemModal = () =>
     showCustomItemModal && (
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: safeTheme.colors.surface.card }]}>
-          <Typography variant='h3' color={safeTheme.colors.text.primary} style={styles.modalTitle}>
+      <View style={baseStyles.modalOverlay}>
+        <View
+          style={[
+            baseStyles.modalContent,
+            dynamicStyles.modalContentDynamic(safeTheme.colors.surface.card),
+          ]}>
+          <Typography
+            variant='h3'
+            color={safeTheme.colors.text.primary}
+            style={baseStyles.modalTitle}>
             Add Custom Item
           </Typography>
 
-          <View style={styles.quantitySection}>
+          <View style={baseStyles.quantitySection}>
             <Typography
               variant='body1'
               color={safeTheme.colors.text.primary}
-              style={styles.modalLabel}>
+              style={baseStyles.modalLabel}>
               Item Name
             </Typography>
             <TextInput
-              style={[styles.quantityInput, { color: safeTheme.colors.text.primary }]}
+              style={[
+                baseStyles.quantityInput,
+                dynamicStyles.quantityInputDynamic(
+                  '#F9F9F9',
+                  '#E5E7EB',
+                  safeTheme.colors.text.primary
+                ),
+              ]}
               value={customItemName}
               onChangeText={setCustomItemName}
               placeholder='Enter item name'
@@ -1005,15 +1065,22 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             />
           </View>
 
-          <View style={styles.quantitySection}>
+          <View style={baseStyles.quantitySection}>
             <Typography
               variant='body1'
               color={safeTheme.colors.text.primary}
-              style={styles.modalLabel}>
+              style={baseStyles.modalLabel}>
               Quantity
             </Typography>
             <TextInput
-              style={[styles.quantityInput, { color: safeTheme.colors.text.primary }]}
+              style={[
+                baseStyles.quantityInput,
+                dynamicStyles.quantityInputDynamic(
+                  '#F9F9F9',
+                  '#E5E7EB',
+                  safeTheme.colors.text.primary
+                ),
+              ]}
               value={customItemQuantity}
               onChangeText={setCustomItemQuantity}
               placeholder='1'
@@ -1022,17 +1089,17 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             />
           </View>
 
-          <View style={styles.quantitySection}>
+          <View style={baseStyles.quantitySection}>
             <Typography
               variant='body1'
               color={safeTheme.colors.text.primary}
-              style={styles.modalLabel}>
+              style={baseStyles.modalLabel}>
               Unit
             </Typography>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              style={{ flexDirection: 'row' } as any}>
+              style={baseStyles.unitsScrollView}>
               {[
                 'pieces',
                 'lbs',
@@ -1051,7 +1118,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                 <TouchableOpacity
                   key={unit}
                   style={[
-                    styles.unitButton,
+                    baseStyles.unitButton,
                     customItemUnit === unit && {
                       backgroundColor: safeTheme.colors.primary['500'],
                     },
@@ -1067,10 +1134,10 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             </ScrollView>
           </View>
 
-          <View style={styles.modalButtons}>
+          <View style={baseStyles.modalButtons}>
             <TouchableOpacity
               style={[
-                styles.modalButtonSecondary,
+                baseStyles.modalButtonSecondary,
                 { backgroundColor: (safeTheme.colors.surface as any).secondary },
               ]}
               onPress={() => {
@@ -1085,7 +1152,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               style={[
-                styles.modalButtonPrimary,
+                baseStyles.modalButtonPrimary,
                 { backgroundColor: safeTheme.colors.primary['500'] },
               ]}
               onPress={handleAddCustomItem}>
@@ -1100,23 +1167,23 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={baseStyles.container}>
         {renderHeader()}
 
         <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          style={baseStyles.scrollView}
+          contentContainerStyle={baseStyles.scrollContent}
           showsVerticalScrollIndicator={false}>
           {renderListNameInput()}
           {renderSearchInput()}
 
           {/* Loading state */}
           {isLoading && (
-            <View style={styles.loadingContainer}>
+            <View style={baseStyles.loadingContainer}>
               <Typography
                 variant='body1'
                 color={safeTheme.colors.text.secondary}
-                style={styles.loadingText}>
+                style={baseStyles.loadingText}>
                 Loading grocery items...
               </Typography>
             </View>
@@ -1124,21 +1191,21 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
           {/* Show categories section only when user has selected items and NOT searching */}
           {showCategories && !searchQuery.trim() && (
-            <View style={styles.categoriesSection}>
+            <View style={baseStyles.categoriesSection}>
               <Typography
                 variant='h3'
                 color={safeTheme.colors.text.primary}
-                style={styles.sectionTitle}>
+                style={baseStyles.sectionTitle}>
                 Selected Items ({selectedItems.size} selected)
               </Typography>
               {visibleCategories.length > 0 ? (
                 visibleCategories.map(renderCategory)
               ) : (
-                <View style={styles.emptyState}>
+                <View style={baseStyles.emptyState}>
                   <Typography
                     variant='body1'
                     color={safeTheme.colors.text.secondary}
-                    style={styles.emptyStateText}>
+                    style={baseStyles.emptyStateText}>
                     Start searching to add items to your list
                   </Typography>
                 </View>
@@ -1148,17 +1215,17 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
           {/* Initial state - show helpful message when no search/selection */}
           {!showCategories && (
-            <View style={styles.initialState}>
+            <View style={baseStyles.initialState}>
               <Typography
                 variant='h3'
                 color={safeTheme.colors.text.primary}
-                style={styles.initialStateTitle}>
+                style={baseStyles.initialStateTitle}>
                 🛒 Ready to create your list?
               </Typography>
               <Typography
                 variant='body1'
                 color={safeTheme.colors.text.secondary}
-                style={styles.initialStateDescription}>
+                style={baseStyles.initialStateDescription}>
                 1. Give your list a name above{'\n'}
                 2. Search for items to add{'\n'}
                 3. Select items you need{'\n'}
@@ -1169,7 +1236,11 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
         </ScrollView>
 
         {/* Fixed Bottom Button */}
-        <View style={[styles.bottomSection, { backgroundColor: safeTheme.colors.surface.card }]}>
+        <View
+          style={[
+            baseStyles.bottomSection,
+            dynamicStyles.bottomSectionDynamic(safeTheme.colors.surface.card),
+          ]}>
           <Button
             title={`${editMode ? 'Update' : 'Create'} List${selectedItems.size > 0 ? ` (${selectedItems.size} items)` : ''}`}
             variant='primary'
@@ -1180,7 +1251,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
               (editMode && !hasChanges) ||
               isCreatingList
             }
-            style={styles.createButton}
+            style={baseStyles.createButton}
           />
         </View>
 
@@ -1191,445 +1262,4 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
       </SafeAreaView>
     </GradientBackground>
   );
-};
-
-const styles = {
-  container: {
-    flex: 1,
-  } as ViewStyle,
-
-  header: {
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  } as ViewStyle,
-
-  headerButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  headerTitle: {
-    fontWeight: '700',
-    fontSize: 18,
-  } as ViewStyle,
-
-  scrollView: {
-    flex: 1,
-  } as ViewStyle,
-
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 100, // Space for fixed button
-  } as ViewStyle,
-
-  inputSection: {
-    marginBottom: 16,
-  } as ViewStyle,
-
-  inputLabel: {
-    fontWeight: '700',
-    marginBottom: 8,
-  } as ViewStyle,
-
-  textInput: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-  } as ViewStyle,
-
-  searchDropdown: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-    marginTop: 4,
-    maxHeight: 200,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  } as ViewStyle,
-
-  searchDropdownScroll: {
-    maxHeight: 200,
-  } as ViewStyle,
-
-  searchResultItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  } as ViewStyle,
-
-  searchItemIcon: {
-    marginRight: 12,
-    fontSize: 18,
-  } as ViewStyle,
-
-  searchItemName: {
-    flex: 1,
-    fontSize: 16,
-  } as ViewStyle,
-
-  categoriesSection: {
-    marginTop: 16,
-  } as ViewStyle,
-
-  sectionTitle: {
-    fontWeight: '600',
-    marginBottom: 12,
-  } as ViewStyle,
-
-  categoryContainer: {
-    borderRadius: 12,
-    marginBottom: 12,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 1,
-  } as ViewStyle,
-
-  categoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-  } as ViewStyle,
-
-  categoryLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  } as ViewStyle,
-
-  categoryIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  } as ViewStyle,
-
-  categoryInfo: {
-    flex: 1,
-  } as ViewStyle,
-
-  categoryName: {
-    fontWeight: '600',
-    marginBottom: 2,
-  } as ViewStyle,
-
-  chevron: {
-    fontSize: 12,
-    marginLeft: 8,
-  } as ViewStyle,
-
-  itemsContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F4F2',
-  } as ViewStyle,
-
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  } as ViewStyle,
-
-  itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  } as ViewStyle,
-
-  itemIcon: {
-    fontSize: 20,
-    marginRight: 12,
-  } as ViewStyle,
-
-  itemInfo: {
-    flex: 1,
-  } as ViewStyle,
-
-  itemName: {
-    fontWeight: '500',
-  } as ViewStyle,
-
-  quantityControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    gap: 8,
-  } as ViewStyle,
-
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    overflow: 'hidden',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-  } as ViewStyle,
-
-  quantityButton: {
-    backgroundColor: '#F3F4F6',
-    width: 28,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 1,
-    borderRightColor: '#E5E7EB',
-  } as ViewStyle,
-
-  quantityButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    lineHeight: 18,
-  } as ViewStyle,
-
-  quantityDisplay: {
-    paddingHorizontal: 12,
-    minWidth: 60,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  quantityText: {
-    fontSize: 14,
-    fontWeight: '600',
-    lineHeight: 16,
-    textAlign: 'center',
-  } as ViewStyle,
-
-  unitText: {
-    fontSize: 11,
-    fontWeight: '600',
-  } as ViewStyle,
-
-  removeButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#EF4444',
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  } as ViewStyle,
-
-  removeButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-  } as ViewStyle,
-
-  initialState: {
-    alignItems: 'center',
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-  } as ViewStyle,
-
-  initialStateTitle: {
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 12,
-  } as ViewStyle,
-
-  initialStateDescription: {
-    textAlign: 'center',
-    lineHeight: 24,
-  } as ViewStyle,
-
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 24,
-  } as ViewStyle,
-
-  emptyStateText: {
-    textAlign: 'center',
-    fontStyle: 'italic',
-    marginBottom: 16,
-  } as ViewStyle,
-
-  bottomSection: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  createButton: {
-    minWidth: 200,
-    maxWidth: 300,
-    height: 44,
-    paddingVertical: 12,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-  } as ViewStyle,
-
-  loadingContainer: {
-    paddingVertical: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  loadingText: {
-    textAlign: 'center',
-    fontStyle: 'italic',
-  } as ViewStyle,
-
-  // Modal Styles
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  } as ViewStyle,
-
-  modalContent: {
-    borderRadius: 20,
-    padding: 24,
-    margin: 24,
-    width: '85%',
-    maxWidth: 400,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-  } as ViewStyle,
-
-  modalTitle: {
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 24,
-  } as ViewStyle,
-
-  modalLabel: {
-    fontWeight: '600',
-    marginBottom: 8,
-  } as ViewStyle,
-
-  quantitySection: {
-    marginBottom: 24,
-  } as ViewStyle,
-
-  quantityInput: {
-    backgroundColor: '#F9F9F9',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    textAlign: 'center',
-  } as ViewStyle,
-
-  unitSection: {
-    marginBottom: 24,
-  } as ViewStyle,
-
-  unitsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  } as ViewStyle,
-
-  unitButton: {
-    backgroundColor: '#F9F9F9',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  } as ViewStyle,
-
-  unitButtonSelected: {
-    borderColor: '#4ADE80',
-  } as ViewStyle,
-
-  unitButtonText: {
-    fontSize: 12,
-    fontWeight: '500',
-  } as ViewStyle,
-
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  } as ViewStyle,
-
-  modalButtonSecondary: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  } as ViewStyle,
-
-  modalButtonPrimary: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  } as ViewStyle,
-
-  // Duplicate Modal Styles
-  duplicateMessage: {
-    marginBottom: 24,
-    alignItems: 'center',
-  } as ViewStyle,
-
-  duplicateText: {
-    textAlign: 'center',
-    marginBottom: 8,
-    lineHeight: 20,
-  } as ViewStyle,
 };

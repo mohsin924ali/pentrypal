@@ -19,6 +19,9 @@ import { ListCreationSuccessAnimation } from '../../components/molecules/ListCre
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
 
+// Styles
+import { baseStyles, createDynamicStyles, createThemedStyles } from './ShoppingListsScreen.styles';
+
 // Redux
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -51,6 +54,10 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
 }) => {
   const { theme } = useTheme();
   const dispatch = useDispatch<AppDispatch>();
+
+  // Create themed and dynamic styles
+  const themedStyles = createThemedStyles(theme);
+  const dynamicStyles = createDynamicStyles(theme);
 
   // Redux selectors
   const user = useSelector(selectUser);
@@ -163,93 +170,73 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
   // Render list item
   const renderListItem = useCallback(
     ({ item }: { item: ShoppingList }) => (
-      <View
-        style={{
-          backgroundColor: theme.colors.surface.card,
-          padding: theme.spacing.md,
-          marginHorizontal: theme.spacing.md,
-          marginVertical: theme.spacing.xs,
-          borderRadius: (theme as any).borderRadius.md,
-          shadowColor: (theme.colors as any).shadow,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-          }}>
-          <View style={{ flex: 1 }}>
+      <View style={[baseStyles.listItem, themedStyles.listItemThemed]}>
+        <View style={baseStyles.listItemHeader}>
+          <View style={baseStyles.listItemContent}>
             <Typography
               variant='h3'
-              style={{ color: theme.colors.text.primary, marginBottom: theme.spacing.xs }}>
+              style={dynamicStyles.listItemTitle(theme.colors.text.primary, theme.spacing.xs)}>
               {item.name}
             </Typography>
 
             {item.description && (
               <Typography
                 variant='body2'
-                style={{
-                  color: theme.colors.text.secondary,
-                  marginBottom: theme.spacing.xs,
-                }}>
+                style={dynamicStyles.listItemDescription(
+                  theme.colors.text.secondary,
+                  theme.spacing.xs
+                )}>
                 {item.description}
               </Typography>
             )}
 
             <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: theme.spacing.xs,
-              }}>
+              style={[
+                baseStyles.statsContainer,
+                dynamicStyles.statsContainerDynamic(theme.spacing.xs),
+              ]}>
               <Typography
                 variant='caption'
-                style={{
-                  color: theme.colors.text.secondary,
-                  marginRight: theme.spacing.md,
-                }}>
+                style={dynamicStyles.statsItem(theme.colors.text.secondary, theme.spacing.md)}>
                 {item.itemsCount} items
               </Typography>
               <Typography
                 variant='caption'
-                style={{
-                  color: theme.colors.text.secondary,
-                  marginRight: theme.spacing.md,
-                }}>
+                style={dynamicStyles.statsItem(theme.colors.text.secondary, theme.spacing.md)}>
                 {item.completedCount} completed
               </Typography>
-              <Typography variant='caption' style={{ color: theme.colors.primary[500] }}>
+              <Typography
+                variant='caption'
+                style={dynamicStyles.progressText(theme.colors.primary[500])}>
                 {Math.round(item.progress)}% done
               </Typography>
             </View>
 
             {item.budget && (
-              <Typography variant='caption' style={{ color: theme.colors.text.secondary }}>
+              <Typography
+                variant='caption'
+                style={dynamicStyles.budgetText(theme.colors.text.secondary)}>
                 Budget: {item.budget.currency} {item.budget.total} • Spent: {item.budget.currency}{' '}
                 {item.totalSpent}
               </Typography>
             )}
           </View>
 
-          <View style={{ alignItems: 'flex-end' }}>
+          <View style={baseStyles.listItemActions}>
             <View
-              style={{
-                backgroundColor:
+              style={[
+                baseStyles.statusBadge,
+                dynamicStyles.statusBadgeDynamic(
                   item.status === 'active'
                     ? theme.colors.semantic.success[500]
                     : theme.colors.text.secondary,
-                paddingHorizontal: theme.spacing.sm,
-                paddingVertical: theme.spacing.xs,
-                borderRadius: (theme as any).borderRadius.sm,
-                marginBottom: theme.spacing.xs,
-              }}>
+                  theme.spacing.xs,
+                  (theme as any).borderRadius?.sm || 8
+                ),
+              ]}>
               <Typography
                 variant='caption'
-                style={{ color: theme.colors.surface.background, textTransform: 'capitalize' }}>
+                style={dynamicStyles.statusTextDynamic(theme.colors.surface.background)}>
                 {item.status}
               </Typography>
             </View>
@@ -258,7 +245,7 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
               title='Open'
               variant='outline'
               onPress={() => handleListPress(item)}
-              style={{ minWidth: 60 }}
+              style={baseStyles.openButton}
             />
           </View>
         </View>
@@ -270,28 +257,18 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
   // Render empty state
   const renderEmptyState = () => (
     <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: theme.spacing.xl,
-      }}>
+      style={[
+        baseStyles.emptyStateContainer,
+        dynamicStyles.emptyStateContainerDynamic(theme.spacing.xl),
+      ]}>
       <Typography
         variant='h2'
-        style={{
-          color: theme.colors.text.secondary,
-          marginBottom: theme.spacing.md,
-          textAlign: 'center',
-        }}>
+        style={dynamicStyles.emptyStateTitle(theme.colors.text.secondary, theme.spacing.md)}>
         No Shopping Lists
       </Typography>
       <Typography
         variant='body1'
-        style={{
-          color: theme.colors.text.secondary,
-          marginBottom: theme.spacing.xl,
-          textAlign: 'center',
-        }}>
+        style={dynamicStyles.emptyStateDescription(theme.colors.text.secondary, theme.spacing.xl)}>
         Create your first shopping list to get started with collaborative shopping!
       </Typography>
       <Button title='Create List' onPress={handleCreateList} />
@@ -302,30 +279,26 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
   if (error) {
     return (
       <GradientBackground>
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={baseStyles.container}>
           <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: theme.spacing.xl,
-            }}>
+            style={[
+              baseStyles.errorStateContainer,
+              dynamicStyles.errorStateContainerDynamic(theme.spacing.xl),
+            ]}>
             <Typography
               variant='h2'
-              style={{
-                color: theme.colors.semantic.error[500],
-                marginBottom: theme.spacing.md,
-                textAlign: 'center',
-              }}>
+              style={dynamicStyles.errorStateTitle(
+                theme.colors.semantic.error[500],
+                theme.spacing.md
+              )}>
               Error Loading Lists
             </Typography>
             <Typography
               variant='body1'
-              style={{
-                color: theme.colors.text.secondary,
-                marginBottom: theme.spacing.xl,
-                textAlign: 'center',
-              }}>
+              style={dynamicStyles.errorStateDescriptionDynamic(
+                theme.colors.text.secondary,
+                theme.spacing.xl
+              )}>
               {error}
             </Typography>
             <Button title='Try Again' onPress={onRefresh} variant='outline' />
@@ -337,21 +310,17 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
 
   return (
     <GradientBackground>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={baseStyles.container}>
         {/* Header */}
-        <View
-          style={{
-            padding: theme.spacing.md,
-            borderBottomWidth: 1,
-            borderBottomColor: theme.colors.border.primary,
-          }}>
-          <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <View style={[baseStyles.headerContainer, themedStyles.headerContainerThemed]}>
+          <View style={baseStyles.headerContent}>
             <View>
-              <Typography variant='h1' style={{ color: theme.colors.text.primary }}>
+              <Typography variant='h1' style={dynamicStyles.headerTitle(theme.colors.text.primary)}>
                 Shopping Lists
               </Typography>
-              <Typography variant='body2' style={{ color: theme.colors.text.secondary }}>
+              <Typography
+                variant='body2'
+                style={dynamicStyles.headerSubtitle(theme.colors.text.secondary)}>
                 {stats.totalLists} lists • {stats.activeLists} active
               </Typography>
             </View>
@@ -365,10 +334,10 @@ export const ShoppingListsScreen: React.FC<ShoppingListsScreenProps> = ({
           data={lists}
           renderItem={renderListItem}
           keyExtractor={item => item.id}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingVertical: theme.spacing.md,
-          }}
+          contentContainerStyle={[
+            baseStyles.flatListContent,
+            dynamicStyles.flatListContentDynamic(theme.spacing.md),
+          ]}
           refreshControl={
             <RefreshControl
               refreshing={isLoading}

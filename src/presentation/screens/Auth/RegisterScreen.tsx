@@ -29,6 +29,9 @@ import { SuccessModal } from '../../components/molecules/SuccessModal';
 
 // Hooks and Utils
 import { useTheme } from '../../providers/ThemeProvider';
+
+// Styles
+import { baseStyles, createDynamicStyles, createThemedStyles } from './RegisterScreen.styles';
 import { useForm } from '../../hooks/useForm';
 import {
   type RegisterFormData,
@@ -75,6 +78,10 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
   const { theme } = useTheme();
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector(selectAuth);
+
+  // Create themed and dynamic styles
+  const themedStyles = createThemedStyles(theme);
+  const dynamicStyles = createDynamicStyles(theme);
 
   // Local state
   const [biometricType, setBiometricType] = useState<string | null>(null);
@@ -363,8 +370,8 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
     };
 
     return (
-      <View style={styles.passwordStrengthContainer}>
-        <View style={styles.passwordStrengthHeader}>
+      <View style={baseStyles.passwordStrengthContainer}>
+        <View style={baseStyles.passwordStrengthHeader}>
           <Typography variant='caption' color={theme.colors.text.secondary}>
             Password Strength:
           </Typography>
@@ -377,18 +384,17 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
         </View>
 
         {/* Strength Bars */}
-        <View style={styles.strengthBars}>
+        <View style={baseStyles.strengthBars}>
           {[1, 2, 3, 4, 5].map(level => (
             <View
               key={level}
               style={[
-                styles.strengthBar,
-                {
-                  backgroundColor:
-                    level <= passwordStrength.score
-                      ? getStrengthColor(passwordStrength.score)
-                      : theme.colors.neutral[200],
-                },
+                baseStyles.strengthBar,
+                dynamicStyles.strengthBarDynamic(
+                  level <= passwordStrength.score
+                    ? getStrengthColor(passwordStrength.score)
+                    : theme.colors.neutral[200]
+                ),
               ]}
             />
           ))}
@@ -396,13 +402,13 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
 
         {/* Feedback */}
         {passwordStrength.feedback.length > 0 && (
-          <View style={styles.passwordFeedback}>
+          <View style={baseStyles.passwordFeedback}>
             {passwordStrength.feedback.map((feedback, index) => (
               <Typography
                 key={index}
                 variant='caption'
                 color={theme.colors.text.tertiary}
-                style={{ marginTop: 2 }}>
+                style={baseStyles.marginTopTiny}>
                 • {feedback}
               </Typography>
             ))}
@@ -418,23 +424,23 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={baseStyles.container}>
         <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
+          style={baseStyles.keyboardAvoidingView}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
           <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
+            style={baseStyles.scrollView}
+            contentContainerStyle={baseStyles.scrollContent}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps='handled'>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={baseStyles.header}>
               <Typography
                 variant='h2'
                 color={theme.colors.text.primary}
                 align='center'
-                style={{ marginBottom: theme.spacing.sm }}>
+                style={dynamicStyles.headerTitle(theme.spacing.sm)}>
                 Create Account
               </Typography>
 
@@ -442,20 +448,28 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                 variant='body1'
                 color={theme.colors.text.secondary}
                 align='center'
-                style={{ marginBottom: theme.spacing.xl }}>
+                style={dynamicStyles.headerDescription(theme.spacing.xl)}>
                 Join PentryPal to manage your groceries smarter
               </Typography>
             </View>
 
             {/* Registration Form */}
-            <View style={styles.form}>
+            <View style={baseStyles.form}>
               {/* Name Fields */}
-              <View style={[styles.nameContainer, { marginBottom: theme.spacing.md }]}>
-                <View style={[styles.nameField, { marginRight: theme.spacing.sm }]}>
+              <View
+                style={[
+                  baseStyles.nameContainer,
+                  dynamicStyles.nameContainerDynamic(theme.spacing.md),
+                ]}>
+                <View
+                  style={[baseStyles.nameField, dynamicStyles.nameFieldRight(theme.spacing.sm)]}>
                   <Typography
                     variant='body2'
                     color={theme.colors.text.primary}
-                    style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                    style={[
+                      dynamicStyles.fieldLabelDynamic(theme.spacing.xs),
+                      baseStyles.fieldLabel,
+                    ]}>
                     First Name *
                   </Typography>
                   <Input
@@ -471,17 +485,20 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                     <Typography
                       variant='caption'
                       color={theme.colors.semantic.error[500]}
-                      style={{ marginTop: 4 }}>
+                      style={baseStyles.marginTopXs}>
                       {fields.firstName.error}
                     </Typography>
                   )}
                 </View>
 
-                <View style={[styles.nameField, { marginLeft: theme.spacing.sm }]}>
+                <View style={[baseStyles.nameField, dynamicStyles.nameFieldLeft(theme.spacing.sm)]}>
                   <Typography
                     variant='body2'
                     color={theme.colors.text.primary}
-                    style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                    style={[
+                      dynamicStyles.fieldLabelDynamic(theme.spacing.xs),
+                      baseStyles.fieldLabel,
+                    ]}>
                     Last Name *
                   </Typography>
                   <Input
@@ -497,7 +514,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                     <Typography
                       variant='caption'
                       color={theme.colors.semantic.error[500]}
-                      style={{ marginTop: 4 }}>
+                      style={baseStyles.marginTopXs}>
                       {fields.lastName.error}
                     </Typography>
                   )}
@@ -505,11 +522,14 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
               </View>
 
               {/* Email Input */}
-              <View style={{ marginBottom: theme.spacing.md }}>
+              <View style={dynamicStyles.inputContainer(theme.spacing.md)}>
                 <Typography
                   variant='body2'
                   color={theme.colors.text.primary}
-                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  style={[
+                    dynamicStyles.fieldLabelDynamic(theme.spacing.xs),
+                    baseStyles.fieldLabel,
+                  ]}>
                   Email Address *
                 </Typography>
                 <Input
@@ -527,18 +547,21 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                   <Typography
                     variant='caption'
                     color={theme.colors.semantic.error[500]}
-                    style={{ marginTop: 4 }}>
+                    style={baseStyles.marginTopXs}>
                     {fields.email.error}
                   </Typography>
                 )}
               </View>
 
               {/* Phone Number Input */}
-              <View style={{ marginBottom: theme.spacing.md }}>
+              <View style={dynamicStyles.inputContainer(theme.spacing.md)}>
                 <Typography
                   variant='body2'
                   color={theme.colors.text.primary}
-                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  style={[
+                    dynamicStyles.fieldLabelDynamic(theme.spacing.xs),
+                    baseStyles.fieldLabel,
+                  ]}>
                   Phone Number *
                 </Typography>
                 <PhoneNumberInput
@@ -559,21 +582,18 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
               </View>
 
               {/* Gender Dropdown */}
-              <View style={{ marginBottom: theme.spacing.md, zIndex: 1000, position: 'relative' }}>
+              <View style={dynamicStyles.genderContainer(theme.spacing.md, 1000, 'relative')}>
                 <Typography
                   variant='body2'
                   color={theme.colors.text.primary}
-                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  style={[
+                    dynamicStyles.fieldLabelDynamic(theme.spacing.xs),
+                    baseStyles.fieldLabel,
+                  ]}>
                   Gender *
                 </Typography>
                 <TouchableOpacity
-                  style={[
-                    styles.genderDropdown,
-                    {
-                      borderColor: theme.colors.border.primary,
-                      backgroundColor: theme.colors.surface.background,
-                    },
-                  ]}
+                  style={[baseStyles.genderDropdown, themedStyles.genderDropdownThemed]}
                   onPress={() => {
                     setShowGenderDropdown(!showGenderDropdown);
                   }}
@@ -600,14 +620,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
 
                 {showGenderDropdown && (
                   <View
-                    style={[
-                      styles.genderDropdownList,
-                      {
-                        borderColor: theme.colors.border.primary,
-                        backgroundColor: theme.colors.surface.background,
-                        borderWidth: 2,
-                      },
-                    ]}>
+                    style={[baseStyles.genderDropdownList, themedStyles.genderDropdownListThemed]}>
                     {[
                       { value: 'male', label: 'Male' },
                       { value: 'female', label: 'Female' },
@@ -617,15 +630,14 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                       <TouchableOpacity
                         key={option.value}
                         style={[
-                          styles.genderDropdownItem,
-                          {
-                            backgroundColor:
-                              fields.gender.value === option.value
-                                ? theme.colors.primary[100]
-                                : theme.colors.surface.background,
-                            borderBottomWidth: index === array.length - 1 ? 0 : 1,
-                            borderBottomColor: theme.colors.border.primary,
-                          },
+                          baseStyles.genderDropdownItem,
+                          dynamicStyles.genderDropdownItemDynamic(
+                            fields.gender.value === option.value
+                              ? theme.colors.primary[100]
+                              : theme.colors.surface.background,
+                            index === array.length - 1 ? 0 : 1,
+                            theme.colors.border.primary
+                          ),
                         ]}
                         onPress={() => {
                           setValue(
@@ -653,18 +665,21 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                   <Typography
                     variant='caption'
                     color={theme.colors.semantic.error[500]}
-                    style={{ marginTop: 4 }}>
+                    style={baseStyles.marginTopXs}>
                     {fields.gender.error}
                   </Typography>
                 )}
               </View>
 
               {/* Password Input */}
-              <View style={{ marginBottom: theme.spacing.xs }}>
+              <View style={dynamicStyles.passwordContainer(theme.spacing.xs)}>
                 <Typography
                   variant='body2'
                   color={theme.colors.text.primary}
-                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  style={[
+                    dynamicStyles.fieldLabelDynamic(theme.spacing.xs),
+                    baseStyles.fieldLabel,
+                  ]}>
                   Password *
                 </Typography>
                 <Input
@@ -685,11 +700,15 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
               {renderPasswordStrength()}
 
               {/* Confirm Password Input */}
-              <View style={{ marginTop: theme.spacing.md, marginBottom: theme.spacing.md }}>
+              <View
+                style={dynamicStyles.confirmPasswordContainer(theme.spacing.md, theme.spacing.md)}>
                 <Typography
                   variant='body2'
                   color={theme.colors.text.primary}
-                  style={[{ marginBottom: theme.spacing.xs }, styles.fieldLabel]}>
+                  style={[
+                    dynamicStyles.fieldLabelDynamic(theme.spacing.xs),
+                    baseStyles.fieldLabel,
+                  ]}>
                   Confirm Password *
                 </Typography>
                 <Input
@@ -707,32 +726,35 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
               </View>
 
               {/* Terms Acceptance */}
-              <View style={styles.checkboxContainer}>
+              <View style={baseStyles.checkboxContainer}>
                 <TouchableOpacity
                   onPress={() => setValue('acceptTerms', !fields.acceptTerms.value)}
-                  style={styles.checkboxWrapper}
+                  style={baseStyles.checkboxWrapper}
                   testID='accept-terms-checkbox'>
                   <View
-                    style={[styles.checkbox, fields.acceptTerms.value && styles.checkboxChecked]}>
+                    style={[
+                      baseStyles.checkbox,
+                      fields.acceptTerms.value && baseStyles.checkboxChecked,
+                    ]}>
                     {fields.acceptTerms.value && (
                       <Typography
                         variant='body2'
                         color={theme.colors.surface.background}
-                        style={styles.checkmark}>
+                        style={baseStyles.checkmark}>
                         ✓
                       </Typography>
                     )}
                   </View>
                 </TouchableOpacity>
 
-                <View style={styles.termsText}>
+                <View style={baseStyles.termsText}>
                   <Typography variant='body2' color={theme.colors.text.secondary}>
                     I accept the{' '}
                     <Typography
                       variant='body2'
                       color={theme.colors.primary[500]}
                       onPress={handleTermsPress}
-                      style={{ textDecorationLine: 'underline' }}>
+                      style={baseStyles.underlineText}>
                       Terms of Service
                     </Typography>{' '}
                     and{' '}
@@ -740,7 +762,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                       variant='body2'
                       color={theme.colors.primary[500]}
                       onPress={handleTermsPress}
-                      style={{ textDecorationLine: 'underline' }}>
+                      style={baseStyles.underlineText}>
                       Privacy Policy
                     </Typography>
                   </Typography>
@@ -748,28 +770,28 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
               </View>
 
               {/* Marketing Consent */}
-              <View style={styles.checkboxContainer}>
+              <View style={baseStyles.checkboxContainer}>
                 <TouchableOpacity
                   onPress={() => setValue('marketingConsent', !fields.marketingConsent?.value)}
-                  style={styles.checkboxWrapper}
+                  style={baseStyles.checkboxWrapper}
                   testID='marketing-consent-checkbox'>
                   <View
                     style={[
-                      styles.checkbox,
-                      fields.marketingConsent?.value && styles.checkboxChecked,
+                      baseStyles.checkbox,
+                      fields.marketingConsent?.value && baseStyles.checkboxChecked,
                     ]}>
                     {fields.marketingConsent?.value && (
                       <Typography
                         variant='body2'
                         color={theme.colors.surface.background}
-                        style={styles.checkmark}>
+                        style={baseStyles.checkmark}>
                         ✓
                       </Typography>
                     )}
                   </View>
                 </TouchableOpacity>
 
-                <View style={styles.termsText}>
+                <View style={baseStyles.termsText}>
                   <Typography variant='body2' color={theme.colors.text.secondary}>
                     I would like to receive marketing emails about new features and updates
                     (optional)
@@ -779,11 +801,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
 
               {/* Error Display */}
               {auth.error && (
-                <View
-                  style={[
-                    styles.errorContainer,
-                    { backgroundColor: theme.colors.semantic.error[50] },
-                  ]}>
+                <View style={[baseStyles.errorContainer, themedStyles.errorContainerThemed]}>
                   <Typography
                     variant='body2'
                     color={theme.colors.semantic.error[700]}
@@ -802,19 +820,19 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
                 onPress={handleRegistration}
                 loading={auth.isRegistering}
                 disabled={!isValid || !fields.acceptTerms.value || auth.isRegistering}
-                style={{ marginTop: theme.spacing.lg }}
+                style={dynamicStyles.registerButton(theme.spacing.lg)}
                 testID='register-submit-button'
                 accessibilityLabel='Create account button'
                 accessibilityHint='Tap to create your new account'
               />
 
               {/* Footer */}
-              <View style={styles.footer}>
+              <View style={baseStyles.footer}>
                 <Typography
                   variant='body2'
                   color={theme.colors.text.secondary}
                   align='center'
-                  style={{ marginBottom: theme.spacing.sm }}>
+                  style={dynamicStyles.footerDescription(theme.spacing.sm)}>
                   Already have an account?
                 </Typography>
 
@@ -856,137 +874,4 @@ export const RegisterScreen: FC<RegisterScreenProps> = ({
       </SafeAreaView>
     </GradientBackground>
   );
-};
-
-// ========================================
-// Styles
-// ========================================
-
-const styles = {
-  container: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-  },
-  header: {
-    marginBottom: 32,
-  },
-  form: {
-    flex: 1,
-    paddingVertical: 16,
-  },
-  nameContainer: {
-    flexDirection: 'row' as const,
-  },
-  nameField: {
-    flex: 1,
-  },
-  genderDropdown: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'space-between' as const,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    minHeight: 40,
-  },
-  genderDropdownList: {
-    position: 'absolute' as const,
-    top: 44,
-    left: 0,
-    right: 0,
-    borderWidth: 1,
-    borderRadius: 8,
-    zIndex: 9999,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    overflow: 'hidden' as const,
-  },
-  genderDropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    minHeight: 40,
-  },
-  passwordStrengthContainer: {
-    marginBottom: 16,
-  },
-  passwordStrengthHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginBottom: 8,
-  },
-  strengthBars: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    marginBottom: 8,
-  },
-  strengthBar: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    marginHorizontal: 2,
-  },
-  passwordFeedback: {
-    marginTop: 4,
-  },
-  checkboxContainer: {
-    flexDirection: 'row' as const,
-    alignItems: 'flex-start' as const,
-    marginBottom: 16,
-  },
-  checkboxWrapper: {
-    marginRight: 12,
-    marginTop: 2,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    backgroundColor: 'transparent',
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-  },
-  checkboxChecked: {
-    backgroundColor: '#10B981',
-    borderColor: '#10B981',
-  },
-  checkmark: {
-    fontSize: 12,
-    fontWeight: 'bold' as const,
-    lineHeight: 12,
-  },
-  fieldLabel: {
-    fontWeight: 'bold' as const,
-  },
-  termsText: {
-    flex: 1,
-    marginLeft: 0,
-    marginTop: 0,
-  },
-  errorContainer: {
-    padding: 16,
-    borderRadius: 8,
-    marginVertical: 16,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  footer: {
-    paddingTop: 32,
-  },
 };

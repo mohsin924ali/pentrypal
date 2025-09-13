@@ -27,6 +27,9 @@ import { GradientBackground } from '../../components/atoms/GradientBackground';
 import { useTheme } from '../../providers/ThemeProvider';
 import { useNetwork } from '../../providers/NetworkProvider';
 
+// Styles
+import { baseStyles, createDynamicStyles } from './DashboardScreen.styles';
+
 // Icons
 const CreateListIcon = require('../../../assets/images/createList.png');
 
@@ -59,6 +62,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   const { theme } = useTheme();
   const { isConnected } = useNetwork();
   const dispatch = useDispatch<AppDispatch>();
+
+  // Create dynamic styles
+  const dynamicStyles = createDynamicStyles(theme);
 
   const user = useSelector(selectUser);
   const lists = useSelector(selectFilteredLists);
@@ -453,10 +459,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={baseStyles.container}>
         {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
+        <View style={baseStyles.header}>
+          <View style={baseStyles.headerContent}>
             <Typography variant='h3' color={theme.colors.text.primary}>
               {getGreeting()}, {user?.name?.split(' ')[0] || 'User'}!
             </Typography>
@@ -464,7 +470,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             <Typography
               variant='body1'
               color={theme.colors.text.secondary}
-              style={{ marginTop: 4 }}>
+              style={baseStyles.headerGreetingSubtitle}>
               {isConnected ? "Here's your grocery overview" : 'Offline mode - showing cached data'}
             </Typography>
           </View>
@@ -472,7 +478,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           {/* Connection Status */}
           {!isConnected && (
             <View
-              style={[styles.statusBadge, { backgroundColor: theme.colors.semantic.warning[100] }]}>
+              style={[
+                baseStyles.statusBadge,
+                { backgroundColor: theme.colors.semantic.warning[100] },
+              ]}>
               <Typography variant='caption' color={theme.colors.semantic.warning[700]}>
                 Offline
               </Typography>
@@ -482,8 +491,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
         {/* Content */}
         <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
+          style={baseStyles.content}
+          contentContainerStyle={baseStyles.scrollContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -493,9 +502,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             />
           }>
           {/* Overview Stats Cards */}
-          <View style={styles.statsContainer}>
-            <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+          <View style={baseStyles.statsContainer}>
+            <View style={baseStyles.statsRow}>
+              <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
                 <Typography variant='h4' color={theme.colors.primary[500]}>
                   {statistics.activeLists}
                 </Typography>
@@ -504,7 +513,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 </Typography>
               </View>
 
-              <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+              <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
                 <Typography variant='h4' color={theme.colors.secondary[500]}>
                   {statistics.pendingItems}
                 </Typography>
@@ -514,8 +523,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               </View>
             </View>
 
-            <View style={styles.statsRow}>
-              <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+            <View style={baseStyles.statsRow}>
+              <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
                 <Typography variant='h4' color={theme.colors.semantic.success[500]}>
                   {statistics.completionRate.toFixed(0)}%
                 </Typography>
@@ -524,7 +533,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 </Typography>
               </View>
 
-              <View style={[styles.statCard, { backgroundColor: theme.colors.surface.card }]}>
+              <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
                 <Typography variant='h4' color={theme.colors.accent[500]}>
                   {statistics.archivedLists}
                 </Typography>
@@ -536,15 +545,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           </View>
 
           {/* Spending Overview - User's Personal Spending */}
-          <View style={styles.section}>
-            <View style={styles.spendingHeader}>
+          <View style={baseStyles.section}>
+            <View style={baseStyles.spendingHeader}>
               <Typography
                 variant='h5'
                 color={theme.colors.text.primary}
-                style={styles.sectionTitle}>
+                style={baseStyles.sectionTitle}>
                 💰 Your Spending Overview
               </Typography>
-              <TouchableOpacity onPress={openBudgetModal} style={styles.budgetButton}>
+              <TouchableOpacity onPress={openBudgetModal} style={baseStyles.budgetButton}>
                 <Typography variant='caption' color={theme.colors.primary[500]}>
                   {monthlyBudget > 0 ? 'Edit Budget' : 'Set Budget'}
                 </Typography>
@@ -555,7 +564,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             {statistics.isOverBudget && (
               <View
                 style={[
-                  styles.alertCard,
+                  baseStyles.alertCard,
                   {
                     backgroundColor: theme.colors.semantic.error[50],
                     borderColor: theme.colors.semantic.error[200],
@@ -571,7 +580,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             {statistics.isNearBudgetLimit && (
               <View
                 style={[
-                  styles.alertCard,
+                  baseStyles.alertCard,
                   {
                     backgroundColor: theme.colors.semantic.warning[50],
                     borderColor: theme.colors.semantic.warning[200],
@@ -583,9 +592,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               </View>
             )}
 
-            <View style={styles.spendingOverview}>
-              <View style={[styles.spendingCard, { backgroundColor: theme.colors.surface.card }]}>
-                <View style={styles.spendingCardHeader}>
+            <View style={baseStyles.spendingOverview}>
+              <View
+                style={[baseStyles.spendingCard, { backgroundColor: theme.colors.surface.card }]}>
+                <View style={baseStyles.spendingCardHeader}>
                   <Typography variant='caption' color={theme.colors.text.secondary}>
                     Your Total Spent
                   </Typography>
@@ -594,8 +604,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                   </Typography>
                 </View>
 
-                <View style={styles.spendingCardDetails}>
-                  <View style={styles.spendingDetail}>
+                <View style={baseStyles.spendingCardDetails}>
+                  <View style={baseStyles.spendingDetail}>
                     <Typography variant='caption' color={theme.colors.text.tertiary}>
                       This Month
                     </Typography>
@@ -609,7 +619,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       ${statistics.userThisMonthSpent.toFixed(2)}
                     </Typography>
                   </View>
-                  <View style={styles.spendingDetail}>
+                  <View style={baseStyles.spendingDetail}>
                     <Typography variant='caption' color={theme.colors.text.tertiary}>
                       {monthlyBudget > 0 ? 'Remaining' : 'Avg per List'}
                     </Typography>
@@ -623,8 +633,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               </View>
 
               {monthlyBudget > 0 && (
-                <View style={[styles.budgetCard, { backgroundColor: theme.colors.surface.card }]}>
-                  <View style={styles.budgetCardHeader}>
+                <View
+                  style={[baseStyles.budgetCard, { backgroundColor: theme.colors.surface.card }]}>
+                  <View style={baseStyles.budgetCardHeader}>
                     <Typography variant='caption' color={theme.colors.text.secondary}>
                       Monthly Budget Progress
                     </Typography>
@@ -632,26 +643,24 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       {statistics.budgetPercentage.toFixed(0)}%
                     </Typography>
                   </View>
-                  <View style={styles.budgetProgress}>
+                  <View style={baseStyles.budgetProgress}>
                     <View
                       style={[
-                        styles.budgetProgressBar,
+                        baseStyles.budgetProgressBar,
                         { backgroundColor: theme.colors.border.primary },
                       ]}>
                       <View
-                        style={
-                          [
-                            styles.budgetProgressFill,
-                            {
-                              backgroundColor: statistics.isOverBudget
-                                ? theme.colors.semantic.error[500]
-                                : statistics.isNearBudgetLimit
-                                  ? theme.colors.semantic.warning[500]
-                                  : theme.colors.semantic.success[500],
-                              width: `${Math.min(statistics.budgetPercentage, 100)}%` as any,
-                            },
-                          ] as any
-                        }
+                        style={[
+                          baseStyles.budgetProgressFill,
+                          dynamicStyles.budgetProgressFillDynamic(
+                            statistics.budgetPercentage,
+                            statistics.isOverBudget
+                              ? theme.colors.semantic.error[500]
+                              : statistics.isNearBudgetLimit
+                                ? theme.colors.semantic.warning[500]
+                                : theme.colors.semantic.success[500]
+                          ),
+                        ]}
                       />
                     </View>
                     <Typography variant='caption' color={theme.colors.text.secondary}>
@@ -665,20 +674,23 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
           {/* Spending by User */}
           {spendingByUser.length > 0 && (
-            <View style={styles.section}>
+            <View style={baseStyles.section}>
               <Typography
                 variant='h5'
                 color={theme.colors.text.primary}
-                style={styles.sectionTitle}>
+                style={baseStyles.sectionTitle}>
                 👥 Who Spent How Much
               </Typography>
 
               {spendingByUser.map((userSpending, index) => (
                 <View
                   key={userSpending.userId}
-                  style={[styles.userSpendingCard, { backgroundColor: theme.colors.surface.card }]}>
-                  <View style={styles.userSpendingHeader}>
-                    <View style={styles.userSpendingInfo}>
+                  style={[
+                    baseStyles.userSpendingCard,
+                    { backgroundColor: theme.colors.surface.card },
+                  ]}>
+                  <View style={baseStyles.userSpendingHeader}>
+                    <View style={baseStyles.userSpendingInfo}>
                       <Typography variant='body1' color={theme.colors.text.primary}>
                         {userSpending.name}
                       </Typography>
@@ -686,7 +698,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                         {userSpending.itemCount} items purchased
                       </Typography>
                     </View>
-                    <View style={styles.userSpendingAmount}>
+                    <View style={baseStyles.userSpendingAmount}>
                       <Typography variant='h6' color={theme.colors.primary[500]}>
                         ${userSpending.amount.toFixed(2)}
                       </Typography>
@@ -696,25 +708,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     </View>
                   </View>
 
-                  <View style={styles.userSpendingProgress}>
+                  <View style={baseStyles.userSpendingProgress}>
                     <View
                       style={[
-                        styles.userProgressBar,
+                        baseStyles.userProgressBar,
                         { backgroundColor: theme.colors.border.primary },
                       ]}>
                       <View
-                        style={
-                          [
-                            styles.userProgressFill,
-                            {
-                              backgroundColor:
-                                index === 0
-                                  ? theme.colors.primary[500]
-                                  : theme.colors.secondary[400],
-                              width: `${userSpending.percentage}%` as any,
-                            },
-                          ] as any
-                        }
+                        style={[
+                          baseStyles.userProgressFill,
+                          dynamicStyles.userProgressFillDynamic(
+                            userSpending.percentage,
+                            index === 0 ? theme.colors.primary[500] : theme.colors.secondary[400]
+                          ),
+                        ]}
                       />
                     </View>
                   </View>
@@ -725,11 +732,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
           {/* Category-wise Spending */}
           {categorySpending.length > 0 && (
-            <View style={styles.section}>
+            <View style={baseStyles.section}>
               <Typography
                 variant='h5'
                 color={theme.colors.text.primary}
-                style={styles.sectionTitle}>
+                style={baseStyles.sectionTitle}>
                 📊 Spending by Category
               </Typography>
 
@@ -737,13 +744,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 <View
                   key={category.categoryId}
                   style={[
-                    styles.categorySpendingCard,
+                    baseStyles.categorySpendingCard,
                     { backgroundColor: theme.colors.surface.card },
                   ]}>
-                  <View style={styles.categorySpendingHeader}>
-                    <View style={styles.categorySpendingInfo}>
-                      <View style={styles.categorySpendingTitleRow}>
-                        <Typography variant='h6' style={styles.categoryIcon}>
+                  <View style={baseStyles.categorySpendingHeader}>
+                    <View style={baseStyles.categorySpendingInfo}>
+                      <View style={baseStyles.categorySpendingTitleRow}>
+                        <Typography variant='h6' style={baseStyles.categoryIcon}>
                           {category.icon}
                         </Typography>
                         <Typography variant='body1' color={theme.colors.text.primary}>
@@ -754,7 +761,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                         {category.itemCount} items purchased
                       </Typography>
                     </View>
-                    <View style={styles.categorySpendingAmount}>
+                    <View style={baseStyles.categorySpendingAmount}>
                       <Typography variant='h6' color={theme.colors.primary[500]}>
                         ${category.amount.toFixed(2)}
                       </Typography>
@@ -764,27 +771,24 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     </View>
                   </View>
 
-                  <View style={styles.categorySpendingProgress}>
+                  <View style={baseStyles.categorySpendingProgress}>
                     <View
                       style={[
-                        styles.categoryProgressBar,
+                        baseStyles.categoryProgressBar,
                         { backgroundColor: theme.colors.border.primary },
                       ]}>
                       <View
-                        style={
-                          [
-                            styles.categoryProgressFill,
-                            {
-                              backgroundColor:
-                                index === 0
-                                  ? theme.colors.primary[500]
-                                  : index === 1
-                                    ? theme.colors.secondary[400]
-                                    : theme.colors.accent[400],
-                              width: `${category.percentage}%` as any,
-                            },
-                          ] as any
-                        }
+                        style={[
+                          baseStyles.categoryProgressFill,
+                          dynamicStyles.categoryProgressFillDynamic(
+                            category.percentage,
+                            index === 0
+                              ? theme.colors.primary[500]
+                              : index === 1
+                                ? theme.colors.secondary[400]
+                                : theme.colors.accent[400]
+                          ),
+                        ]}
                       />
                     </View>
                   </View>
@@ -794,18 +798,18 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               {statistics.userTotalSpent > 0 && categorySpending.length > 0 && (
                 <View
                   style={[
-                    styles.categoryInsightCard,
+                    baseStyles.categoryInsightCard,
                     { backgroundColor: theme.colors.surface.card },
                   ]}>
                   <Typography
                     variant='body2'
                     color={theme.colors.text.secondary}
-                    style={styles.categoryInsightText}>
+                    style={baseStyles.categoryInsightText}>
                     💡 Your top spending category is{' '}
                     <Typography
                       variant='body2'
                       color={theme.colors.primary[500]}
-                      style={{ fontWeight: '600' }}>
+                      style={baseStyles.categoryInsightHighlight}>
                       {typeof categorySpending[0]?.name === 'string'
                         ? categorySpending[0].name
                         : (categorySpending[0]?.name as any)?.name || 'Unknown Category'}
@@ -820,24 +824,27 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           )}
 
           {/* Quick Actions */}
-          <View style={styles.section}>
-            <Typography variant='h5' color={theme.colors.text.primary} style={styles.sectionTitle}>
+          <View style={baseStyles.section}>
+            <Typography
+              variant='h5'
+              color={theme.colors.text.primary}
+              style={baseStyles.sectionTitle}>
               🚀 Quick Actions
             </Typography>
 
-            <View style={styles.actionsContainer}>
+            <View style={baseStyles.actionsContainer}>
               <Button
                 title='New List'
                 variant='primary'
                 size='md'
                 onPress={() => console.log('Navigate to create list')}
-                style={styles.actionButton}
+                style={baseStyles.actionButton}
                 leftIcon={
                   {
                     component: ({ size, color }: { size: number; color: string }) => (
                       <Image
                         source={CreateListIcon}
-                        style={{ width: size, height: size, tintColor: color }}
+                        style={dynamicStyles.actionIconImageDynamic(size, color)}
                         resizeMode='contain'
                       />
                     ),
@@ -852,11 +859,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 variant='outline'
                 size='md'
                 onPress={() => console.log('Navigate to lists')}
-                style={styles.actionButton}
+                style={baseStyles.actionButton}
                 leftIcon={
                   {
                     component: ({ size, color }: { size: number; color: string }) => (
-                      <Typography variant='h6' style={{ fontSize: size, color }}>
+                      <Typography
+                        variant='h6'
+                        style={dynamicStyles.actionIconTextDynamic(size, color)}>
                         📋
                       </Typography>
                     ),
@@ -867,17 +876,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               />
             </View>
 
-            <View style={styles.actionsContainer}>
+            <View style={baseStyles.actionsContainer}>
               <Button
                 title='Start Shopping'
                 variant='secondary'
                 size='md'
                 onPress={() => console.log('Navigate to shop')}
-                style={styles.actionButton}
+                style={baseStyles.actionButton}
                 leftIcon={
                   {
                     component: ({ size, color }: { size: number; color: string }) => (
-                      <Typography variant='h6' style={{ fontSize: size, color }}>
+                      <Typography
+                        variant='h6'
+                        style={dynamicStyles.actionIconTextDynamic(size, color)}>
                         🛒
                       </Typography>
                     ),
@@ -892,11 +903,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 variant='tertiary'
                 size='md'
                 onPress={() => console.log('Navigate to social')}
-                style={styles.actionButton}
+                style={baseStyles.actionButton}
                 leftIcon={
                   {
                     component: ({ size, color }: { size: number; color: string }) => (
-                      <Typography variant='h6' style={{ fontSize: size, color }}>
+                      <Typography
+                        variant='h6'
+                        style={dynamicStyles.actionIconTextDynamic(size, color)}>
                         👥
                       </Typography>
                     ),
@@ -910,11 +923,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
           {/* Recent Activity */}
           {recentActivity.length > 0 && (
-            <View style={styles.section}>
+            <View style={baseStyles.section}>
               <Typography
                 variant='h5'
                 color={theme.colors.text.primary}
-                style={styles.sectionTitle}>
+                style={baseStyles.sectionTitle}>
                 📈 Recent Activity
               </Typography>
 
@@ -922,18 +935,18 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 <View
                   key={activity.id}
                   style={[
-                    styles.activityItem,
+                    baseStyles.activityItem,
                     {
                       backgroundColor: theme.colors.surface.card,
                       borderColor: theme.colors.border.primary,
                     },
                   ]}>
-                  <View style={styles.activityContent}>
+                  <View style={baseStyles.activityContent}>
                     <Typography variant='body1' color={theme.colors.text.primary}>
                       {activity.title}
                     </Typography>
 
-                    <View style={styles.activityMeta}>
+                    <View style={baseStyles.activityMeta}>
                       <Typography variant='caption' color={theme.colors.text.tertiary}>
                         {activity.time} • by {activity.user}
                       </Typography>
@@ -945,7 +958,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     </View>
                   </View>
 
-                  <View style={styles.activityIcon}>
+                  <View style={baseStyles.activityIcon}>
                     <Typography variant='body2'>
                       {activity.type === 'list_created' && '📝'}
                       {activity.type === 'items_completed' && '✅'}
@@ -959,17 +972,17 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
           {/* Empty State */}
           {lists.length === 0 && !isLoadingLists && (
-            <View style={styles.emptyState}>
+            <View style={baseStyles.emptyState}>
               <Typography
                 variant='h6'
                 color={theme.colors.text.secondary}
-                style={{ textAlign: 'center', marginBottom: 16 }}>
+                style={baseStyles.emptyStateTitle}>
                 🛒 Welcome to PentryPal!
               </Typography>
               <Typography
                 variant='body1'
                 color={theme.colors.text.tertiary}
-                style={{ textAlign: 'center', marginBottom: 24 }}>
+                style={baseStyles.emptyStateDescription}>
                 Create your first shopping list to get started with collaborative grocery shopping.
               </Typography>
               <Button
@@ -982,7 +995,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     component: ({ size, color }: { size: number; color: string }) => (
                       <Image
                         source={CreateListIcon}
-                        style={{ width: size, height: size, tintColor: color }}
+                        style={dynamicStyles.actionIconImageDynamic(size, color)}
                         resizeMode='contain'
                       />
                     ),
@@ -995,7 +1008,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           )}
 
           {/* Bottom Spacing */}
-          <View style={{ height: theme.spacing.xl }} />
+          <View style={dynamicStyles.bottomSpacingDynamic(theme.spacing.xl)} />
         </ScrollView>
 
         {/* Budget Setting Modal */}
@@ -1004,31 +1017,36 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           transparent={true}
           animationType='fade'
           onRequestClose={() => setShowBudgetModal(false)}>
-          <View style={styles.modalOverlay}>
+          <View style={baseStyles.modalOverlay}>
             <View
-              style={[styles.modalContent, { backgroundColor: theme.colors.surface.card }] as any}>
-              <Typography variant='h4' color={theme.colors.text.primary} style={styles.modalTitle}>
+              style={
+                [baseStyles.modalContent, { backgroundColor: theme.colors.surface.card }] as any
+              }>
+              <Typography
+                variant='h4'
+                color={theme.colors.text.primary}
+                style={baseStyles.modalTitle}>
                 Set Monthly Budget
               </Typography>
 
               <Typography
                 variant='body2'
                 color={theme.colors.text.secondary}
-                style={styles.modalDescription}>
+                style={baseStyles.modalDescription}>
                 Set your monthly grocery budget to track your spending and get alerts when you're
                 approaching your limit.
               </Typography>
 
-              <View style={styles.inputContainer}>
+              <View style={baseStyles.inputContainer}>
                 <Typography
                   variant='body2'
                   color={theme.colors.text.primary}
-                  style={styles.inputLabel}>
+                  style={baseStyles.inputLabel}>
                   Monthly Budget ($)
                 </Typography>
                 <TextInput
                   style={[
-                    styles.budgetInput,
+                    baseStyles.budgetInput,
                     {
                       backgroundColor: theme.colors.surface.background,
                       borderColor: theme.colors.border.primary,
@@ -1044,12 +1062,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 />
               </View>
 
-              <View style={styles.modalButtons}>
+              <View style={baseStyles.modalButtons}>
                 <TouchableOpacity
                   onPress={() => setShowBudgetModal(false)}
                   style={[
-                    styles.modalButton,
-                    styles.cancelButton,
+                    baseStyles.modalButton,
+                    baseStyles.cancelButton,
                     { borderColor: theme.colors.border.primary },
                   ]}>
                   <Typography variant='body2' color={theme.colors.text.secondary}>
@@ -1060,8 +1078,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 <TouchableOpacity
                   onPress={handleSetBudget}
                   style={[
-                    styles.modalButton,
-                    styles.confirmButton,
+                    baseStyles.modalButton,
+                    baseStyles.confirmButton,
                     { backgroundColor: theme.colors.primary[500] },
                   ]}>
                   <Typography variant='body2' color={theme.colors.surface.card}>
@@ -1075,341 +1093,4 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
       </SafeAreaView>
     </GradientBackground>
   );
-};
-
-// ========================================
-// Styles
-// ========================================
-
-const styles = {
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  headerContent: {
-    flex: 1,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-  },
-
-  // Stats Section
-  statsContainer: {
-    marginBottom: 32,
-  },
-  statsRow: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    marginBottom: 16,
-  },
-  statCard: {
-    flex: 0.48,
-    padding: 20,
-    borderRadius: 16,
-    alignItems: 'center' as const,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-
-  // Section Styling
-  section: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    marginBottom: 16,
-    fontWeight: '600' as const,
-  },
-
-  // Spending Header
-  spendingHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginBottom: 16,
-  },
-  budgetButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-  },
-
-  // Alert Cards
-  alertCard: {
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginBottom: 16,
-  },
-
-  // Spending Overview
-  spendingOverview: {
-    gap: 16,
-  },
-  spendingCard: {
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  spendingCardHeader: {
-    marginBottom: 12,
-  },
-  spendingCardDetails: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-  },
-  spendingDetail: {
-    alignItems: 'center' as const,
-  },
-
-  // Budget Card
-  budgetCard: {
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  budgetCardHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginBottom: 8,
-  },
-  budgetProgress: {
-    marginTop: 8,
-  },
-  budgetProgressBar: {
-    height: 8,
-    borderRadius: 4,
-    marginBottom: 4,
-  },
-  budgetProgressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-
-  // User Spending
-  userSpendingCard: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  userSpendingHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginBottom: 12,
-  },
-  userSpendingInfo: {
-    flex: 1,
-  },
-  userSpendingAmount: {
-    alignItems: 'flex-end' as const,
-  },
-  userSpendingProgress: {
-    marginTop: 8,
-  },
-  userProgressBar: {
-    height: 6,
-    borderRadius: 3,
-  },
-  userProgressFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-
-  // Category Spending
-  categorySpendingCard: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  categorySpendingHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginBottom: 12,
-  },
-  categorySpendingInfo: {
-    flex: 1,
-  },
-  categorySpendingTitleRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    marginBottom: 4,
-  },
-  categoryIcon: {
-    marginRight: 8,
-    fontSize: 18,
-  },
-  categorySpendingAmount: {
-    alignItems: 'flex-end' as const,
-  },
-  categorySpendingProgress: {
-    marginTop: 8,
-  },
-  categoryProgressBar: {
-    height: 6,
-    borderRadius: 3,
-  },
-  categoryProgressFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  categoryInsightCard: {
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  categoryInsightText: {
-    lineHeight: 20,
-    textAlign: 'center' as const,
-  },
-
-  // Actions
-  actionsContainer: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    marginBottom: 12,
-  },
-  actionButton: {
-    flex: 0.48,
-  },
-
-  // Activity
-  activityItem: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityMeta: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginTop: 4,
-  },
-  activityIcon: {
-    marginLeft: 12,
-  },
-
-  // Empty State
-  emptyState: {
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-  },
-
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    padding: 24,
-  },
-  modalContent: {
-    width: '100%',
-    maxWidth: 400,
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  modalTitle: {
-    marginBottom: 8,
-    textAlign: 'center' as const,
-  },
-  modalDescription: {
-    marginBottom: 24,
-    textAlign: 'center' as const,
-    lineHeight: 20,
-  },
-  inputContainer: {
-    marginBottom: 24,
-  },
-  inputLabel: {
-    marginBottom: 8,
-    fontWeight: '500' as const,
-  },
-  budgetInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    textAlign: 'center' as const,
-  },
-  modalButtons: {
-    flexDirection: 'row' as const,
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-  },
-  cancelButton: {
-    borderWidth: 1,
-  },
-  confirmButton: {
-    // backgroundColor set dynamically
-  },
 };
