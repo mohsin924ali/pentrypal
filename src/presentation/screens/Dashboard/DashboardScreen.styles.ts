@@ -268,6 +268,13 @@ export const baseStyles = StyleSheet.create({
     elevation: 1,
   } as ViewStyle,
 
+  categoryInsightTextContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+
   categoryInsightText: {
     lineHeight: 20,
     textAlign: 'center',

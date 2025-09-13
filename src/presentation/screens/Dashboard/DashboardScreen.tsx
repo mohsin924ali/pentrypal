@@ -176,7 +176,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     if (budget > 0) {
       Alert.alert(
         'Budget Set Successfully',
-        `Your monthly budget has been set to $${budget.toFixed(2)}. You'll receive alerts when you approach your limit.`,
+        `Your monthly budget has been set to $${isNaN(budget) ? '0.00' : budget.toFixed(2)}. You'll receive alerts when you approach your limit.`,
         [{ text: 'OK' }]
       );
     }
@@ -210,29 +210,39 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
   // Helper function to get user display name
   const getUserName = (userId: string): string => {
+    if (!userId || typeof userId !== 'string') return 'Unknown';
     if (userId === user?.id) return 'You';
 
     // Look up in collaborators from all lists
     for (const list of lists) {
       const collaborator = list.collaborators.find(c => c.userId === userId);
-      if (collaborator) return collaborator.name;
+      if (collaborator && collaborator.name) return collaborator.name;
     }
 
     return 'Unknown';
   };
 
   // Helper function to get time ago
-  const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+  const getTimeAgo = (dateString: string): string => {
+    if (!dateString || typeof dateString !== 'string') return 'Unknown time';
 
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays}d ago`;
-    const diffInWeeks = Math.floor(diffInDays / 7);
-    return `${diffInWeeks}w ago`;
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+
+      if (isNaN(date.getTime())) return 'Unknown time';
+
+      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+      if (diffInHours < 1) return 'Just now';
+      if (diffInHours < 24) return `${diffInHours}h ago`;
+      const diffInDays = Math.floor(diffInHours / 24);
+      if (diffInDays < 7) return `${diffInDays}d ago`;
+      const diffInWeeks = Math.floor(diffInDays / 7);
+      return `${diffInWeeks}w ago`;
+    } catch (error) {
+      return 'Unknown time';
+    }
   };
 
   // Calculate comprehensive statistics
@@ -427,27 +437,32 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         const timeAgo = getTimeAgo(list.updatedAt);
 
         if (list.status === 'archived') {
-          activities.push({
-            id: `${list.id}_archived`,
+          const activity: any = {
+            id: `${list.id || 'unknown'}_archived`,
             type: 'list_completed',
-            title: `Completed "${list.name}"`,
+            title: `Completed "${list.name || 'Unknown List'}"`,
             time: timeAgo,
             user: getUserName(list.ownerId),
-            amount: list.totalSpent,
-          });
+          };
+
+          if (typeof list.totalSpent === 'number' && !isNaN(list.totalSpent)) {
+            activity.amount = list.totalSpent;
+          }
+
+          activities.push(activity);
         } else if (list.completedCount > 0) {
           activities.push({
-            id: `${list.id}_progress`,
+            id: `${list.id || 'unknown'}_progress`,
             type: 'items_completed',
-            title: `${list.completedCount}/${list.itemsCount} items completed in "${list.name}"`,
+            title: `${list.completedCount || 0}/${list.itemsCount || 0} items completed in "${list.name || 'Unknown List'}"`,
             time: timeAgo,
             user: getUserName(list.ownerId),
           });
         } else {
           activities.push({
-            id: `${list.id}_created`,
+            id: `${list.id || 'unknown'}_created`,
             type: 'list_created',
-            title: `Created "${list.name}"`,
+            title: `Created "${list.name || 'Unknown List'}"`,
             time: timeAgo,
             user: getUserName(list.ownerId),
           });
@@ -464,7 +479,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         <View style={baseStyles.header}>
           <View style={baseStyles.headerContent}>
             <Typography variant='h3' color={theme.colors.text.primary}>
-              {getGreeting()}, {user?.name?.split(' ')[0] || 'User'}!
+              {getGreeting()}, {user?.name ? user.name.split(' ')[0] : 'User'}!
             </Typography>
 
             <Typography
@@ -506,7 +521,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             <View style={baseStyles.statsRow}>
               <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
                 <Typography variant='h4' color={theme.colors.primary[500]}>
-                  {statistics.activeLists}
+                  {statistics.activeLists || 0}
                 </Typography>
                 <Typography variant='caption' color={theme.colors.text.secondary}>
                   Active Lists
@@ -515,7 +530,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
               <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
                 <Typography variant='h4' color={theme.colors.secondary[500]}>
-                  {statistics.pendingItems}
+                  {statistics.pendingItems || 0}
                 </Typography>
                 <Typography variant='caption' color={theme.colors.text.secondary}>
                   Pending Items
@@ -526,7 +541,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             <View style={baseStyles.statsRow}>
               <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
                 <Typography variant='h4' color={theme.colors.semantic.success[500]}>
-                  {statistics.completionRate.toFixed(0)}%
+                  {isNaN(statistics.completionRate) ? '0' : statistics.completionRate.toFixed(0)}%
                 </Typography>
                 <Typography variant='caption' color={theme.colors.text.secondary}>
                   Completion Rate
@@ -535,7 +550,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
               <View style={[baseStyles.statCard, { backgroundColor: theme.colors.surface.card }]}>
                 <Typography variant='h4' color={theme.colors.accent[500]}>
-                  {statistics.archivedLists}
+                  {statistics.archivedLists || 0}
                 </Typography>
                 <Typography variant='caption' color={theme.colors.text.secondary}>
                   Completed Lists
@@ -572,7 +587,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                 ]}>
                 <Typography variant='body2' color={theme.colors.semantic.error[700]}>
                   ⚠️ You've exceeded your monthly budget by $
-                  {statistics.overBudgetAmount.toFixed(2)}
+                  {isNaN(statistics.overBudgetAmount)
+                    ? '0.00'
+                    : statistics.overBudgetAmount.toFixed(2)}
                 </Typography>
               </View>
             )}
@@ -587,7 +604,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                   },
                 ]}>
                 <Typography variant='body2' color={theme.colors.semantic.warning[700]}>
-                  🔔 You've used {statistics.budgetPercentage.toFixed(0)}% of your monthly budget
+                  🔔 You've used{' '}
+                  {isNaN(statistics.budgetPercentage)
+                    ? '0'
+                    : statistics.budgetPercentage.toFixed(0)}
+                  % of your monthly budget
                 </Typography>
               </View>
             )}
@@ -600,7 +621,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     Your Total Spent
                   </Typography>
                   <Typography variant='h3' color={theme.colors.primary[500]}>
-                    ${statistics.userTotalSpent.toFixed(2)}
+                    $
+                    {isNaN(statistics.userTotalSpent)
+                      ? '0.00'
+                      : statistics.userTotalSpent.toFixed(2)}
                   </Typography>
                 </View>
 
@@ -616,7 +640,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                           ? theme.colors.semantic.error[500]
                           : theme.colors.text.primary
                       }>
-                      ${statistics.userThisMonthSpent.toFixed(2)}
+                      $
+                      {isNaN(statistics.userThisMonthSpent)
+                        ? '0.00'
+                        : statistics.userThisMonthSpent.toFixed(2)}
                     </Typography>
                   </View>
                   <View style={baseStyles.spendingDetail}>
@@ -625,8 +652,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     </Typography>
                     <Typography variant='body2' color={theme.colors.text.primary}>
                       {monthlyBudget > 0
-                        ? `$${Math.max(0, statistics.budgetRemaining).toFixed(2)}`
-                        : `$${(statistics.userTotalSpent / Math.max(1, statistics.totalLists)).toFixed(2)}`}
+                        ? `$${isNaN(statistics.budgetRemaining) ? '0.00' : Math.max(0, statistics.budgetRemaining).toFixed(2)}`
+                        : `$${isNaN(statistics.userTotalSpent) || isNaN(statistics.totalLists) ? '0.00' : (statistics.userTotalSpent / Math.max(1, statistics.totalLists)).toFixed(2)}`}
                     </Typography>
                   </View>
                 </View>
@@ -640,7 +667,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       Monthly Budget Progress
                     </Typography>
                     <Typography variant='body2' color={theme.colors.text.primary}>
-                      {statistics.budgetPercentage.toFixed(0)}%
+                      {isNaN(statistics.budgetPercentage)
+                        ? '0'
+                        : statistics.budgetPercentage.toFixed(0)}
+                      %
                     </Typography>
                   </View>
                   <View style={baseStyles.budgetProgress}>
@@ -664,7 +694,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       />
                     </View>
                     <Typography variant='caption' color={theme.colors.text.secondary}>
-                      ${statistics.userThisMonthSpent.toFixed(2)} / ${monthlyBudget.toFixed(2)}
+                      $
+                      {isNaN(statistics.userThisMonthSpent)
+                        ? '0.00'
+                        : statistics.userThisMonthSpent.toFixed(2)}{' '}
+                      / ${isNaN(monthlyBudget) ? '0.00' : monthlyBudget.toFixed(2)}
                     </Typography>
                   </View>
                 </View>
@@ -700,10 +734,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     </View>
                     <View style={baseStyles.userSpendingAmount}>
                       <Typography variant='h6' color={theme.colors.primary[500]}>
-                        ${userSpending.amount.toFixed(2)}
+                        ${isNaN(userSpending.amount) ? '0.00' : userSpending.amount.toFixed(2)}
                       </Typography>
                       <Typography variant='caption' color={theme.colors.text.secondary}>
-                        {userSpending.percentage.toFixed(1)}%
+                        {isNaN(userSpending.percentage)
+                          ? '0.0'
+                          : userSpending.percentage.toFixed(1)}
+                        %
                       </Typography>
                     </View>
                   </View>
@@ -763,10 +800,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     </View>
                     <View style={baseStyles.categorySpendingAmount}>
                       <Typography variant='h6' color={theme.colors.primary[500]}>
-                        ${category.amount.toFixed(2)}
+                        ${isNaN(category.amount) ? '0.00' : category.amount.toFixed(2)}
                       </Typography>
                       <Typography variant='caption' color={theme.colors.text.secondary}>
-                        {category.percentage.toFixed(1)}%
+                        {isNaN(category.percentage) ? '0.0' : category.percentage.toFixed(1)}%
                       </Typography>
                     </View>
                   </View>
@@ -801,23 +838,28 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     baseStyles.categoryInsightCard,
                     { backgroundColor: theme.colors.surface.card },
                   ]}>
-                  <Typography
-                    variant='body2'
-                    color={theme.colors.text.secondary}
-                    style={baseStyles.categoryInsightText}>
-                    💡 Your top spending category is{' '}
+                  <View style={baseStyles.categoryInsightTextContainer}>
+                    <Typography
+                      variant='body2'
+                      color={theme.colors.text.secondary}
+                      style={baseStyles.categoryInsightText}>
+                      💡 Your top spending category is{' '}
+                    </Typography>
                     <Typography
                       variant='body2'
                       color={theme.colors.primary[500]}
                       style={baseStyles.categoryInsightHighlight}>
-                      {typeof categorySpending[0]?.name === 'string'
-                        ? categorySpending[0].name
-                        : (categorySpending[0]?.name as any)?.name || 'Unknown Category'}
+                      {categorySpending[0]?.name || 'Unknown Category'}
                     </Typography>
-                    <Typography variant='body2' color={theme.colors.text.secondary}>
-                      {` at $${categorySpending[0]?.amount.toFixed(2)} (${categorySpending[0]?.percentage.toFixed(0)}% of total)`}
+                    <Typography
+                      variant='body2'
+                      color={theme.colors.text.secondary}
+                      style={baseStyles.categoryInsightText}>
+                      {categorySpending[0]
+                        ? ` at $${isNaN(categorySpending[0].amount) ? '0.00' : categorySpending[0].amount.toFixed(2)} (${isNaN(categorySpending[0].percentage) ? '0' : categorySpending[0].percentage.toFixed(0)}% of total)`
+                        : ' (no data available)'}
                     </Typography>
-                  </Typography>
+                  </View>
                 </View>
               )}
             </View>
@@ -950,19 +992,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                       <Typography variant='caption' color={theme.colors.text.tertiary}>
                         {activity.time} • by {activity.user}
                       </Typography>
-                      {activity.amount && (
-                        <Typography variant='caption' color={theme.colors.primary[500]}>
-                          ${activity.amount.toFixed(2)}
-                        </Typography>
-                      )}
+                      {activity.amount &&
+                        typeof activity.amount === 'number' &&
+                        !isNaN(activity.amount) && (
+                          <Typography variant='caption' color={theme.colors.primary[500]}>
+                            ${activity.amount.toFixed(2)}
+                          </Typography>
+                        )}
                     </View>
                   </View>
 
                   <View style={baseStyles.activityIcon}>
                     <Typography variant='body2'>
-                      {activity.type === 'list_created' && '📝'}
-                      {activity.type === 'items_completed' && '✅'}
-                      {activity.type === 'list_completed' && '🎉'}
+                      {activity.type === 'list_created'
+                        ? '📝'
+                        : activity.type === 'items_completed'
+                          ? '✅'
+                          : activity.type === 'list_completed'
+                            ? '🎉'
+                            : '📄'}
                     </Typography>
                   </View>
                 </View>

@@ -343,16 +343,16 @@ export const baseStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
-    paddingVertical: 40,
+    paddingVertical: 20,
   } as ViewStyle,
 
   modalContent: {
     borderRadius: 20,
-    padding: 24,
-    margin: 24,
-    width: '90%',
+    padding: 20,
+    margin: 16,
+    width: '95%',
     maxWidth: 400,
-    maxHeight: '80%',
+    maxHeight: '85%',
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -362,22 +362,51 @@ export const baseStyles = StyleSheet.create({
 
   modalScrollView: {
     flexGrow: 1,
-    maxHeight: 400,
+    maxHeight: 450,
   } as ViewStyle,
 
   modalTitle: {
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
   } as TextStyle,
 
   modalLabel: {
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 6,
+    fontSize: 14,
   } as TextStyle,
 
   quantitySection: {
-    marginBottom: 24,
+    marginBottom: 16,
+  } as ViewStyle,
+
+  // Grid Layout Styles
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    gap: 12,
+  } as ViewStyle,
+
+  gridColumn: {
+    flex: 1,
+  } as ViewStyle,
+
+  gridColumnHalf: {
+    flex: 0.48,
+  } as ViewStyle,
+
+  compactInput: {
+    backgroundColor: '#F9F9F9',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    textAlign: 'center',
+    minHeight: 42,
   } as ViewStyle,
 
   quantityInput: {
@@ -428,8 +457,10 @@ export const baseStyles = StyleSheet.create({
     zIndex: 1500,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    backgroundColor: '#FFFFFF',
+    opacity: 1,
   } as ViewStyle,
 
   categoryDropdownContainer: {
@@ -446,8 +477,10 @@ export const baseStyles = StyleSheet.create({
     zIndex: 2000,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    backgroundColor: '#FFFFFF',
+    opacity: 1,
   } as ViewStyle,
 
   dropdownScroll: {
@@ -493,27 +526,30 @@ export const baseStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 12,
+    marginTop: 16,
   } as ViewStyle,
 
   modalButtonSecondary: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    minHeight: 42,
   } as ViewStyle,
 
   modalButtonPrimary: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
     alignItems: 'center',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    minHeight: 42,
   } as ViewStyle,
 
   // Duplicate Modal Styles

@@ -1114,11 +1114,26 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
 
   const renderCustomItemModal = () =>
     showCustomItemModal && (
-      <View style={baseStyles.modalOverlay}>
+      <View
+        style={[
+          baseStyles.modalOverlay,
+          // Adjust overlay padding when keyboard is visible
+          isKeyboardVisible && {
+            paddingVertical: 10,
+            justifyContent: 'flex-start',
+            paddingTop: 30,
+          },
+        ]}>
         <View
           style={[
             baseStyles.modalContent,
             dynamicStyles.modalContentDynamic(safeTheme.colors.surface.card),
+            // Optimize modal height when keyboard is visible
+            isKeyboardVisible && {
+              maxHeight: '90%',
+              marginVertical: 5,
+              marginTop: 10,
+            },
           ]}>
           <Typography
             variant='h5'
@@ -1133,6 +1148,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps='handled'
             bounces={false}>
+            {/* Item Name - Full Width */}
             <View style={baseStyles.quantitySection}>
               <Typography
                 variant='body1'
@@ -1142,12 +1158,13 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
               </Typography>
               <TextInput
                 style={[
-                  baseStyles.quantityInput,
+                  baseStyles.compactInput,
                   dynamicStyles.quantityInputDynamic(
                     '#F9F9F9',
                     '#E5E7EB',
                     safeTheme.colors.text.primary
                   ),
+                  { textAlign: 'left' },
                 ]}
                 value={customItemName}
                 onChangeText={setCustomItemName}
@@ -1157,117 +1174,121 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
               />
             </View>
 
-            <View style={baseStyles.quantitySection}>
-              <Typography
-                variant='body1'
-                color={safeTheme.colors.text.primary}
-                style={baseStyles.modalLabel}>
-                Quantity
-              </Typography>
-              <TextInput
-                style={[
-                  baseStyles.quantityInput,
-                  dynamicStyles.quantityInputDynamic(
-                    '#F9F9F9',
-                    '#E5E7EB',
-                    safeTheme.colors.text.primary
-                  ),
-                ]}
-                value={customItemQuantity}
-                onChangeText={setCustomItemQuantity}
-                placeholder='1'
-                placeholderTextColor={safeTheme.colors.text.secondary}
-                keyboardType='numeric'
-              />
-            </View>
-
-            <View style={baseStyles.quantitySection}>
-              <Typography
-                variant='body1'
-                color={safeTheme.colors.text.primary}
-                style={baseStyles.modalLabel}>
-                Unit
-              </Typography>
-              <View style={baseStyles.dropdownWrapper}>
-                <TouchableOpacity
+            {/* Quantity and Unit - Grid Layout */}
+            <View style={baseStyles.gridRow}>
+              <View style={baseStyles.gridColumnHalf}>
+                <Typography
+                  variant='body1'
+                  color={safeTheme.colors.text.primary}
+                  style={baseStyles.modalLabel}>
+                  Quantity
+                </Typography>
+                <TextInput
                   style={[
-                    baseStyles.quantityInput,
+                    baseStyles.compactInput,
                     dynamicStyles.quantityInputDynamic(
                       '#F9F9F9',
                       '#E5E7EB',
                       safeTheme.colors.text.primary
                     ),
-                    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
                   ]}
-                  onPress={() => {
-                    setShowUnitDropdown(!showUnitDropdown);
-                    // Close other dropdowns when this one opens
-                    if (!showUnitDropdown) {
-                      setShowCategoryDropdown(false);
-                      // Scroll to make dropdown visible (unit dropdown is around 150px from top)
-                      handleModalDropdownScroll(100);
-                    }
-                  }}>
-                  <Typography variant='body1' color={safeTheme.colors.text.primary}>
-                    {customItemUnit}
-                  </Typography>
-                  <Typography variant='body1' color={safeTheme.colors.text.secondary}>
-                    {showUnitDropdown ? '▲' : '▼'}
-                  </Typography>
-                </TouchableOpacity>
-                {showUnitDropdown && (
-                  <View
+                  value={customItemQuantity}
+                  onChangeText={setCustomItemQuantity}
+                  placeholder='1'
+                  placeholderTextColor={safeTheme.colors.text.secondary}
+                  keyboardType='numeric'
+                />
+              </View>
+
+              <View style={baseStyles.gridColumnHalf}>
+                <Typography
+                  variant='body1'
+                  color={safeTheme.colors.text.primary}
+                  style={baseStyles.modalLabel}>
+                  Unit
+                </Typography>
+                <View style={baseStyles.dropdownWrapper}>
+                  <TouchableOpacity
                     style={[
-                      baseStyles.unitDropdownContainer,
-                      { backgroundColor: safeTheme.colors.surface.card },
-                    ]}>
-                    <ScrollView
-                      style={baseStyles.dropdownScroll}
-                      showsVerticalScrollIndicator={false}>
-                      {[
-                        'pieces',
-                        'lbs',
-                        'kg',
-                        'container',
-                        'bag',
-                        'box',
-                        'bottle',
-                        'jar',
-                        'pack',
-                        'oz',
-                        'cup',
-                        'tbsp',
-                        'tsp',
-                      ].map(unit => (
-                        <TouchableOpacity
-                          key={unit}
-                          style={[
-                            baseStyles.dropdownItem,
-                            customItemUnit === unit && {
-                              backgroundColor: `${safeTheme.colors.primary['500']}20`,
-                            },
-                          ]}
-                          onPress={() => {
-                            setCustomItemUnit(unit);
-                            setShowUnitDropdown(false);
-                          }}>
-                          <Typography
-                            variant='body1'
-                            color={
-                              customItemUnit === unit
-                                ? safeTheme.colors.primary['500']
-                                : safeTheme.colors.text.primary
-                            }>
-                            {unit}
-                          </Typography>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
+                      baseStyles.compactInput,
+                      dynamicStyles.quantityInputDynamic(
+                        '#F9F9F9',
+                        '#E5E7EB',
+                        safeTheme.colors.text.primary
+                      ),
+                      {
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      },
+                    ]}
+                    onPress={() => {
+                      setShowUnitDropdown(!showUnitDropdown);
+                      // Close other dropdowns when this one opens
+                      if (!showUnitDropdown) {
+                        setShowCategoryDropdown(false);
+                        // Scroll to make dropdown visible (unit dropdown is around 80px from top in grid)
+                        handleModalDropdownScroll(60);
+                      }
+                    }}>
+                    <Typography variant='body2' color={safeTheme.colors.text.primary}>
+                      {customItemUnit}
+                    </Typography>
+                    <Typography variant='body2' color={safeTheme.colors.text.secondary}>
+                      {showUnitDropdown ? '▲' : '▼'}
+                    </Typography>
+                  </TouchableOpacity>
+                  {showUnitDropdown && (
+                    <View style={baseStyles.unitDropdownContainer}>
+                      <ScrollView
+                        style={baseStyles.dropdownScroll}
+                        showsVerticalScrollIndicator={false}>
+                        {[
+                          'pieces',
+                          'lbs',
+                          'kg',
+                          'container',
+                          'bag',
+                          'box',
+                          'bottle',
+                          'jar',
+                          'pack',
+                          'oz',
+                          'cup',
+                          'tbsp',
+                          'tsp',
+                        ].map(unit => (
+                          <TouchableOpacity
+                            key={unit}
+                            style={[
+                              baseStyles.dropdownItem,
+                              customItemUnit === unit && {
+                                backgroundColor: `${safeTheme.colors.primary['500']}20`,
+                              },
+                            ]}
+                            onPress={() => {
+                              setCustomItemUnit(unit);
+                              setShowUnitDropdown(false);
+                            }}>
+                            <Typography
+                              variant='body2'
+                              color={
+                                customItemUnit === unit
+                                  ? safeTheme.colors.primary['500']
+                                  : safeTheme.colors.text.primary
+                              }>
+                              {unit}
+                            </Typography>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
 
+            {/* Category - Full Width */}
             <View style={baseStyles.quantitySection}>
               <Typography
                 variant='body1'
@@ -1278,7 +1299,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
               <View style={baseStyles.dropdownWrapper}>
                 <TouchableOpacity
                   style={[
-                    baseStyles.quantityInput,
+                    baseStyles.compactInput,
                     dynamicStyles.quantityInputDynamic(
                       '#F9F9F9',
                       '#E5E7EB',
@@ -1291,8 +1312,8 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                     // Close other dropdowns when this one opens
                     if (!showCategoryDropdown) {
                       setShowUnitDropdown(false);
-                      // Scroll to make dropdown visible (category dropdown is around 250px from top)
-                      handleModalDropdownScroll(200);
+                      // Scroll to make dropdown visible (category dropdown is around 140px from top in grid)
+                      handleModalDropdownScroll(120);
                     }
                   }}>
                   <Typography variant='body1' color={safeTheme.colors.text.primary}>
@@ -1305,11 +1326,7 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
                   </Typography>
                 </TouchableOpacity>
                 {showCategoryDropdown && (
-                  <View
-                    style={[
-                      baseStyles.categoryDropdownContainer,
-                      { backgroundColor: safeTheme.colors.surface.card },
-                    ]}>
+                  <View style={baseStyles.categoryDropdownContainer}>
                     <ScrollView
                       style={baseStyles.dropdownScroll}
                       showsVerticalScrollIndicator={false}>
