@@ -891,29 +891,41 @@ const shoppingListSlice = createSlice({
       action: PayloadAction<{ listId: string; item: ShoppingItem }>
     ) => {
       const { listId, item } = action.payload;
+      console.log(
+        '🐛 WEBSOCKET UPDATE: listId:',
+        listId,
+        'item:',
+        item.name,
+        'currentList:',
+        state.currentList?.id
+      );
 
-      // Only update if this is the currently active list
-      // This prevents data mixing between different lists
+      // Update in current list
       if (state.currentList?.id === listId) {
+        console.log('🐛 WEBSOCKET: Updating current list');
         const itemIndex = state.currentList.items.findIndex(i => i.id === item.id);
         if (itemIndex !== -1) {
           state.currentList.items[itemIndex] = item;
+          console.log('🐛 WEBSOCKET: Updated existing item in current list');
         } else {
           state.currentList.items.push(item);
-        }
-
-        // Also update in the lists array for consistency
-        const listIndex = state.lists.findIndex(list => list.id === listId);
-        if (listIndex !== -1 && state.lists[listIndex]) {
-          const arrayItemIndex = state.lists[listIndex]!.items.findIndex(i => i.id === item.id);
-          if (arrayItemIndex !== -1) {
-            state.lists[listIndex]!.items[arrayItemIndex] = item;
-          } else {
-            state.lists[listIndex]!.items.push(item);
-          }
+          console.log('🐛 WEBSOCKET: Added new item to current list');
         }
       }
-      // If it's not the current list, ignore the update to prevent data mixing
+
+      // Update in lists array
+      const listIndex = state.lists.findIndex(list => list.id === listId);
+      if (listIndex !== -1 && state.lists[listIndex]) {
+        console.log('🐛 WEBSOCKET: Updating lists array for list:', listId);
+        const itemIndex = state.lists[listIndex]!.items.findIndex(i => i.id === item.id);
+        if (itemIndex !== -1) {
+          state.lists[listIndex]!.items[itemIndex] = item;
+          console.log('🐛 WEBSOCKET: Updated existing item in lists array');
+        } else {
+          state.lists[listIndex]!.items.push(item);
+          console.log('🐛 WEBSOCKET: Added new item to lists array');
+        }
+      }
     },
 
     addItemFromWebSocket: (
@@ -922,20 +934,18 @@ const shoppingListSlice = createSlice({
     ) => {
       const { listId, item } = action.payload;
 
-      // Only add if this is the currently active list
-      // This prevents data mixing between different lists
+      // Add to current list
       if (state.currentList?.id === listId) {
         state.currentList.items.push(item);
         state.currentList.itemsCount += 1;
-
-        // Also add to the lists array for consistency
-        const listIndex = state.lists.findIndex(list => list.id === listId);
-        if (listIndex !== -1 && state.lists[listIndex]) {
-          state.lists[listIndex]!.items.push(item);
-          state.lists[listIndex]!.itemsCount += 1;
-        }
       }
-      // If it's not the current list, ignore the update to prevent data mixing
+
+      // Add to lists array
+      const listIndex = state.lists.findIndex(list => list.id === listId);
+      if (listIndex !== -1 && state.lists[listIndex]) {
+        state.lists[listIndex]!.items.push(item);
+        state.lists[listIndex]!.itemsCount += 1;
+      }
     },
 
     // Optimistically add collaborator to list
@@ -1025,6 +1035,18 @@ const shoppingListSlice = createSlice({
       })
       .addCase(loadShoppingList.fulfilled, (state, action) => {
         state.isLoadingList = false;
+
+        console.log(
+          '🐛 REDUX: loadShoppingList fulfilled for:',
+          action.payload.id,
+          action.payload.name
+        );
+        console.log('🐛 REDUX: Items received:', action.payload.items?.length || 0);
+        console.log(
+          '🐛 REDUX: Item names:',
+          action.payload.items?.map((item: any) => item.name) || []
+        );
+
         state.currentList = action.payload as any;
         state.selectedListId = action.payload.id;
 
@@ -1032,6 +1054,7 @@ const shoppingListSlice = createSlice({
         const index = state.lists.findIndex(list => list.id === action.payload.id);
         if (index !== -1) {
           state.lists[index] = action.payload as any;
+          console.log('🐛 REDUX: Updated list in lists array at index:', index);
         }
 
         // Switch WebSocket room atomically

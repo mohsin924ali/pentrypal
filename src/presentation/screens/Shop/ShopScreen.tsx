@@ -46,6 +46,7 @@ import {
   archiveShoppingList,
   loadShoppingList,
   loadShoppingLists,
+  selectCurrentList,
   selectFilteredLists,
   selectIsLoadingLists,
   selectShoppingListError,
@@ -101,6 +102,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   // Redux selectors
   const user = useSelector(selectUser);
   const lists = useSelector(selectFilteredLists);
+  const currentList = useSelector(selectCurrentList);
   const isLoadingLists = useSelector(selectIsLoadingLists);
   const error = useSelector(selectShoppingListError);
 
@@ -112,7 +114,6 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   const dynamicStyles = createDynamicStyles(safeTheme);
 
   const [mode, setMode] = useState<ShopMode>('select-list');
-  const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
@@ -126,7 +127,6 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   // Load shopping lists on mount
   useEffect(() => {
     if (user?.id) {
-      console.log('🛒 Loading shopping lists for shopping mode...');
       dispatch(loadShoppingLists({ status: 'active', limit: 50 }));
     }
   }, [dispatch, user?.id]);
@@ -136,33 +136,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   // ========================================
 
   const handleConsultPress = () => {
-    console.log('🔥🔥🔥 CONSULT BUTTON PRESSED - NEW VERSION');
-    console.log('🔥 Selected list:', selectedList?.name);
-    console.log('🔥 Collaborators count:', selectedList?.collaborators?.length || 0);
-
-    // Debug raw collaborator data
-    console.log(
-      '🔥 Raw collaborators:',
-      selectedList?.collaborators?.map(c => ({
-        name: c.name,
-        email: c.email,
-        user: c.user
-          ? {
-              name: c.user.name,
-              phone: c.user.phone,
-              country_code: c.user.country_code,
-            }
-          : 'NO USER DATA',
-      }))
-    );
-
     const contributors = getContributors();
-    console.log('🔥🔥🔥 Contributors for modal (NEW):', contributors);
-
-    // DEBUG: Our new code is working with contributors count: ${contributors.length}
-
     setShowConsultModal(true);
-    console.log('🔥 Modal state set to true');
   };
 
   const handleConsultModalClose = () => {
@@ -171,16 +146,9 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
   // Transform collaborators to contributors format with real phone numbers
   const getContributors = (): Contributor[] => {
-    if (!selectedList) return [];
+    if (!currentList) return [];
 
-    return selectedList.collaborators.map(collaborator => {
-      console.log('🔥 Processing collaborator:', {
-        name: collaborator.name,
-        hasUser: !!collaborator.user,
-        userPhone: collaborator.user?.phone,
-        userCountry: collaborator.user?.country_code,
-      });
-
+    return currentList.collaborators.map(collaborator => {
       // Construct international phone number if user data exists
       let phone: string | undefined;
       if (collaborator.user?.phone) {
@@ -203,24 +171,9 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   };
 
   // Check if list has contributors (excluding current user)
-  const hasContributors = selectedList && selectedList.collaborators.length > 0;
+  const hasContributors = currentList && currentList.collaborators.length > 0;
 
-  // Update selected list when lists change (for real-time updates)
-  useEffect(() => {
-    if (selectedList && lists.length > 0) {
-      const updatedList = lists.find(list => list.id === selectedList.id);
-      if (updatedList) {
-        console.log('🔄 Updating selected list with real-time data');
-        setSelectedList(updatedList);
-
-        // Update completed items state to match the updated list
-        const completedItemIds = new Set(
-          updatedList.items.filter(item => item.completed).map(item => item.id)
-        );
-        setCompletedItems(completedItemIds);
-      }
-    }
-  }, [lists, selectedList]);
+  // Redux will handle list updates automatically through WebSocket
 
   // Use Redux lists or fallback to provided lists
   const displayLists = lists.length > 0 ? lists : shoppingLists;
@@ -228,19 +181,16 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   // Handle pull to refresh
   const onRefresh = useCallback(async () => {
     if (!user?.id) return;
-
-    console.log('🔄 Refreshing shopping lists...');
     try {
       await dispatch(loadShoppingLists({ status: 'active', limit: 50 })).unwrap();
     } catch (refreshError) {
-      console.error('Failed to refresh shopping lists:', refreshError);
       Alert.alert('Error', 'Failed to refresh shopping lists');
     }
   }, [dispatch, user?.id]);
 
   // Mock user functions
   const getUserName = (userId: string): string => {
-    if (!selectedList) return 'Unknown';
+    if (!currentList) return 'Unknown';
 
     // Check if it's the current user
     if (userId === currentUser?.id) {
@@ -248,7 +198,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
     }
 
     // Find in collaborators
-    const collaborator = selectedList.collaborators.find(collab => collab.userId === userId);
+    const collaborator = currentList.collaborators.find(collab => collab.userId === userId);
     if (collaborator) {
       return collaborator.name;
     }
@@ -259,8 +209,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
   // Collaborator color helper using extracted function
   const getCollaboratorColorForList = (userId: string): string => {
-    if (!selectedList) return collaboratorColors[0] || '#4F46E5';
-    return getCollaboratorColor(userId, selectedList.collaborators);
+    if (!currentList) return collaboratorColors[0] || '#4F46E5';
+    return getCollaboratorColor(userId, currentList.collaborators);
   };
 
   const getUserAvatar = (userId: string): AvatarType => {
@@ -270,8 +220,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
     }
 
     // Look up in collaborators from the selected list
-    if (selectedList) {
-      const collaborator = selectedList.collaborators.find(c => c.userId === userId);
+    if (currentList) {
+      const collaborator = currentList.collaborators.find(c => c.userId === userId);
       if (collaborator) {
         return collaborator.avatar || getFallbackAvatar(collaborator.name);
       }
@@ -350,7 +300,6 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
           );
       }
     } catch (avatarError) {
-      console.error('Error rendering avatar:', avatarError);
       const fallbackAvatarStyle = {
         width: size,
         height: size,
@@ -378,50 +327,47 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   };
 
   useEffect(() => {
-    if (selectedList) {
+    if (currentList) {
       // Initialize completed items based on the list's current state
       const completed = new Set(
-        selectedList.items.filter(item => item.completed).map(item => item.id)
+        currentList.items.filter(item => item.completed).map(item => item.id)
       );
       setCompletedItems(completed);
     }
-  }, [selectedList]);
+  }, [currentList]);
 
   const handleSelectList = async (list: ShoppingList) => {
     // If selecting a different list, clear previous state
-    if (selectedList && selectedList.id !== list.id) {
+    if (currentList && currentList.id !== list.id) {
       setCompletedItems(new Set());
     }
 
     // Load the shopping list to set currentList in Redux (for WebSocket room joining)
     try {
       await dispatch(loadShoppingList(list.id)).unwrap();
+
+      setMode('shopping');
     } catch (error) {
       console.error('Failed to load shopping list for WebSocket room:', error);
-      // Continue anyway with local state
+      // Mode will stay in select-list if loading fails
     }
-
-    setSelectedList(list);
-    const completed = new Set(list.items.filter(item => item.completed).map(item => item.id));
-    setCompletedItems(completed);
-    setMode('shopping');
   };
 
   const handleBackToListSelection = () => {
     setMode('select-list');
-    // Don't clear selectedList or completedItems to maintain state
+    // Don't clear currentList or completedItems to maintain state
     // This allows returning to the same shopping session
   };
 
   const handleClearShoppingState = () => {
     // Use this function when completely exiting shopping or switching lists
-    setSelectedList(null);
+    // Redux currentList will be cleared when needed
     setCompletedItems(new Set());
     setMode('select-list');
   };
 
   const handleToggleItem = async (item: ShoppingItem) => {
-    if (!selectedList) return;
+    if (!currentList) return;
 
     const isCurrentlyCompleted = completedItems.has(item.id);
 
@@ -447,8 +393,8 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         setAmountInput(item.price?.toString() || '');
 
         // Scroll to item to ensure it's visible when expanded
-        if (flatListRef && selectedList?.items) {
-          const itemIndex = selectedList.items.findIndex(listItem => listItem.id === item.id);
+        if (flatListRef && currentList?.items) {
+          const itemIndex = currentList.items.findIndex(listItem => listItem.id === item.id);
           if (itemIndex !== -1) {
             setTimeout(() => {
               flatListRef.scrollToIndex({
@@ -470,10 +416,10 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   };
 
   const handleItemCompletionWithAmount = async (item: ShoppingItem, purchasedAmount?: number) => {
-    if (!selectedList || !user?.id) return;
+    if (!currentList || !user?.id) return;
 
     // Check permissions - only assigned user or owner can update items
-    const canUpdateItem = selectedList.ownerId === user.id || item.assignedTo === user.id;
+    const canUpdateItem = currentList.ownerId === user.id || item.assignedTo === user.id;
     if (!canUpdateItem) {
       Alert.alert(
         'Permission Denied',
@@ -491,7 +437,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       // Update item via Redux
       await dispatch(
         updateShoppingItem({
-          listId: selectedList.id,
+          listId: currentList.id,
           itemId: item.id,
           updates: {
             completed: newCompleted,
@@ -510,7 +456,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       setCompletedItems(newCompletedSet);
 
       // Update selected list locally for immediate UI feedback
-      const updatedItems = selectedList.items.map(listItem => {
+      const updatedItems = currentList.items.map(listItem => {
         if (listItem.id === item.id) {
           return {
             ...listItem,
@@ -531,21 +477,11 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         );
       }, 0);
 
-      const updatedList = {
-        ...selectedList,
-        items: updatedItems,
-        completedCount,
-        progress,
-        totalSpent,
-      } as any;
-
-      setSelectedList(updatedList);
+      // Redux will update the currentList automatically through WebSocket
 
       if (onListUpdate) {
         onListUpdate();
       }
-
-      console.log('✅ Item updated successfully:', item.name);
     } catch (updateError: unknown) {
       console.error('❌ Error updating item:', updateError);
       const errorMessage =
@@ -583,11 +519,11 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   };
 
   const handleFinishShopping = () => {
-    if (!selectedList) return;
+    if (!currentList) return;
 
     // Check if all items are completed
-    const remainingItems = selectedList.items.filter(item => !item.completed);
-    const currentCompletedItems = selectedList.items.filter(item => item.completed);
+    const remainingItems = currentList.items.filter(item => !item.completed);
+    const currentCompletedItems = currentList.items.filter(item => item.completed);
 
     // Calculate total spent from completed items
     const totalSpent = currentCompletedItems.reduce((total, item) => {
@@ -606,13 +542,13 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             text: 'Finish Anyway',
             style: 'destructive',
             onPress: () =>
-              showArchiveConfirmation(totalSpent, completedItems.size, selectedList.items.length),
+              showArchiveConfirmation(totalSpent, completedItems.size, currentList.items.length),
           },
         ]
       );
     } else {
       // All items completed - show archive confirmation
-      showArchiveConfirmation(totalSpent, completedItems.size, selectedList.items.length);
+      showArchiveConfirmation(totalSpent, completedItems.size, currentList.items.length);
     }
   };
 
@@ -639,13 +575,13 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
   };
 
   const handleArchiveConfirm = async () => {
-    if (!selectedList) return;
+    if (!currentList) return;
 
     try {
       setIsLoading(true);
 
       // Archive the list via Redux
-      await dispatch(archiveShoppingList(selectedList.id)).unwrap();
+      await dispatch(archiveShoppingList(currentList.id)).unwrap();
 
       // Clear shopping state and go back to list selection
       handleClearShoppingState();
@@ -653,7 +589,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       // Show success message
       Alert.alert(
         'List Archived Successfully! ✅',
-        `"${selectedList.name}" has been moved to your archived lists.\n\nYou can view the complete purchase history in the Lists section.`,
+        `"${currentList.name}" has been moved to your archived lists.\n\nYou can view the complete purchase history in the Lists section.`,
         [
           {
             text: 'Great!',
@@ -665,8 +601,6 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
           },
         ]
       );
-
-      console.log('✅ List archived successfully:', selectedList.name);
     } catch (archiveError: unknown) {
       console.error('❌ Error archiving list:', archiveError);
       const errorMessage =
@@ -850,23 +784,23 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         </TouchableOpacity>
         <View style={baseStyles.headerCenter}>
           <Typography variant='h3' color={safeTheme.colors.text.primary}>
-            {selectedList?.name}
+            {currentList?.name}
           </Typography>
           <Typography
             variant='caption'
             color={safeTheme.colors.text.secondary}
             style={baseStyles.headerSubtitleInShopping}>
-            {completedItems.size} of {selectedList?.itemsCount || 0} completed
+            {completedItems.size} of {currentList?.itemsCount || 0} completed
           </Typography>
-          {selectedList && selectedList.collaborators && selectedList.collaborators.length > 1 && (
+          {currentList && currentList.collaborators && currentList.collaborators.length > 1 && (
             <View style={baseStyles.avatarStack}>
-              {selectedList.collaborators.slice(0, 4).map((collaborator, index) => (
+              {currentList.collaborators.slice(0, 4).map((collaborator, index) => (
                 <View
                   key={collaborator.userId}
                   style={[
                     baseStyles.stackedAvatar,
                     {
-                      zIndex: selectedList.collaborators.length - index,
+                      zIndex: currentList.collaborators.length - index,
                       marginLeft: index > 0 ? -8 : 0,
                       backgroundColor: 'transparent',
                     },
@@ -874,7 +808,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                   {renderAvatar(getUserAvatar(collaborator.userId), 24)}
                 </View>
               ))}
-              {selectedList.collaborators.length > 4 && (
+              {currentList.collaborators.length > 4 && (
                 <View
                   style={[
                     baseStyles.stackedAvatar,
@@ -885,7 +819,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                     variant='caption'
                     color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}
                     style={baseStyles.stackedAvatarText}>
-                    +{selectedList.collaborators.length - 4}
+                    +{currentList.collaborators.length - 4}
                   </Typography>
                 </View>
               )}
@@ -914,7 +848,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
               baseStyles.progressFillLarge,
               themedStyles.progressFillLarge,
               {
-                width: `${selectedList ? Math.round((completedItems.size / selectedList.itemsCount) * 100) : 0}%`,
+                width: `${currentList ? Math.round((completedItems.size / currentList.itemsCount) * 100) : 0}%`,
               },
             ]}
           />
@@ -925,8 +859,9 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
       <FlatList
         ref={setFlatListRef}
         style={{ marginTop: 16 }}
-        data={selectedList?.items || []}
+        data={currentList?.items || []}
         keyExtractor={item => item.id}
+        extraData={currentList?.id} // Force re-render when currentList changes
         onScrollToIndexFailed={info => {
           // Fallback scroll for when scrollToIndex fails
           const wait = new Promise(resolve => setTimeout(resolve, 500));
@@ -939,173 +874,178 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             }
           });
         }}
-        renderItem={({ item }) => (
-          <View style={baseStyles.shoppingItemContainer}>
-            <TouchableOpacity
-              style={
-                [
-                  baseStyles.shoppingItem,
-                  themedStyles.shoppingItem,
-                  completedItems.has(item.id) && baseStyles.shoppingItemCompleted,
-                  item.assignedTo && [
-                    baseStyles.shoppingItemAssigned,
-                    themedStyles.shoppingItemAssigned,
-                  ],
-                  item.assignedTo && {
-                    borderLeftColor: getCollaboratorColor(
-                      item.assignedTo,
-                      selectedList?.collaborators
-                    ),
-                    borderLeftWidth: 4,
-                  },
-                  expandedItemId === item.id &&
-                    !completedItems.has(item.id) && {
-                      borderBottomLeftRadius: 0,
-                      borderBottomRightRadius: 0,
-                      marginBottom: 0,
-                    },
-                ] as any
-              }
-              onPress={() => handleToggleItem(item)}>
-              <View style={baseStyles.itemLeft}>
-                <View
-                  style={[
-                    baseStyles.checkbox,
-                    themedStyles.checkbox,
-                    completedItems.has(item.id) && [
-                      baseStyles.checkboxCompleted,
-                      themedStyles.checkboxCompleted,
+        renderItem={({ item }) => {
+          return (
+            <View style={baseStyles.shoppingItemContainer}>
+              <TouchableOpacity
+                style={
+                  [
+                    baseStyles.shoppingItem,
+                    themedStyles.shoppingItem,
+                    completedItems.has(item.id) && baseStyles.shoppingItemCompleted,
+                    item.assignedTo && [
+                      baseStyles.shoppingItemAssigned,
+                      themedStyles.shoppingItemAssigned,
                     ],
-                  ]}>
-                  {completedItems.has(item.id) && (
-                    <Typography
-                      variant='caption'
-                      style={[baseStyles.checkmark, themedStyles.checkmark]}>
-                      ✓
-                    </Typography>
-                  )}
-                </View>
-                <Typography variant='h2' style={baseStyles.itemIcon}>
-                  {item.icon}
-                </Typography>
-                <View style={baseStyles.itemInfo}>
-                  <Typography
-                    variant='body1'
-                    color={safeTheme.colors.text.primary}
-                    style={[
-                      baseStyles.itemName,
-                      completedItems.has(item.id) && baseStyles.itemNameCompleted,
-                    ]}>
-                    {item.name}
-                  </Typography>
-                  <View style={baseStyles.itemDetails}>
-                    <Typography
-                      variant='caption'
-                      color={safeTheme.colors.text.secondary}
-                      style={baseStyles.itemQuantity}>
-                      {item.quantity} {item.unit}
-                    </Typography>
-
-                    {item.assignedTo && selectedList && selectedList.collaborators && (
-                      <View style={baseStyles.assignmentRow}>
-                        <Typography
-                          variant='caption'
-                          color={getCollaboratorColor(item.assignedTo, selectedList?.collaborators)}
-                          style={baseStyles.assignmentIndicator}>
-                          • Assigned to {getUserName(item.assignedTo)}
-                        </Typography>
-                        <View
-                          style={[
-                            baseStyles.assignedAvatarInline,
-                            themedStyles.assignedAvatarInline,
-                            dynamicStyles.transparentAvatarStyle,
-                          ]}>
-                          {renderAvatar(getUserAvatar(item.assignedTo), 20)}
-                        </View>
-                      </View>
-                    )}
-
-                    {/* Permission indicator */}
-                    {item.assignedTo &&
-                      item.assignedTo !== user?.id &&
-                      selectedList!.ownerId !== user?.id && (
-                        <Typography
-                          variant='caption'
-                          color={safeTheme.colors.text.tertiary}
-                          style={baseStyles.permissionIndicator}>
-                          Only {getUserName(item.assignedTo)} can update this item
-                        </Typography>
-                      )}
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-
-            {/* Inline Amount Input - Shows when item is tapped but not completed */}
-            {expandedItemId === item.id && !completedItems.has(item.id) && (
-              <Animated.View
-                style={[
-                  baseStyles.amountInputContainer,
-                  themedStyles.amountInputContainer,
-                  { height: animatedHeight, overflow: 'hidden' },
-                ]}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Typography
-                    variant='caption'
-                    color={safeTheme.colors.text.secondary}
-                    style={{ fontSize: 11, width: 35 }}>
-                    $
-                  </Typography>
+                    item.assignedTo && {
+                      borderLeftColor: getCollaboratorColor(
+                        item.assignedTo,
+                        currentList?.collaborators
+                      ),
+                      borderLeftWidth: 4,
+                    },
+                    expandedItemId === item.id &&
+                      !completedItems.has(item.id) && {
+                        borderBottomLeftRadius: 0,
+                        borderBottomRightRadius: 0,
+                        marginBottom: 0,
+                      },
+                  ] as any
+                }
+                onPress={() => handleToggleItem(item)}>
+                <View style={baseStyles.itemLeft}>
                   <View
                     style={[
-                      baseStyles.amountInputField,
-                      themedStyles.amountInputField,
-                      { flex: 1, minWidth: 60 },
+                      baseStyles.checkbox,
+                      themedStyles.checkbox,
+                      completedItems.has(item.id) && [
+                        baseStyles.checkboxCompleted,
+                        themedStyles.checkboxCompleted,
+                      ],
                     ]}>
-                    <TextInput
-                      style={{ flex: 1, fontSize: 14, paddingVertical: 4, textAlign: 'center' }}
-                      value={amountInput}
-                      onChangeText={setAmountInput}
-                      placeholder='0.00'
-                      placeholderTextColor={safeTheme.colors.text.tertiary}
-                      keyboardType='numeric'
-                      autoFocus
-                      selectTextOnFocus
-                    />
+                    {completedItems.has(item.id) && (
+                      <Typography
+                        variant='caption'
+                        style={[baseStyles.checkmark, themedStyles.checkmark]}>
+                        ✓
+                      </Typography>
+                    )}
                   </View>
-                  <TouchableOpacity
-                    style={[
-                      baseStyles.amountCancelButton,
-                      themedStyles.amountCancelButton,
-                      { paddingVertical: 4, paddingHorizontal: 8, minWidth: 45 },
-                    ]}
-                    onPress={handleAmountCancel}>
+                  <Typography variant='h2' style={baseStyles.itemIcon}>
+                    {item.icon}
+                  </Typography>
+                  <View style={baseStyles.itemInfo}>
+                    <Typography
+                      variant='body1'
+                      color={safeTheme.colors.text.primary}
+                      style={[
+                        baseStyles.itemName,
+                        completedItems.has(item.id) && baseStyles.itemNameCompleted,
+                      ]}>
+                      {item.name}
+                    </Typography>
+                    <View style={baseStyles.itemDetails}>
+                      <Typography
+                        variant='caption'
+                        color={safeTheme.colors.text.secondary}
+                        style={baseStyles.itemQuantity}>
+                        {item.quantity} {item.unit}
+                      </Typography>
+
+                      {item.assignedTo && currentList && currentList.collaborators && (
+                        <View style={baseStyles.assignmentRow}>
+                          <Typography
+                            variant='caption'
+                            color={getCollaboratorColor(
+                              item.assignedTo,
+                              currentList?.collaborators
+                            )}
+                            style={baseStyles.assignmentIndicator}>
+                            • Assigned to {getUserName(item.assignedTo)}
+                          </Typography>
+                          <View
+                            style={[
+                              baseStyles.assignedAvatarInline,
+                              themedStyles.assignedAvatarInline,
+                              dynamicStyles.transparentAvatarStyle,
+                            ]}>
+                            {renderAvatar(getUserAvatar(item.assignedTo), 20)}
+                          </View>
+                        </View>
+                      )}
+
+                      {/* Permission indicator */}
+                      {item.assignedTo &&
+                        item.assignedTo !== user?.id &&
+                        currentList!.ownerId !== user?.id && (
+                          <Typography
+                            variant='caption'
+                            color={safeTheme.colors.text.tertiary}
+                            style={baseStyles.permissionIndicator}>
+                            Only {getUserName(item.assignedTo)} can update this item
+                          </Typography>
+                        )}
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+
+              {/* Inline Amount Input - Shows when item is tapped but not completed */}
+              {expandedItemId === item.id && !completedItems.has(item.id) && (
+                <Animated.View
+                  style={[
+                    baseStyles.amountInputContainer,
+                    themedStyles.amountInputContainer,
+                    { height: animatedHeight, overflow: 'hidden' },
+                  ]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Typography
                       variant='caption'
                       color={safeTheme.colors.text.secondary}
-                      style={{ fontSize: 11 }}>
-                      ✕
+                      style={{ fontSize: 11, width: 35 }}>
+                      $
                     </Typography>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      baseStyles.amountConfirmButton,
-                      themedStyles.amountConfirmButton,
-                      { paddingVertical: 4, paddingHorizontal: 8, minWidth: 45 },
-                    ]}
-                    onPress={() => handleAmountConfirm(item)}>
-                    <Typography
-                      variant='caption'
-                      color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}
-                      style={{ fontSize: 11 }}>
-                      ✓
-                    </Typography>
-                  </TouchableOpacity>
-                </View>
-              </Animated.View>
-            )}
-          </View>
-        )}
+                    <View
+                      style={[
+                        baseStyles.amountInputField,
+                        themedStyles.amountInputField,
+                        { flex: 1, minWidth: 60 },
+                      ]}>
+                      <TextInput
+                        style={{ flex: 1, fontSize: 14, paddingVertical: 4, textAlign: 'center' }}
+                        value={amountInput}
+                        onChangeText={setAmountInput}
+                        placeholder='0.00'
+                        placeholderTextColor={safeTheme.colors.text.tertiary}
+                        keyboardType='numeric'
+                        autoFocus
+                        selectTextOnFocus
+                      />
+                    </View>
+                    <TouchableOpacity
+                      style={[
+                        baseStyles.amountCancelButton,
+                        themedStyles.amountCancelButton,
+                        { paddingVertical: 4, paddingHorizontal: 8, minWidth: 45 },
+                      ]}
+                      onPress={handleAmountCancel}>
+                      <Typography
+                        variant='caption'
+                        color={safeTheme.colors.text.secondary}
+                        style={{ fontSize: 11 }}>
+                        ✕
+                      </Typography>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        baseStyles.amountConfirmButton,
+                        themedStyles.amountConfirmButton,
+                        { paddingVertical: 4, paddingHorizontal: 8, minWidth: 45 },
+                      ]}
+                      onPress={() => handleAmountConfirm(item)}>
+                      <Typography
+                        variant='caption'
+                        color={(safeTheme?.colors as any)?.background?.primary || '#ffffff'}
+                        style={{ fontSize: 11 }}>
+                        ✓
+                      </Typography>
+                    </TouchableOpacity>
+                  </View>
+                </Animated.View>
+              )}
+            </View>
+          );
+        }}
         contentContainerStyle={{ paddingBottom: hasContributors ? 160 : 40 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps='handled'
@@ -1134,7 +1074,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
         <ConsultContributorsModal
           visible={showConsultModal}
           contributors={getContributors()}
-          listName={selectedList?.name || 'Shopping List'}
+          listName={currentList?.name || 'Shopping List'}
           onDismiss={handleConsultModalClose}
           testID='shop-consult-modal'
         />
