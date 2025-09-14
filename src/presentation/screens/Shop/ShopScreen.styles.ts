@@ -14,7 +14,7 @@ export const createFallbackTheme = () => ({
     background: { primary: '#ffffff' },
     surface: { background: '#ffffff', secondary: '#f5f5f5', card: '#ffffff' },
     border: { primary: '#e5e5e5' },
-    success: { primary: '#4ADE80' },
+    success: { primary: '#3b82f6' },
     gray: { '50': '#F9F9F9', '200': '#E5E5E5', '400': '#9CA3AF', '500': '#6B7280' },
   },
   spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
@@ -107,23 +107,28 @@ export const baseStyles = StyleSheet.create({
     fontWeight: 'bold',
   } as ViewStyle,
 
-  // List cards
+  // List cards - Compact and elegant design
   listCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 16,
+    marginBottom: 10,
     borderWidth: 1,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderLeftWidth: 4, // Color strip width
+    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    overflow: 'hidden',
+    position: 'relative',
+    minHeight: 80, // Ensure minimum height for proper strip display
   } as ViewStyle,
 
   listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    alignItems: 'flex-start',
+    marginBottom: 8,
   } as ViewStyle,
 
   listMeta: {
@@ -132,28 +137,71 @@ export const baseStyles = StyleSheet.create({
 
   listTitle: {
     fontWeight: '600',
-    marginBottom: 4,
+    fontSize: 16,
+    marginBottom: 2,
   } as ViewStyle,
 
   listItemCount: {
     fontSize: 12,
+    opacity: 0.7,
   } as ViewStyle,
 
   listProgress: {
     alignItems: 'flex-end',
-    minWidth: 80,
+    minWidth: 70,
+  } as ViewStyle,
+
+  listCardContent: {} as ViewStyle,
+
+  listCardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 6,
   } as ViewStyle,
 
   progressText: {
-    fontSize: 12,
-    marginBottom: 8,
+    fontSize: 11,
+    marginBottom: 4,
   } as ViewStyle,
 
   progressBar: {
-    height: 8,
-    borderRadius: 4,
+    height: 4,
+    borderRadius: 2,
     overflow: 'hidden',
     width: '100%',
+  } as ViewStyle,
+
+  // Start Shopping Button
+  startShoppingButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    alignSelf: 'flex-end',
+  } as ViewStyle,
+
+  startShoppingButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+  } as ViewStyle,
+
+  listStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  } as ViewStyle,
+
+  listStatItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  } as ViewStyle,
+
+  listStatText: {
+    fontSize: 11,
+    opacity: 0.8,
   } as ViewStyle,
 
   progressFill: {
@@ -398,7 +446,7 @@ export const createThemedStyles = (theme: any) =>
     } as ViewStyle,
 
     amountConfirmButton: {
-      backgroundColor: theme.colors.success?.primary || '#4ADE80',
+      backgroundColor: theme.colors.primary?.['500'] || '#3b82f6',
     } as ViewStyle,
 
     amountInputContainer: {
@@ -428,8 +476,8 @@ export const createThemedStyles = (theme: any) =>
     } as ViewStyle,
 
     checkboxCompleted: {
-      backgroundColor: theme.colors.success?.primary || '#4ADE80',
-      borderColor: theme.colors.success?.primary || '#4ADE80',
+      backgroundColor: theme.colors.primary?.['500'] || '#3b82f6',
+      borderColor: theme.colors.primary?.['500'] || '#3b82f6',
     } as ViewStyle,
 
     checkmark: {
@@ -453,7 +501,7 @@ export const createThemedStyles = (theme: any) =>
     } as ViewStyle,
 
     finishButton: {
-      backgroundColor: theme.colors.success?.primary || '#4ADE80',
+      backgroundColor: theme.colors.primary?.['500'] || '#3b82f6',
     } as ViewStyle,
 
     finishButtonText: {
@@ -467,7 +515,10 @@ export const createThemedStyles = (theme: any) =>
 
     listCard: {
       backgroundColor: theme.colors.surface.card || theme.colors.surface.background,
-      borderColor: theme.colors.border.primary,
+      borderTopColor: theme.colors.border.primary,
+      borderRightColor: theme.colors.border.primary,
+      borderBottomColor: theme.colors.border.primary,
+      // borderLeftColor will be set dynamically for color strip
       shadowColor: theme.colors.text.primary,
     } as ViewStyle,
 
@@ -488,15 +539,15 @@ export const createThemedStyles = (theme: any) =>
     } as ViewStyle,
 
     progressFill: {
-      backgroundColor: '#10B981',
+      backgroundColor: theme.colors.primary?.['500'] || '#3b82f6',
     } as ViewStyle,
 
     progressFillLarge: {
-      backgroundColor: theme.colors.success?.primary || '#4ADE80',
+      backgroundColor: theme.colors.primary?.['500'] || '#3b82f6',
     } as ViewStyle,
 
     shopButtonText: {
-      color: theme.colors.success?.primary || '#4ADE80',
+      color: theme.colors.primary?.['500'] || '#3b82f6',
     } as ViewStyle,
 
     shoppingItem: {
@@ -511,7 +562,39 @@ export const createThemedStyles = (theme: any) =>
     stackedAvatar: {
       borderColor: theme.colors.surface.background,
     } as ViewStyle,
+
+    startShoppingButton: {
+      borderColor: theme.colors.primary['500'],
+    } as ViewStyle,
+
+    startShoppingButtonText: {
+      color: theme.colors.primary['500'],
+    } as ViewStyle,
   });
+
+/**
+ * Color palette for list card strips
+ */
+export const listCardColors = [
+  '#3B82F6', // Blue
+  '#10B981', // Green
+  '#F59E0B', // Amber
+  '#EF4444', // Red
+  '#8B5CF6', // Purple
+  '#06B6D4', // Cyan
+  '#F97316', // Orange
+  '#84CC16', // Lime
+  '#EC4899', // Pink
+  '#6B7280', // Gray
+];
+
+/**
+ * Get color for list card strip based on list index
+ */
+export const getListCardColor = (index: number): string => {
+  const colorIndex = index % listCardColors.length;
+  return listCardColors[colorIndex] || '#3B82F6';
+};
 
 /**
  * Create dynamic styles that depend on runtime values
@@ -521,6 +604,18 @@ export const createDynamicStyles = (theme: any) => ({
   createProgressFillStyle: (progress: number) =>
     ({
       width: `${progress}%`,
+    }) as ViewStyle,
+
+  // Color strip for list cards
+  createColorStripStyle: (color: string) =>
+    ({
+      backgroundColor: color,
+    }) as ViewStyle,
+
+  // List card with border color strip
+  createListCardWithColorStrip: (color: string) =>
+    ({
+      borderLeftColor: color,
     }) as ViewStyle,
 
   // Shopping item with assignment color

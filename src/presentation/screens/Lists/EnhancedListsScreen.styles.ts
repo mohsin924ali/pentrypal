@@ -172,7 +172,7 @@ export const baseStyles = StyleSheet.create({
     left: 0,
     top: 0,
     height: '100%',
-    backgroundColor: '#4ADE80',
+    backgroundColor: '#3b82f6',
     borderRadius: 12,
     minWidth: 2,
   } as ViewStyle,
@@ -230,7 +230,7 @@ export const baseStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#22c55e',
+    borderColor: '#3b82f6',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: {
@@ -284,8 +284,8 @@ export const baseStyles = StyleSheet.create({
   } as ViewStyle,
 
   checkboxCompleted: {
-    backgroundColor: '#4ADE80',
-    borderColor: '#4ADE80',
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
   } as ViewStyle,
 
   itemInfo: {
@@ -332,7 +332,7 @@ export const baseStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#22c55e30',
+    borderColor: '#3b82f630',
   } as ViewStyle,
 
   // Button Styles
@@ -501,7 +501,7 @@ export const baseStyles = StyleSheet.create({
   } as ViewStyle,
 
   successButton: {
-    backgroundColor: '#4ADE80',
+    backgroundColor: '#3b82f6',
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 12,
@@ -717,8 +717,8 @@ export const baseStyles = StyleSheet.create({
   } as ViewStyle,
 
   itemCheckboxCompleted: {
-    backgroundColor: '#22c55e',
-    borderColor: '#22c55e',
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
   } as ViewStyle,
 
   checkmark: {
@@ -850,7 +850,7 @@ export const baseStyles = StyleSheet.create({
   } as ViewStyle,
 
   archivedCloseButton: {
-    backgroundColor: '#22c55e',
+    backgroundColor: '#3b82f6',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,

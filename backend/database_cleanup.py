@@ -45,7 +45,8 @@ from sqlalchemy.exc import SQLAlchemyError
 sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
 
 from db.database import Base
-from models.user import User, UserPreferences, SecuritySettings
+from models.user import User, UserPreferences
+from models.security import SecuritySettings
 from models.shopping_list import ShoppingList, ShoppingItem, ListCollaborator
 from models.pantry import PantryItem
 from models.social import Friendship, FriendRequest

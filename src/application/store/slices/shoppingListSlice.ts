@@ -14,6 +14,7 @@ export interface ShoppingListState {
   // Lists data
   readonly lists: ShoppingList[];
   readonly currentList: ShoppingList | null;
+  readonly previousListId: string | null;
   readonly collaborators: Collaborator[];
 
   // Loading states
@@ -69,6 +70,7 @@ const initialState: ShoppingListState = {
   // Lists data
   lists: [],
   currentList: null,
+  previousListId: null,
   collaborators: [],
 
   // Loading states
@@ -811,15 +813,19 @@ const shoppingListSlice = createSlice({
     // WebSocket Room Management
     leaveCurrentListRoom: state => {
       if (state.currentList) {
-        import('../../../infrastructure/services/websocketIntegration')
-          .then(({ leaveListRoom }) => {
-            if (state.currentList) {
-              leaveListRoom(state.currentList.id);
-            }
-          })
-          .catch(error => {
-            console.warn('Failed to leave WebSocket room:', error);
-          });
+        try {
+          import('../../../infrastructure/services/websocketIntegration')
+            .then(({ leaveListRoom }) => {
+              if (state.currentList?.id && typeof leaveListRoom === 'function') {
+                leaveListRoom(state.currentList.id);
+              }
+            })
+            .catch(error => {
+              console.warn('Failed to leave WebSocket room:', error);
+            });
+        } catch (error) {
+          console.warn('Failed to import WebSocket integration:', error);
+        }
         state.currentList = null;
         state.selectedListId = null;
       }
@@ -886,7 +892,8 @@ const shoppingListSlice = createSlice({
     ) => {
       const { listId, item } = action.payload;
 
-      // Update in current list
+      // Only update if this is the currently active list
+      // This prevents data mixing between different lists
       if (state.currentList?.id === listId) {
         const itemIndex = state.currentList.items.findIndex(i => i.id === item.id);
         if (itemIndex !== -1) {
@@ -894,18 +901,19 @@ const shoppingListSlice = createSlice({
         } else {
           state.currentList.items.push(item);
         }
-      }
 
-      // Update in lists array
-      const listIndex = state.lists.findIndex(list => list.id === listId);
-      if (listIndex !== -1 && state.lists[listIndex]) {
-        const itemIndex = state.lists[listIndex]!.items.findIndex(i => i.id === item.id);
-        if (itemIndex !== -1) {
-          state.lists[listIndex]!.items[itemIndex] = item;
-        } else {
-          state.lists[listIndex]!.items.push(item);
+        // Also update in the lists array for consistency
+        const listIndex = state.lists.findIndex(list => list.id === listId);
+        if (listIndex !== -1 && state.lists[listIndex]) {
+          const arrayItemIndex = state.lists[listIndex]!.items.findIndex(i => i.id === item.id);
+          if (arrayItemIndex !== -1) {
+            state.lists[listIndex]!.items[arrayItemIndex] = item;
+          } else {
+            state.lists[listIndex]!.items.push(item);
+          }
         }
       }
+      // If it's not the current list, ignore the update to prevent data mixing
     },
 
     addItemFromWebSocket: (
@@ -914,18 +922,20 @@ const shoppingListSlice = createSlice({
     ) => {
       const { listId, item } = action.payload;
 
-      // Add to current list
+      // Only add if this is the currently active list
+      // This prevents data mixing between different lists
       if (state.currentList?.id === listId) {
         state.currentList.items.push(item);
         state.currentList.itemsCount += 1;
-      }
 
-      // Add to lists array
-      const listIndex = state.lists.findIndex(list => list.id === listId);
-      if (listIndex !== -1 && state.lists[listIndex]) {
-        state.lists[listIndex]!.items.push(item);
-        state.lists[listIndex]!.itemsCount += 1;
+        // Also add to the lists array for consistency
+        const listIndex = state.lists.findIndex(list => list.id === listId);
+        if (listIndex !== -1 && state.lists[listIndex]) {
+          state.lists[listIndex]!.items.push(item);
+          state.lists[listIndex]!.itemsCount += 1;
+        }
       }
+      // If it's not the current list, ignore the update to prevent data mixing
     },
 
     // Optimistically add collaborator to list
@@ -1010,18 +1020,8 @@ const shoppingListSlice = createSlice({
         state.error = null;
         state.lastError = null;
 
-        // Leave previous WebSocket room if switching lists
-        if (state.currentList && state.currentList.id !== action.meta.arg) {
-          import('../../../infrastructure/services/websocketIntegration')
-            .then(({ leaveListRoom }) => {
-              if (state.currentList) {
-                leaveListRoom(state.currentList.id);
-              }
-            })
-            .catch(error => {
-              console.warn('Failed to leave WebSocket room:', error);
-            });
-        }
+        // Store previous list ID for room switching
+        state.previousListId = state.currentList?.id || null;
       })
       .addCase(loadShoppingList.fulfilled, (state, action) => {
         state.isLoadingList = false;
@@ -1034,14 +1034,26 @@ const shoppingListSlice = createSlice({
           state.lists[index] = action.payload as any;
         }
 
-        // Join WebSocket room for real-time updates
-        import('../../../infrastructure/services/websocketIntegration')
-          .then(({ joinListRoom }) => {
-            joinListRoom(action.payload.id);
-          })
-          .catch(error => {
-            console.warn('Failed to join WebSocket room:', error);
-          });
+        // Switch WebSocket room atomically
+        const newListId = action.payload.id;
+        const previousListId = state.previousListId;
+        try {
+          import('../../../infrastructure/services/websocketIntegration')
+            .then(({ switchListRoom }) => {
+              if (newListId && typeof switchListRoom === 'function') {
+                console.log('🏠 Switching list room from:', previousListId, 'to:', newListId);
+                switchListRoom(previousListId, newListId);
+              }
+            })
+            .catch(error => {
+              console.warn('Failed to switch WebSocket room:', error);
+            });
+        } catch (error) {
+          console.warn('Failed to import WebSocket integration:', error);
+        }
+
+        // Clear the previous list ID after switching
+        state.previousListId = null;
       })
       .addCase(loadShoppingList.rejected, (state, action) => {
         state.isLoadingList = false;

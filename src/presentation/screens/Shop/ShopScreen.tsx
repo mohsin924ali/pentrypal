@@ -37,6 +37,7 @@ import {
   createFallbackTheme,
   createThemedStyles,
   getCollaboratorColor,
+  getListCardColor,
 } from './ShopScreen.styles';
 
 // Redux
@@ -741,59 +742,92 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             </Typography>
           </View>
         ) : (
-          <View style={{ paddingVertical: 16 }}>
+          <View style={{ paddingVertical: 4 }}>
             {displayLists
               .filter(list => list.status !== 'archived')
-              .map(list => (
+              .map((list, index) => (
                 <TouchableOpacity
                   key={list.id}
-                  style={[baseStyles.listCard, themedStyles.listCard]}
+                  style={[
+                    baseStyles.listCard,
+                    themedStyles.listCard,
+                    { borderLeftColor: getListCardColor(index) },
+                  ]}
                   onPress={() => handleSelectList(list)}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: 12,
-                    }}>
-                    <Typography
-                      variant='h3'
-                      color={safeTheme.colors.text.primary}
-                      style={baseStyles.listTitle}>
-                      {list.name}
-                    </Typography>
-                    <Typography
-                      variant='caption'
-                      color={safeTheme.colors.text.secondary}
-                      style={baseStyles.listItemCount}>
-                      {list.itemsCount} items
-                    </Typography>
-                  </View>
+                  {/* Card Header */}
+                  <View style={baseStyles.listHeader}>
+                    <View style={baseStyles.listMeta}>
+                      <Typography
+                        variant='body1'
+                        color={safeTheme.colors.text.primary}
+                        style={baseStyles.listTitle}>
+                        {list.name}
+                      </Typography>
+                      <View style={baseStyles.listStats}>
+                        <View style={baseStyles.listStatItem}>
+                          <Typography
+                            variant='caption'
+                            color={safeTheme.colors.text.secondary}
+                            style={baseStyles.listStatText}>
+                            📦 {list.itemsCount || 0} items
+                          </Typography>
+                        </View>
+                        <View style={baseStyles.listStatItem}>
+                          <Typography
+                            variant='caption'
+                            color={safeTheme.colors.text.secondary}
+                            style={baseStyles.listStatText}>
+                            ✅ {list.completedCount || 0} done
+                          </Typography>
+                        </View>
+                      </View>
+                    </View>
 
-                  <View style={baseStyles.listProgress}>
-                    <Typography
-                      variant='caption'
-                      color={safeTheme.colors.text.secondary}
-                      style={baseStyles.progressText}>
-                      {list.completedCount || 0} of {list.itemsCount || 0} completed
-                    </Typography>
-                    <View style={[baseStyles.progressBar, themedStyles.progressBar]}>
-                      <View
-                        style={[
-                          baseStyles.progressFill,
-                          themedStyles.progressFill,
-                          dynamicStyles.createProgressFillStyle(Math.round(list.progress || 0)),
-                        ]}
-                      />
+                    <View style={baseStyles.listProgress}>
+                      <Typography
+                        variant='caption'
+                        color={safeTheme.colors.text.secondary}
+                        style={baseStyles.progressText}>
+                        {Math.round(list.progress || 0)}%
+                      </Typography>
+                      <View style={[baseStyles.progressBar, themedStyles.progressBar]}>
+                        <View
+                          style={[
+                            baseStyles.progressFill,
+                            themedStyles.progressFill,
+                            dynamicStyles.createProgressFillStyle(Math.round(list.progress || 0)),
+                            dynamicStyles.createColorStripStyle(getListCardColor(index)),
+                          ]}
+                        />
+                      </View>
                     </View>
                   </View>
 
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Typography
-                      variant='body1'
-                      style={[baseStyles.shopButtonText, themedStyles.shopButtonText]}>
-                      Start Shopping →
-                    </Typography>
+                  {/* Card Footer */}
+                  <View style={baseStyles.listCardFooter}>
+                    <View style={baseStyles.listStats}>
+                      {list.totalSpent > 0 && (
+                        <Typography
+                          variant='caption'
+                          color={safeTheme.colors.text.secondary}
+                          style={baseStyles.listStatText}>
+                          💰 ${list.totalSpent.toFixed(2)} spent
+                        </Typography>
+                      )}
+                    </View>
+
+                    <TouchableOpacity
+                      style={[baseStyles.startShoppingButton, themedStyles.startShoppingButton]}
+                      onPress={() => handleSelectList(list)}>
+                      <Typography
+                        variant='caption'
+                        style={[
+                          baseStyles.startShoppingButtonText,
+                          themedStyles.startShoppingButtonText,
+                        ]}>
+                        Start Shopping
+                      </Typography>
+                    </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -1079,7 +1113,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
       {/* Floating Consult Contributors Button */}
       {hasContributors && (
-        <View style={{ position: 'absolute', bottom: 20, right: 20, zIndex: 1000 }}>
+        <View style={{ position: 'absolute', bottom: 20, left: 20, zIndex: 1000 }}>
           <ConsultButton
             onPress={handleConsultPress}
             testID='consult-contributors-button'

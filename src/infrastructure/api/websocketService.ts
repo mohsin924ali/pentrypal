@@ -29,7 +29,9 @@ export type WebSocketEventType =
   | 'friend_status_update'
   | 'notification'
   | 'typing_indicator'
-  | 'online_status_update';
+  | 'online_status_update'
+  | 'room_joined'
+  | 'room_left';
 
 export interface WebSocketEvent<T = any> {
   readonly type: WebSocketEventType;
@@ -278,7 +280,21 @@ export class WebSocketService {
           // Heartbeat response - no action needed
           break;
         case 'room_joined':
+          console.log(`🔔 ${message.type}:`, message.data || message.list_id || 'no room info');
+          if (message.list_id) {
+            console.log(`✅ Successfully joined room: ${message.list_id}`);
+            this.joinedRooms.add(message.list_id);
+          }
+          this.emitEvent('room_joined', message);
+          break;
         case 'room_left':
+          console.log(`🔔 ${message.type}:`, message.data || message.list_id || 'no room info');
+          if (message.list_id) {
+            console.log(`✅ Successfully left room: ${message.list_id}`);
+            this.joinedRooms.delete(message.list_id);
+          }
+          this.emitEvent('room_left', message);
+          break;
         case 'connection_established':
           // Connection management messages
           console.log(`🔔 ${message.type}:`, message.data);
@@ -382,6 +398,25 @@ export class WebSocketService {
       type: 'leave_list_room',
       data: { list_id: roomId },
     });
+  }
+
+  public switchRoom(fromRoomId: string | null, toRoomId: string): void {
+    console.log('🏠 Switching from room:', fromRoomId, 'to room:', toRoomId);
+    console.log('🏠 Currently joined rooms:', Array.from(this.joinedRooms));
+
+    // Leave previous room first if it exists
+    if (fromRoomId && fromRoomId !== toRoomId && this.joinedRooms.has(fromRoomId)) {
+      console.log('🏠 Leaving previous room:', fromRoomId);
+      this.leaveRoom(fromRoomId);
+    }
+
+    // Join new room if not already joined
+    if (toRoomId && !this.joinedRooms.has(toRoomId)) {
+      console.log('🏠 Joining new room:', toRoomId);
+      this.joinRoom(toRoomId);
+    } else if (toRoomId && this.joinedRooms.has(toRoomId)) {
+      console.log('🏠 Already in room:', toRoomId);
+    }
   }
 
   private rejoinRooms(): void {
@@ -520,6 +555,18 @@ export class WebSocketService {
 
   public getQueuedMessages(): BackendWebSocketMessage[] {
     return [...this.messageQueue];
+  }
+
+  public getJoinedRooms(): string[] {
+    return Array.from(this.joinedRooms);
+  }
+
+  public isInRoom(roomId: string): boolean {
+    return this.joinedRooms.has(roomId);
+  }
+
+  public getRoomCount(): number {
+    return this.joinedRooms.size;
   }
 
   // ========================================

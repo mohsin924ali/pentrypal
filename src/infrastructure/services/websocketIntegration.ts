@@ -111,6 +111,14 @@ export class WebSocketIntegration {
   }
 
   /**
+   * Switch from one list room to another atomically
+   */
+  public switchListRoom(fromListId: string | null, toListId: string): void {
+    websocketLogger.debug('🏠 Switching list room from:', fromListId, 'to:', toListId);
+    webSocketService.switchRoom(fromListId, toListId);
+  }
+
+  /**
    * Send typing indicator for a list
    */
   public sendTypingIndicator(listId: string, isTyping: boolean): void {
@@ -146,6 +154,10 @@ export class WebSocketIntegration {
       this.handleFriendStatusUpdate.bind(this)
     );
 
+    // Room events
+    webSocketService.addEventListener('room_joined', this.handleRoomJoined.bind(this));
+    webSocketService.addEventListener('room_left', this.handleRoomLeft.bind(this));
+
     // Other events
     webSocketService.addEventListener('notification', this.handleNotification.bind(this));
     webSocketService.addEventListener('typing_indicator', this.handleTypingIndicator.bind(this));
@@ -175,6 +187,22 @@ export class WebSocketIntegration {
 
   private handleError(event: WebSocketEvent): void {
     websocketLogger.error('❌ WebSocket error:', event.data);
+  }
+
+  private handleRoomJoined(event: WebSocketEvent): void {
+    const roomId = event.data?.list_id || event.data?.room_id;
+    websocketLogger.debug('✅ Room joined confirmed:', roomId || 'unknown room');
+    if (roomId) {
+      console.log('✅ Successfully joined WebSocket room:', roomId);
+    }
+  }
+
+  private handleRoomLeft(event: WebSocketEvent): void {
+    const roomId = event.data?.list_id || event.data?.room_id;
+    websocketLogger.debug('✅ Room left confirmed:', roomId || 'unknown room');
+    if (roomId) {
+      console.log('✅ Successfully left WebSocket room:', roomId);
+    }
   }
 
   private handleListUpdate(event: WebSocketEvent): void {
@@ -428,6 +456,8 @@ export const reconnectWebSocketWithFreshTokens = () =>
   webSocketIntegration.reconnectWithFreshTokens();
 export const joinListRoom = (listId: string) => webSocketIntegration.joinListRoom(listId);
 export const leaveListRoom = (listId: string) => webSocketIntegration.leaveListRoom(listId);
+export const switchListRoom = (fromListId: string | null, toListId: string) =>
+  webSocketIntegration.switchListRoom(fromListId, toListId);
 export const sendTypingIndicator = (listId: string, isTyping: boolean) =>
   webSocketIntegration.sendTypingIndicator(listId, isTyping);
 export const requestOnlineStatus = (friendIds: string[]) =>

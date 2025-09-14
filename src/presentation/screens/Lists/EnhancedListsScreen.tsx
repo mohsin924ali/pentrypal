@@ -156,7 +156,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     ? theme
     : {
         colors: {
-          primary: { '500': '#22c55e' },
+          primary: { '500': '#3b82f6' },
           text: {
             primary: '#000000',
             secondary: '#666666',
@@ -539,7 +539,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: safeTheme?.colors?.primary?.['500'] || '#22c55e',
+        backgroundColor: safeTheme?.colors?.primary?.['500'] || '#3b82f6',
         alignItems: 'center' as const,
         justifyContent: 'center' as const,
         overflow: 'hidden' as const,
@@ -592,7 +592,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
             width: size,
             height: size,
             borderRadius: size / 2,
-            backgroundColor: '#22c55e',
+            backgroundColor: '#3b82f6',
             alignItems: 'center',
             justifyContent: 'center',
           }}>
@@ -678,7 +678,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                       style={{
                         fontSize: 22,
                         lineHeight: 22,
-                        color: safeTheme?.colors?.primary?.['500'] || '#22c55e',
+                        color: safeTheme?.colors?.primary?.['500'] || '#3b82f6',
                       }}>
                       {ShareIcon}
                     </Typography>
@@ -700,7 +700,9 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
             {/* Enhanced Progress Bar with Percentage Inside */}
             <View style={baseStyles.progressBarContainer}>
               <View style={baseStyles.progressBar}>
-                <View style={[baseStyles.progressFill, { width: `${list.progress || 0}%` }]} />
+                <View
+                  style={[baseStyles.progressFill, { width: `${Math.round(list.progress || 0)}%` }]}
+                />
                 <View style={baseStyles.progressTextContainer}>
                   <Typography
                     variant='caption'
@@ -712,7 +714,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                         : safeTheme?.colors?.text?.secondary || '#666666'
                     }
                     style={baseStyles.progressText}>
-                    {list.progress || 0}% completed
+                    {Math.round(list.progress || 0)}% completed
                   </Typography>
                 </View>
               </View>
@@ -838,7 +840,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                           onPress={() => handleAssignItem(list.id, item)}>
                           <Typography
                             variant='caption'
-                            color={safeTheme?.colors?.primary?.['500'] || '#22c55e'}>
+                            color={safeTheme?.colors?.primary?.['500'] || '#3b82f6'}>
                             {item.assignedTo ? '↻' : '+'}
                           </Typography>
                         </TouchableOpacity>
