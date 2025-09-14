@@ -13,16 +13,19 @@ from app.models.category import ItemCategory
 def create_default_categories(db: Session):
     """Create default system categories"""
     default_categories = [
-        {"name": "Dairy", "color": "#FFE4B5", "icon": "🥛", "is_system": True},
-        {"name": "Meat", "color": "#FFB6C1", "icon": "🥩", "is_system": True},
+        {"name": "Fruits & Vegetables", "color": "#FFA07A", "icon": "🍎", "is_system": True},
         {"name": "Vegetables", "color": "#90EE90", "icon": "🥕", "is_system": True},
-        {"name": "Fruits", "color": "#FFA07A", "icon": "🍎", "is_system": True},
-        {"name": "Bakery", "color": "#DEB887", "icon": "🍞", "is_system": True},
-        {"name": "Canned Goods", "color": "#D3D3D3", "icon": "🥫", "is_system": True},
-        {"name": "Frozen", "color": "#E0F6FF", "icon": "🧊", "is_system": True},
+        {"name": "Meat & Seafood", "color": "#FFB6C1", "icon": "🥩", "is_system": True},
+        {"name": "Dairy & Alternatives", "color": "#FFE4B5", "icon": "🥛", "is_system": True},
+        {"name": "Grains & Bakery", "color": "#DEB887", "icon": "🍞", "is_system": True},
+        {"name": "Beans & Legumes", "color": "#8FBC8F", "icon": "🫘", "is_system": True},
+        {"name": "Spices & Herbs", "color": "#FF6347", "icon": "🌶️", "is_system": True},
+        {"name": "Canned & Condiments", "color": "#D3D3D3", "icon": "🥫", "is_system": True},
+        {"name": "Pantry Staples", "color": "#DAA520", "icon": "🏺", "is_system": True},
+        {"name": "Frozen Foods", "color": "#E0F6FF", "icon": "🧊", "is_system": True},
         {"name": "Beverages", "color": "#87CEEB", "icon": "🥤", "is_system": True},
-        {"name": "Snacks", "color": "#F0E68C", "icon": "🍿", "is_system": True},
-        {"name": "Household", "color": "#DCDCDC", "icon": "🧽", "is_system": True},
+        {"name": "Snacks & Confectionery", "color": "#F0E68C", "icon": "🍿", "is_system": True},
+        {"name": "Household Items", "color": "#DCDCDC", "icon": "🧽", "is_system": True},
         {"name": "Personal Care", "color": "#E6E6FA", "icon": "🧴", "is_system": True},
         {"name": "Other", "color": "#F5F5F5", "icon": "📦", "is_system": True},
     ]

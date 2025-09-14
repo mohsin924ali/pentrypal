@@ -1,0 +1,3339 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-09-14T15:00:14.495Z",
+  "categories": [
+    {
+      "id": "fruits",
+      "name": "Fruits & Vegetables",
+      "icon": "🍎",
+      "items": [
+        {
+          "id": "apple",
+          "name": "Apple",
+          "icon": "🍎",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "apricot",
+          "name": "Apricot",
+          "icon": "🍑",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "avocado",
+          "name": "Avocado",
+          "icon": "🥑",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "banana",
+          "name": "Banana",
+          "icon": "🍌",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "blackberry",
+          "name": "Blackberry",
+          "icon": "🫐",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "blueberry",
+          "name": "Blueberry",
+          "icon": "🫐",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cantaloupe",
+          "name": "Cantaloupe",
+          "icon": "🍈",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cherry",
+          "name": "Cherry",
+          "icon": "🍒",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "coconut",
+          "name": "Coconut",
+          "icon": "🥥",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cranberry",
+          "name": "Cranberry",
+          "icon": "🍒",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "date",
+          "name": "Date",
+          "icon": "🫒",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "dragon_fruit",
+          "name": "Dragon Fruit",
+          "icon": "💖",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "fig",
+          "name": "Fig",
+          "icon": "🪺",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "grape",
+          "name": "Grape",
+          "icon": "🍇",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "grapefruit",
+          "name": "Grapefruit",
+          "icon": "🍊",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "guava",
+          "name": "Guava",
+          "icon": "🥭",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "honeydew_melon",
+          "name": "Honeydew Melon",
+          "icon": "🍈",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "jackfruit",
+          "name": "Jackfruit",
+          "icon": "🍈",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "kiwi",
+          "name": "Kiwi",
+          "icon": "🥝",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lemon",
+          "name": "Lemon",
+          "icon": "🍋",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lime",
+          "name": "Lime",
+          "icon": "🍋",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mango",
+          "name": "Mango",
+          "icon": "🥭",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "nectarine",
+          "name": "Nectarine",
+          "icon": "🍑",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "olive",
+          "name": "Olive",
+          "icon": "🫒",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "orange",
+          "name": "Orange",
+          "icon": "🍊",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "papaya",
+          "name": "Papaya",
+          "icon": "🥭",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "passion_fruit",
+          "name": "Passion Fruit",
+          "icon": "💖",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "peach",
+          "name": "Peach",
+          "icon": "🍑",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pear",
+          "name": "Pear",
+          "icon": "🍐",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pineapple",
+          "name": "Pineapple",
+          "icon": "🍍",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "plum",
+          "name": "Plum",
+          "icon": "🍑",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pomegranate",
+          "name": "Pomegranate",
+          "icon": "🫒",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "quince",
+          "name": "Quince",
+          "icon": "🪺",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "raspberry",
+          "name": "Raspberry",
+          "icon": "🍇",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "strawberry",
+          "name": "Strawberry",
+          "icon": "🍓",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tamarind",
+          "name": "Tamarind",
+          "icon": "🌳",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "watermelon",
+          "name": "Watermelon",
+          "icon": "🍉",
+          "category": "fruits",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        }
+      ]
+    },
+    {
+      "id": "vegetables",
+      "name": "Vegetables",
+      "icon": "🥕",
+      "items": [
+        {
+          "id": "artichoke",
+          "name": "Artichoke",
+          "icon": "🫑",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "asparagus",
+          "name": "Asparagus",
+          "icon": "🥦",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "beet",
+          "name": "Beet",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "bok_choy",
+          "name": "Bok Choy",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "broccoli",
+          "name": "Broccoli",
+          "icon": "🥦",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "brussels_sprout",
+          "name": "Brussels Sprout",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cabbage",
+          "name": "Cabbage",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "carrot",
+          "name": "Carrot",
+          "icon": "🥕",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cauliflower",
+          "name": "Cauliflower",
+          "icon": "🥦",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "celery",
+          "name": "Celery",
+          "icon": "🥦",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chayote",
+          "name": "Chayote",
+          "icon": "🫑",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chicory",
+          "name": "Chicory",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "collard_greens",
+          "name": "Collard Greens",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "corn",
+          "name": "Corn",
+          "icon": "🌽",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cucumber",
+          "name": "Cucumber",
+          "icon": "🥒",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "daikon_radish",
+          "name": "Daikon Radish",
+          "icon": "🥕",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "eggplant",
+          "name": "Eggplant",
+          "icon": "🍆",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "fennel",
+          "name": "Fennel",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "garlic",
+          "name": "Garlic",
+          "icon": "🧄",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "ginger",
+          "name": "Ginger",
+          "icon": "🫚",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "jalapeo",
+          "name": "Jalapeño",
+          "icon": "🌶️",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "kale",
+          "name": "Kale",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "kohlrabi",
+          "name": "Kohlrabi",
+          "icon": "🫑",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "leek",
+          "name": "Leek",
+          "icon": "🧅",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lettuce_various_types",
+          "name": "Lettuce (various types)",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mushroom_various_types",
+          "name": "Mushroom (various types)",
+          "icon": "🍄",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "okra",
+          "name": "Okra",
+          "icon": "🫛",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "onion_various_types",
+          "name": "Onion (various types)",
+          "icon": "🧅",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "parsnip",
+          "name": "Parsnip",
+          "icon": "🥕",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "peas",
+          "name": "Peas",
+          "icon": "🫛",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "potato_various_types",
+          "name": "Potato (various types)",
+          "icon": "🥔",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pumpkin",
+          "name": "Pumpkin",
+          "icon": "🎃",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "radish",
+          "name": "Radish",
+          "icon": "🥕",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "rhubarb",
+          "name": "Rhubarb",
+          "icon": "🫚",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "scallion",
+          "name": "Scallion",
+          "icon": "🧅",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "spinach",
+          "name": "Spinach",
+          "icon": "🥬",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "squash_various_types",
+          "name": "Squash (various types)",
+          "icon": "🎃",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sweet_potato",
+          "name": "Sweet Potato",
+          "icon": "🥔",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tomatillo",
+          "name": "Tomatillo",
+          "icon": "🍅",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tomato_various_types",
+          "name": "Tomato (various types)",
+          "icon": "🍅",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "turnip",
+          "name": "Turnip",
+          "icon": "🥕",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "water_chestnut",
+          "name": "Water Chestnut",
+          "icon": "🌰",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "yam",
+          "name": "Yam",
+          "icon": "🥔",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "zucchini",
+          "name": "Zucchini",
+          "icon": "🥒",
+          "category": "vegetables",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        }
+      ]
+    },
+    {
+      "id": "meat",
+      "name": "Meat & Seafood",
+      "icon": "🥩",
+      "items": [
+        {
+          "id": "beef",
+          "name": "Beef",
+          "icon": "🥩",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chicken",
+          "name": "Chicken",
+          "icon": "🍗",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "duck",
+          "name": "Duck",
+          "icon": "🦆",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "goat",
+          "name": "Goat",
+          "icon": "🐐",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lamb",
+          "name": "Lamb",
+          "icon": "🐑",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mutton",
+          "name": "Mutton",
+          "icon": "🍖",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "turkey",
+          "name": "Turkey",
+          "icon": "🦃",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "veal",
+          "name": "Veal",
+          "icon": "🐄",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "bass",
+          "name": "Bass",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cod",
+          "name": "Cod",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "crab",
+          "name": "Crab",
+          "icon": "🦀",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "flounder",
+          "name": "Flounder",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "haddock",
+          "name": "Haddock",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "herring",
+          "name": "Herring",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lobster",
+          "name": "Lobster",
+          "icon": "🦞",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mackerel",
+          "name": "Mackerel",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mussel",
+          "name": "Mussel",
+          "icon": "🐚",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "oyster",
+          "name": "Oyster",
+          "icon": "🐚",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pollock",
+          "name": "Pollock",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "prawns",
+          "name": "Prawns",
+          "icon": "🍤",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "salmon",
+          "name": "Salmon",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sardine",
+          "name": "Sardine",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "scallop",
+          "name": "Scallop",
+          "icon": "🐚",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "shrimp",
+          "name": "Shrimp",
+          "icon": "🍤",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tilapia",
+          "name": "Tilapia",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "trout",
+          "name": "Trout",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tuna",
+          "name": "Tuna",
+          "icon": "🐟",
+          "category": "meat",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        }
+      ]
+    },
+    {
+      "id": "bakery",
+      "name": "Grains & Bakery",
+      "icon": "🍞",
+      "items": [
+        {
+          "id": "rice_various_types",
+          "name": "Rice (various types)",
+          "icon": "🍚",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "pasta_various_types",
+          "name": "Pasta (various types)",
+          "icon": "🍝",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "barley",
+          "name": "Barley",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "bulgur",
+          "name": "Bulgur",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "couscous",
+          "name": "Couscous",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "einkorn",
+          "name": "Einkorn",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "farro",
+          "name": "Farro",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "freekeh",
+          "name": "Freekeh",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "millet",
+          "name": "Millet",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "oats",
+          "name": "Oats",
+          "icon": "🥣",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "quinoa",
+          "name": "Quinoa",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "rye",
+          "name": "Rye",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sorghum",
+          "name": "Sorghum",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "spelt",
+          "name": "Spelt",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "teff",
+          "name": "Teff",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "triticale",
+          "name": "Triticale",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "wheat_berries",
+          "name": "Wheat Berries",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "amaranth",
+          "name": "Amaranth",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "buckwheat",
+          "name": "Buckwheat",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cornmeal",
+          "name": "Cornmeal",
+          "icon": "🌽",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "polenta",
+          "name": "Polenta",
+          "icon": "🍝",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "allpurpose_flour",
+          "name": "All-Purpose Flour",
+          "icon": "🍞",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "whole_wheat_flour",
+          "name": "Whole Wheat Flour",
+          "icon": "🍞",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "bread_flour",
+          "name": "Bread Flour",
+          "icon": "🍞",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "cake_flour",
+          "name": "Cake Flour",
+          "icon": "🍞",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "pastry_flour",
+          "name": "Pastry Flour",
+          "icon": "🍞",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "rice_flour",
+          "name": "Rice Flour",
+          "icon": "🍚",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "rye_flour",
+          "name": "Rye Flour",
+          "icon": "🍞",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "almond_flour",
+          "name": "Almond Flour",
+          "icon": "🍞",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "coconut_flour",
+          "name": "Coconut Flour",
+          "icon": "🥥",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "corn_starch",
+          "name": "Corn Starch",
+          "icon": "🌽",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "potato_starch",
+          "name": "Potato Starch",
+          "icon": "🥔",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "whole_wheat_flour_atta",
+          "name": "Whole Wheat Flour (Atta)",
+          "icon": "🍞",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "gram_flour_besan",
+          "name": "Gram Flour (Besan)",
+          "icon": "🫘",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "semolina_sujirava",
+          "name": "Semolina (Suji/Rava)",
+          "icon": "🍝",
+          "category": "bakery",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "rice_flour_chawal_ka_atta",
+          "name": "Rice Flour (Chawal ka Atta)",
+          "icon": "🍚",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "millet_flour_bajra_atta",
+          "name": "Millet Flour (Bajra Atta)",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "sorghum_flour_jowar_atta",
+          "name": "Sorghum Flour (Jowar Atta)",
+          "icon": "🌾",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "corn_flour_makki_ka_atta",
+          "name": "Corn Flour (Makki ka Atta)",
+          "icon": "🌽",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "basmati_rice",
+          "name": "Basmati Rice",
+          "icon": "🍚",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "puffed_rice_murmura",
+          "name": "Puffed Rice (Murmura)",
+          "icon": "🍚",
+          "category": "bakery",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        }
+      ]
+    },
+    {
+      "id": "legumes",
+      "name": "Beans & Legumes",
+      "icon": "🫘",
+      "items": [
+        {
+          "id": "black_beans",
+          "name": "Black Beans",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cannellini_beans",
+          "name": "Cannellini Beans",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chickpeas",
+          "name": "Chickpeas",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "edamame",
+          "name": "Edamame",
+          "icon": "🫛",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "fava_beans",
+          "name": "Fava Beans",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "kidney_beans",
+          "name": "Kidney Beans",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lima_beans",
+          "name": "Lima Beans",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "navy_beans",
+          "name": "Navy Beans",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pinto_beans",
+          "name": "Pinto Beans",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "blackeyed_peas",
+          "name": "Black-Eyed Peas",
+          "icon": "🫛",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "split_peas",
+          "name": "Split Peas",
+          "icon": "🫛",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "green_lentils",
+          "name": "Green Lentils",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "red_lentils",
+          "name": "Red Lentils",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "brown_lentils",
+          "name": "Brown Lentils",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mung_beans",
+          "name": "Mung Beans",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "urad_dal",
+          "name": "Urad Dal",
+          "icon": "🫘",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pigeon_peas",
+          "name": "Pigeon Peas",
+          "icon": "🫛",
+          "category": "legumes",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "soybeans",
+          "name": "Soybeans",
+          "icon": "🫛",
+          "category": "legumes",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        }
+      ]
+    },
+    {
+      "id": "spices",
+      "name": "Spices & Herbs",
+      "icon": "🌶️",
+      "items": [
+        {
+          "id": "ajwain_carom_seeds",
+          "name": "Ajwain (Carom Seeds)",
+          "icon": "🌿",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "amchur_dried_mango_powder",
+          "name": "Amchur (Dried Mango Powder)",
+          "icon": "🥭",
+          "category": "spices",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "anardana_dried_pomegranate_seeds",
+          "name": "Anardana (Dried Pomegranate Seeds)",
+          "icon": "🫒",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "black_cardamom_badi_elaichi",
+          "name": "Black Cardamom (Badi Elaichi)",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "black_cumin_shahi_jeera",
+          "name": "Black Cumin (Shahi Jeera)",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "black_salt_kala_namak",
+          "name": "Black Salt (Kala Namak)",
+          "icon": "🧂",
+          "category": "spices",
+          "defaultUnit": "oz",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cinnamon_stick_dalchini",
+          "name": "Cinnamon Stick (Dalchini)",
+          "icon": "🌿",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "clove_laung",
+          "name": "Clove (Laung)",
+          "icon": "🌿",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "coriander_powder_dhania_powder",
+          "name": "Coriander Powder (Dhania Powder)",
+          "icon": "🌿",
+          "category": "spices",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "cumin_seeds_jeera",
+          "name": "Cumin Seeds (Jeera)",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "curry_leaves_kari_patta",
+          "name": "Curry Leaves (Kari Patta)",
+          "icon": "🌿",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "fenugreek_leaves_kasuri_methi",
+          "name": "Fenugreek Leaves (Kasuri Methi)",
+          "icon": "🌿",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "garam_masala",
+          "name": "Garam Masala",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "green_cardamom_elaichi",
+          "name": "Green Cardamom (Elaichi)",
+          "icon": "🌿",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mustard_seeds_rai",
+          "name": "Mustard Seeds (Rai)",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "nigella_seeds_kalonji",
+          "name": "Nigella Seeds (Kalonji)",
+          "icon": "🌿",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "nutmeg_jaiphal",
+          "name": "Nutmeg (Jaiphal)",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "paprika_deggi_mirch",
+          "name": "Paprika (Deggi Mirch)",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "red_chili_powder_lal_mirch",
+          "name": "Red Chili Powder (Lal Mirch)",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "turmeric_powder_haldi",
+          "name": "Turmeric Powder (Haldi)",
+          "icon": "🌶️",
+          "category": "spices",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        }
+      ]
+    },
+    {
+      "id": "pantry",
+      "name": "Pantry Staples",
+      "icon": "🏺",
+      "items": [
+        {
+          "id": "ghee_clarified_butter",
+          "name": "Ghee (Clarified Butter)",
+          "icon": "🧈",
+          "category": "pantry",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mustard_oil_sarson_ka_tel",
+          "name": "Mustard Oil (Sarson ka Tel)",
+          "icon": "🌻",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "sesame_oil_til_ka_tel",
+          "name": "Sesame Oil (Til ka Tel)",
+          "icon": "🍾",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "olive_oil",
+          "name": "Olive Oil",
+          "icon": "🫒",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "canola_oil",
+          "name": "Canola Oil",
+          "icon": "🍾",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "vegetable_oil",
+          "name": "Vegetable Oil",
+          "icon": "🍾",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "coconut_oil",
+          "name": "Coconut Oil",
+          "icon": "🥥",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "sesame_oil",
+          "name": "Sesame Oil",
+          "icon": "🍾",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "peanut_oil",
+          "name": "Peanut Oil",
+          "icon": "🥜",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "sunflower_oil",
+          "name": "Sunflower Oil",
+          "icon": "🌻",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "apple_cider_vinegar",
+          "name": "Apple Cider Vinegar",
+          "icon": "🍾",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "balsamic_vinegar",
+          "name": "Balsamic Vinegar",
+          "icon": "🍾",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "white_vinegar",
+          "name": "White Vinegar",
+          "icon": "🍾",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "rice_vinegar",
+          "name": "Rice Vinegar",
+          "icon": "🍾",
+          "category": "pantry",
+          "defaultUnit": "liters",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        }
+      ]
+    },
+    {
+      "id": "snacks",
+      "name": "Snacks & Confectionery",
+      "icon": "🍿",
+      "items": [
+        {
+          "id": "samosa",
+          "name": "Samosa",
+          "icon": "🥟",
+          "category": "snacks",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pakora",
+          "name": "Pakora",
+          "icon": "🫛",
+          "category": "snacks",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "boondi",
+          "name": "Boondi",
+          "icon": "🟡",
+          "category": "snacks",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "jalebi",
+          "name": "Jalebi",
+          "icon": "🌀",
+          "category": "snacks",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "laddu",
+          "name": "Laddu",
+          "icon": "🟠",
+          "category": "snacks",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "papadum",
+          "name": "Papadum",
+          "icon": "🫓",
+          "category": "snacks",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "besan_sev",
+          "name": "Besan Sev",
+          "icon": "🍝",
+          "category": "snacks",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chai_patti_tea_leaves",
+          "name": "Chai Patti (Tea Leaves)",
+          "icon": "☕",
+          "category": "snacks",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        }
+      ]
+    },
+    {
+      "id": "household",
+      "name": "Household Items",
+      "icon": "🧽",
+      "items": [
+        {
+          "id": "dish_soap",
+          "name": "Dish Soap",
+          "icon": "🧼",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "laundry_detergent",
+          "name": "Laundry Detergent",
+          "icon": "🧺",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "fabric_softener",
+          "name": "Fabric Softener",
+          "icon": "🧺",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "allpurpose_cleaner",
+          "name": "All-Purpose Cleaner",
+          "icon": "🧹",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "glass_cleaner",
+          "name": "Glass Cleaner",
+          "icon": "🪞",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "floor_cleaner",
+          "name": "Floor Cleaner",
+          "icon": "🧹",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sponges",
+          "name": "Sponges",
+          "icon": "🧽",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "paper_towels",
+          "name": "Paper Towels",
+          "icon": "🧻",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "garbage_bags",
+          "name": "Garbage Bags",
+          "icon": "🗑️",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "aluminum_foil",
+          "name": "Aluminum Foil",
+          "icon": "📦",
+          "category": "household",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "bottles", "cups"]
+        },
+        {
+          "id": "plastic_wrap",
+          "name": "Plastic Wrap",
+          "icon": "📦",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "disinfectant_wipes",
+          "name": "Disinfectant Wipes",
+          "icon": "🧻",
+          "category": "household",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        }
+      ]
+    },
+    {
+      "id": "personal_care",
+      "name": "Personal Care",
+      "icon": "🧴",
+      "items": [
+        {
+          "id": "hand_soap",
+          "name": "Hand Soap",
+          "icon": "🧼",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "body_wash",
+          "name": "Body Wash",
+          "icon": "🧴",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "shampoo",
+          "name": "Shampoo",
+          "icon": "🧴",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "conditioner",
+          "name": "Conditioner",
+          "icon": "🧴",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "toothpaste",
+          "name": "Toothpaste",
+          "icon": "🦷",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "toothbrush",
+          "name": "Toothbrush",
+          "icon": "🪥",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "deodorant",
+          "name": "Deodorant",
+          "icon": "🧴",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lotion",
+          "name": "Lotion",
+          "icon": "🧴",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lip_balm",
+          "name": "Lip Balm",
+          "icon": "💄",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tissues",
+          "name": "Tissues",
+          "icon": "🤧",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cotton_balls",
+          "name": "Cotton Balls",
+          "icon": "⚪",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sanitary_napkins",
+          "name": "Sanitary Napkins",
+          "icon": "🩸",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "diapers",
+          "name": "Diapers",
+          "icon": "👶",
+          "category": "personal_care",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        }
+      ]
+    },
+    {
+      "id": "other",
+      "name": "Other",
+      "icon": "📦",
+      "items": [
+        {
+          "id": "allspice",
+          "name": "Allspice",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "anise",
+          "name": "Anise",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "asafoetida",
+          "name": "Asafoetida",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "basil",
+          "name": "Basil",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "bay_leaf",
+          "name": "Bay Leaf",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "black_pepper",
+          "name": "Black Pepper",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cardamom",
+          "name": "Cardamom",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cayenne_pepper",
+          "name": "Cayenne Pepper",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "celery_seed",
+          "name": "Celery Seed",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chili_powder",
+          "name": "Chili Powder",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "chives",
+          "name": "Chives",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cilantro",
+          "name": "Cilantro",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cinnamon",
+          "name": "Cinnamon",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "clove",
+          "name": "Clove",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "coriander",
+          "name": "Coriander",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cumin",
+          "name": "Cumin",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "curry_leaves",
+          "name": "Curry Leaves",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "dill",
+          "name": "Dill",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "fenugreek",
+          "name": "Fenugreek",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "garlic_powder",
+          "name": "Garlic Powder",
+          "icon": "🧄",
+          "category": "other",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "ginger_powder",
+          "name": "Ginger Powder",
+          "icon": "🫚",
+          "category": "other",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "juniper_berry",
+          "name": "Juniper Berry",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lavender",
+          "name": "Lavender",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mace",
+          "name": "Mace",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "marjoram",
+          "name": "Marjoram",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mint",
+          "name": "Mint",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mustard_seed",
+          "name": "Mustard Seed",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "nutmeg",
+          "name": "Nutmeg",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "onion_powder",
+          "name": "Onion Powder",
+          "icon": "🧅",
+          "category": "other",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "oregano",
+          "name": "Oregano",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "paprika",
+          "name": "Paprika",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "parsley",
+          "name": "Parsley",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "poppy_seed",
+          "name": "Poppy Seed",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "rosemary",
+          "name": "Rosemary",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "saffron",
+          "name": "Saffron",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sage",
+          "name": "Sage",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "savory",
+          "name": "Savory",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sesame_seed",
+          "name": "Sesame Seed",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "star_anise",
+          "name": "Star Anise",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sumac",
+          "name": "Sumac",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tarragon",
+          "name": "Tarragon",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "thyme",
+          "name": "Thyme",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "turmeric",
+          "name": "Turmeric",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "vanilla_bean",
+          "name": "Vanilla Bean",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "wasabi",
+          "name": "Wasabi",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "red_lentils_masoor_dal",
+          "name": "Red Lentils (Masoor Dal)",
+          "icon": "🫘",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "split_chickpeas_chana_dal",
+          "name": "Split Chickpeas (Chana Dal)",
+          "icon": "🫘",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "yellow_moong_dal",
+          "name": "Yellow Moong Dal",
+          "icon": "🫘",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "split_black_gram_urad_dal",
+          "name": "Split Black Gram (Urad Dal)",
+          "icon": "🫘",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pigeon_peas_toorarhar_dal",
+          "name": "Pigeon Peas (Toor/Arhar Dal)",
+          "icon": "🫛",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "black_chickpeas_kala_chana",
+          "name": "Black Chickpeas (Kala Chana)",
+          "icon": "🫘",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mung_beans_moong",
+          "name": "Mung Beans (Moong)",
+          "icon": "🫛",
+          "category": "other",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "kidney_beans_rajma",
+          "name": "Kidney Beans (Rajma)",
+          "icon": "🫘",
+          "category": "other",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mango_pickle_aam_ka_achar",
+          "name": "Mango Pickle (Aam ka Achar)",
+          "icon": "🥭",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mixed_pickle_mixed_achar",
+          "name": "Mixed Pickle (Mixed Achar)",
+          "icon": "🥒",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mint_chutney_pudina_chutney",
+          "name": "Mint Chutney (Pudina Chutney)",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tamarind_paste_imli",
+          "name": "Tamarind Paste (Imli)",
+          "icon": "🌳",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "ginger_garlic_paste",
+          "name": "Ginger Garlic Paste",
+          "icon": "🧄",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "rose_water_gulab_jal",
+          "name": "Rose Water (Gulab Jal)",
+          "icon": "🌹",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "kewra_water",
+          "name": "Kewra Water",
+          "icon": "🌹",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "jaggery_gud",
+          "name": "Jaggery (Gud)",
+          "icon": "🍬",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "paneer_indian_cottage_cheese",
+          "name": "Paneer (Indian Cottage Cheese)",
+          "icon": "🧀",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "yogurt_dahi",
+          "name": "Yogurt (Dahi)",
+          "icon": "🍦",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "dried_fenugreek_leaves_kasuri_methi",
+          "name": "Dried Fenugreek Leaves (Kasuri Methi)",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "vermicelli_noodles_seviyan",
+          "name": "Vermicelli Noodles (Seviyan)",
+          "icon": "🍝",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sago_pearls_sabudana",
+          "name": "Sago Pearls (Sabudana)",
+          "icon": "⚪",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "saffron_zafrankesar",
+          "name": "Saffron (Zafran/Kesar)",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "milk",
+          "name": "Milk",
+          "icon": "🥛",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "butter",
+          "name": "Butter",
+          "icon": "🧈",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cheese_various_types",
+          "name": "Cheese (various types)",
+          "icon": "🧀",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "yogurt",
+          "name": "Yogurt",
+          "icon": "🍦",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "ghee",
+          "name": "Ghee",
+          "icon": "🧈",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cream",
+          "name": "Cream",
+          "icon": "🍦",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sour_cream",
+          "name": "Sour Cream",
+          "icon": "🍦",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cottage_cheese",
+          "name": "Cottage Cheese",
+          "icon": "🧀",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "ricotta_cheese",
+          "name": "Ricotta Cheese",
+          "icon": "🧀",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "almond_milk",
+          "name": "Almond Milk",
+          "icon": "🥛",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "coconut_milk",
+          "name": "Coconut Milk",
+          "icon": "🥛",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "oat_milk",
+          "name": "Oat Milk",
+          "icon": "🥛",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "soy_milk",
+          "name": "Soy Milk",
+          "icon": "🥛",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "rice_milk",
+          "name": "Rice Milk",
+          "icon": "🥛",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "plantbased_butter",
+          "name": "Plant-based Butter",
+          "icon": "🧈",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "plantbased_cheese",
+          "name": "Plant-based Cheese",
+          "icon": "🧀",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tofu",
+          "name": "Tofu",
+          "icon": "⚪",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tempeh",
+          "name": "Tempeh",
+          "icon": "🟤",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chicken_eggs",
+          "name": "Chicken Eggs",
+          "icon": "🥚",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "duck_eggs",
+          "name": "Duck Eggs",
+          "icon": "🥚",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "quail_eggs",
+          "name": "Quail Eggs",
+          "icon": "🥚",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "canned_tomatoes",
+          "name": "Canned Tomatoes",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tomato_paste",
+          "name": "Tomato Paste",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tomato_sauce",
+          "name": "Tomato Sauce",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "canned_beans",
+          "name": "Canned Beans",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "lbs",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "canned_chickpeas",
+          "name": "Canned Chickpeas",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "canned_corn",
+          "name": "Canned Corn",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "canned_tuna",
+          "name": "Canned Tuna",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "canned_salmon",
+          "name": "Canned Salmon",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "canned_coconut_milk",
+          "name": "Canned Coconut Milk",
+          "icon": "🥫",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "pickles",
+          "name": "Pickles",
+          "icon": "🥒",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "olives",
+          "name": "Olives",
+          "icon": "🫒",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "salsa",
+          "name": "Salsa",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "jam",
+          "name": "Jam",
+          "icon": "🍯",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "honey",
+          "name": "Honey",
+          "icon": "🍯",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "maple_syrup",
+          "name": "Maple Syrup",
+          "icon": "🥞",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "soy_sauce",
+          "name": "Soy Sauce",
+          "icon": "🍶",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mustard",
+          "name": "Mustard",
+          "icon": "🌭",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "ketchup",
+          "name": "Ketchup",
+          "icon": "🍅",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "mayonnaise",
+          "name": "Mayonnaise",
+          "icon": "🥚",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "hot_sauce",
+          "name": "Hot Sauce",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "worcestershire_sauce",
+          "name": "Worcestershire Sauce",
+          "icon": "🍶",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "barbecue_sauce",
+          "name": "Barbecue Sauce",
+          "icon": "🍗",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "hoisin_sauce",
+          "name": "Hoisin Sauce",
+          "icon": "🦆",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sriracha",
+          "name": "Sriracha",
+          "icon": "🌶️",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "teriyaki_sauce",
+          "name": "Teriyaki Sauce",
+          "icon": "🍶",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tahini",
+          "name": "Tahini",
+          "icon": "🥜",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "hummus",
+          "name": "Hummus",
+          "icon": "🫘",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pesto",
+          "name": "Pesto",
+          "icon": "🌿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "fish_sauce",
+          "name": "Fish Sauce",
+          "icon": "🐟",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tzatziki",
+          "name": "Tzatziki",
+          "icon": "🍦",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "guacamole",
+          "name": "Guacamole",
+          "icon": "🥑",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sugar",
+          "name": "Sugar",
+          "icon": "🍬",
+          "category": "other",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "brown_sugar",
+          "name": "Brown Sugar",
+          "icon": "🍬",
+          "category": "other",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "powdered_sugar",
+          "name": "Powdered Sugar",
+          "icon": "🍬",
+          "category": "other",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "baking_soda",
+          "name": "Baking Soda",
+          "icon": "🧂",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "baking_powder",
+          "name": "Baking Powder",
+          "icon": "🧂",
+          "category": "other",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "yeast",
+          "name": "Yeast",
+          "icon": "🍞",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cocoa_powder",
+          "name": "Cocoa Powder",
+          "icon": "🍫",
+          "category": "other",
+          "defaultUnit": "oz",
+          "commonUnits": ["oz", "tsp", "tbsp", "grams"]
+        },
+        {
+          "id": "chocolate_chips",
+          "name": "Chocolate Chips",
+          "icon": "🍫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "vanilla_extract",
+          "name": "Vanilla Extract",
+          "icon": "🍦",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "corn_syrup",
+          "name": "Corn Syrup",
+          "icon": "🌽",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "molasses",
+          "name": "Molasses",
+          "icon": "🍯",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "almonds",
+          "name": "Almonds",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cashews",
+          "name": "Cashews",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "walnuts",
+          "name": "Walnuts",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pistachios",
+          "name": "Pistachios",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pecans",
+          "name": "Pecans",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "hazelnuts",
+          "name": "Hazelnuts",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "brazil_nuts",
+          "name": "Brazil Nuts",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "macadamia_nuts",
+          "name": "Macadamia Nuts",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "peanuts",
+          "name": "Peanuts",
+          "icon": "🥜",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chia_seeds",
+          "name": "Chia Seeds",
+          "icon": "🌱",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "flax_seeds",
+          "name": "Flax Seeds",
+          "icon": "🌱",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pumpkin_seeds",
+          "name": "Pumpkin Seeds",
+          "icon": "🎃",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sesame_seeds",
+          "name": "Sesame Seeds",
+          "icon": "🌱",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "sunflower_seeds",
+          "name": "Sunflower Seeds",
+          "icon": "🌻",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "water",
+          "name": "Water",
+          "icon": "💧",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "bottled_water",
+          "name": "Bottled Water",
+          "icon": "🚰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "carbonated_water",
+          "name": "Carbonated Water",
+          "icon": "🥂",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "juice_various_types",
+          "name": "Juice (various types)",
+          "icon": "🥤",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "soda",
+          "name": "Soda",
+          "icon": "🥤",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "tea",
+          "name": "Tea",
+          "icon": "☕",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "coffee",
+          "name": "Coffee",
+          "icon": "☕",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "hot_chocolate_mix",
+          "name": "Hot Chocolate Mix",
+          "icon": "☕",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "herbal_tea",
+          "name": "Herbal Tea",
+          "icon": "☕",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "milk_various_types",
+          "name": "Milk (various types)",
+          "icon": "🥛",
+          "category": "other",
+          "defaultUnit": "liters",
+          "commonUnits": ["liters", "ml", "gallons", "cups"]
+        },
+        {
+          "id": "smoothie_mix",
+          "name": "Smoothie Mix",
+          "icon": "🥤",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "potato_chips",
+          "name": "Potato Chips",
+          "icon": "🍟",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "pretzels",
+          "name": "Pretzels",
+          "icon": "🥨",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "crackers",
+          "name": "Crackers",
+          "icon": "🥨",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "rice_cakes",
+          "name": "Rice Cakes",
+          "icon": "🍚",
+          "category": "other",
+          "defaultUnit": "lbs",
+          "commonUnits": ["lbs", "kg", "cups", "bags"]
+        },
+        {
+          "id": "popcorn",
+          "name": "Popcorn",
+          "icon": "🍿",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "granola_bars",
+          "name": "Granola Bars",
+          "icon": "🍫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "dried_fruit",
+          "name": "Dried Fruit",
+          "icon": "🍇",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "nut_mixes",
+          "name": "Nut Mixes",
+          "icon": "🌰",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "beef_jerky",
+          "name": "Beef Jerky",
+          "icon": "🥩",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "fruit_leather",
+          "name": "Fruit Leather",
+          "icon": "🍎",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "cookies",
+          "name": "Cookies",
+          "icon": "🍪",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "candy",
+          "name": "Candy",
+          "icon": "🍬",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "gummy_candies",
+          "name": "Gummy Candies",
+          "icon": "🐻",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "marshmallows",
+          "name": "Marshmallows",
+          "icon": "🍦",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chocolate_bars",
+          "name": "Chocolate Bars",
+          "icon": "🍫",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "chewing_gum",
+          "name": "Chewing Gum",
+          "icon": "🍬",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "hard_candies",
+          "name": "Hard Candies",
+          "icon": "🍬",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        },
+        {
+          "id": "lollipops",
+          "name": "Lollipops",
+          "icon": "🍭",
+          "category": "other",
+          "defaultUnit": "pieces",
+          "commonUnits": ["pieces", "lbs", "kg", "packs"]
+        }
+      ]
+    }
+  ]
+}

@@ -284,14 +284,9 @@ export const CreateListScreen: React.FC<CreateListScreenProps> = ({
       }
     }
 
-    // If still not found, fetch from service
+    // If still not found, get from service
     if (!item) {
-      try {
-        item = await groceryItemsService.getItemById(itemId);
-      } catch (error) {
-        console.error('Error fetching item:', error);
-        return;
-      }
+      item = groceryItemsService.getItem(itemId) || null;
     }
 
     if (!item) return;

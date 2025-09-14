@@ -3,7 +3,7 @@
 // ========================================
 
 import React, { type FC } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Components
@@ -147,10 +147,15 @@ export const LoginScreen: FC<LoginScreenProps> = ({
                   marginVertical: 8,
                 },
               ]}>
-              {/* Form Title */}
-              <Typography variant='h3' align='center' style={{ marginBottom: theme.spacing.md }}>
-                Sign In
-              </Typography>
+              {/* App Icon */}
+              <View style={baseStyles.appIconContainer}>
+                <Image
+                  source={require('../../../../assets/icon.png')}
+                  style={baseStyles.appIcon}
+                  testID='app-icon'
+                  accessibilityLabel='PentryPal app icon'
+                />
+              </View>
 
               {/* Form Fields */}
               <LoginFormFields

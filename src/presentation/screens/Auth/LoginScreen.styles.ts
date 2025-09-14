@@ -10,6 +10,18 @@ import type { Theme } from '../../../shared/types/ui';
 // ========================================
 
 export const baseStyles = StyleSheet.create({
+  appIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    resizeMode: 'contain',
+  } as ImageStyle,
+
+  appIconContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  } as ViewStyle,
+
   biometricContainer: {
     marginTop: 16,
   } as ViewStyle,

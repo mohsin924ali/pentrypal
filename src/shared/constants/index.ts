@@ -232,18 +232,21 @@ export const DEEP_LINKS = {
 } as const;
 
 export const CATEGORIES = [
-  { id: 'fruits', name: 'Fruits', icon: '🍎', color: '#ff6b6b' },
-  { id: 'vegetables', name: 'Vegetables', icon: '🥕', color: '#4ecdc4' },
-  { id: 'meat', name: 'Meat & Poultry', icon: '🥩', color: '#45b7d1' },
-  { id: 'dairy', name: 'Dairy', icon: '🥛', color: '#f9ca24' },
-  { id: 'grains', name: 'Grains & Bread', icon: '🍞', color: '#f0932b' },
-  { id: 'snacks', name: 'Snacks', icon: '🍪', color: '#eb4d4b' },
-  { id: 'beverages', name: 'Beverages', icon: '🥤', color: '#6c5ce7' },
-  { id: 'frozen', name: 'Frozen Foods', icon: '🧊', color: '#74b9ff' },
-  { id: 'pantry', name: 'Pantry Staples', icon: '🥫', color: '#a29bfe' },
-  { id: 'household', name: 'Household', icon: '🧽', color: '#fd79a8' },
-  { id: 'personal', name: 'Personal Care', icon: '🧴', color: '#fdcb6e' },
-  { id: 'other', name: 'Other', icon: '📦', color: '#636e72' },
+  { id: 'fruits', name: 'Fruits & Vegetables', icon: '🍎', color: '#FFA07A' },
+  { id: 'vegetables', name: 'Vegetables', icon: '🥕', color: '#90EE90' },
+  { id: 'meat', name: 'Meat & Seafood', icon: '🥩', color: '#FFB6C1' },
+  { id: 'dairy', name: 'Dairy & Alternatives', icon: '🥛', color: '#FFE4B5' },
+  { id: 'bakery', name: 'Grains & Bakery', icon: '🍞', color: '#DEB887' },
+  { id: 'legumes', name: 'Beans & Legumes', icon: '🫘', color: '#8FBC8F' },
+  { id: 'spices', name: 'Spices & Herbs', icon: '🌶️', color: '#FF6347' },
+  { id: 'canned_goods', name: 'Canned & Condiments', icon: '🥫', color: '#D3D3D3' },
+  { id: 'pantry', name: 'Pantry Staples', icon: '🏺', color: '#DAA520' },
+  { id: 'frozen', name: 'Frozen Foods', icon: '🧊', color: '#E0F6FF' },
+  { id: 'beverages', name: 'Beverages', icon: '🥤', color: '#87CEEB' },
+  { id: 'snacks', name: 'Snacks & Confectionery', icon: '🍿', color: '#F0E68C' },
+  { id: 'household', name: 'Household Items', icon: '🧽', color: '#DCDCDC' },
+  { id: 'personal_care', name: 'Personal Care', icon: '🧴', color: '#E6E6FA' },
+  { id: 'other', name: 'Other', icon: '📦', color: '#F5F5F5' },
 ] as const;
 
 export const UNITS = [
