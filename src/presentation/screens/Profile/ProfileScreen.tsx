@@ -266,7 +266,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = () => {
               onPress={() => setShowPhotoModal(true)}>
               {user?.avatar ? (
                 <Image
-                  source={{ uri: user.avatar }}
+                  source={{
+                    uri: `${user.avatar.replace('http://localhost:8000', 'https://pantrypalbe-production.up.railway.app')}?t=${Date.now()}`,
+                  }}
                   style={baseStyles.avatarImage as any}
                   resizeMode='cover'
                 />

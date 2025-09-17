@@ -17,7 +17,7 @@ export const API_CONFIG = {
   retryAttempts: parseInt(process.env.API_RETRY_ATTEMPTS ?? '3', 10),
   retryDelay: 1000, // milliseconds
   websocketUrl:
-    process.env.WEBSOCKET_URL ?? 'ws://pantrypalbe-production.up.railway.app/api/v1/realtime/ws',
+    process.env.WEBSOCKET_URL ?? 'wss://pantrypalbe-production.up.railway.app/api/v1/realtime/ws',
 } as const;
 
 export const STORAGE_KEYS = {

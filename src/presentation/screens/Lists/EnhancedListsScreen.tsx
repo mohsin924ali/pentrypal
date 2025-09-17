@@ -665,7 +665,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
               </View>
 
               <View style={baseStyles.rightSection}>
-                {!isArchived && (
+                {!isArchived && list.ownerId === user?.id && (
                   <TouchableOpacity
                     onPress={event => {
                       event.stopPropagation();

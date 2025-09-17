@@ -366,8 +366,25 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
     setMode('select-list');
   };
 
+  // Helper function to check if item is read-only for current user
+  const isItemReadOnly = (item: ShoppingItem): boolean => {
+    if (!currentList || !user?.id) return true;
+    // Owner can interact with all items, contributors only with assigned items
+    return !(currentList.ownerId === user.id || item.assignedTo === user.id);
+  };
+
   const handleToggleItem = async (item: ShoppingItem) => {
-    if (!currentList) return;
+    if (!currentList || !user?.id) return;
+
+    // Check permissions - only assigned user or owner can interact with items
+    const canInteractWithItem = currentList.ownerId === user.id || item.assignedTo === user.id;
+    if (!canInteractWithItem) {
+      Alert.alert(
+        'Permission Denied',
+        'Only the list owner or assigned contributor can interact with this item.'
+      );
+      return;
+    }
 
     const isCurrentlyCompleted = completedItems.has(item.id);
 
@@ -826,15 +843,18 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
             </View>
           )}
         </View>
-        <TouchableOpacity
-          onPress={handleFinishShopping}
-          style={[baseStyles.finishButton, themedStyles.finishButton]}>
-          <Typography
-            variant='caption'
-            style={[baseStyles.finishButtonText, themedStyles.finishButtonText]}>
-            Finish
-          </Typography>
-        </TouchableOpacity>
+        {/* Finish button - only visible to list owner */}
+        {currentList && currentList.ownerId === user?.id && (
+          <TouchableOpacity
+            onPress={handleFinishShopping}
+            style={[baseStyles.finishButton, themedStyles.finishButton]}>
+            <Typography
+              variant='caption'
+              style={[baseStyles.finishButtonText, themedStyles.finishButtonText]}>
+              Finish
+            </Typography>
+          </TouchableOpacity>
+        )}
 
         {/* Integrated Progress Bar */}
         <View
@@ -894,6 +914,10 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
                       ),
                       borderLeftWidth: 4,
                     },
+                    isItemReadOnly(item) && [
+                      baseStyles.shoppingItemReadOnly,
+                      themedStyles.shoppingItemReadOnly,
+                    ],
                     expandedItemId === item.id &&
                       !completedItems.has(item.id) && {
                         borderBottomLeftRadius: 0,

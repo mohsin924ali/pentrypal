@@ -708,12 +708,30 @@ const authSlice = createSlice({
       })
       .addCase(uploadAvatar.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (__DEV__) {
+          console.log('🔄 Avatar upload fulfilled - payload:', action.payload);
+          console.log('🔄 Current user before update:', state.user);
+        }
         if (state.user !== null && action.payload !== null) {
+          const newAvatarUrl = action.payload.avatar_url ?? state.user.avatar;
+          if (__DEV__) {
+            console.log('🔄 Updating user avatar from:', state.user.avatar, 'to:', newAvatarUrl);
+          }
           // Update user with the updated avatar from backend
           state.user = {
             ...state.user,
-            avatar: action.payload.avatar_url ?? state.user.avatar,
+            avatar: newAvatarUrl,
           } as any;
+          if (__DEV__) {
+            console.log('🔄 User after avatar update:', state.user);
+          }
+        } else {
+          if (__DEV__) {
+            console.warn('⚠️ Avatar upload fulfilled but user or payload is null:', {
+              user: state.user,
+              payload: action.payload,
+            });
+          }
         }
       })
       .addCase(uploadAvatar.rejected, (state, action) => {

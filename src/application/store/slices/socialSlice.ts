@@ -98,11 +98,10 @@ export const loadFriends = createAsyncThunk(
           console.log('🔍 Converting backend friendship:', backendFriendship);
         }
 
-        // Note: Backend only provides user IDs, not full user objects
-        // We'll need to create placeholder user objects or fetch them separately
+        // Backend friendship only provides user IDs, not full user objects
         const user1 = {
           id: backendFriendship.user1_id,
-          name: 'User',
+          name: 'Unknown User',
           email: '',
           phone: '',
           avatar_url: undefined,
@@ -113,7 +112,7 @@ export const loadFriends = createAsyncThunk(
         };
         const user2 = {
           id: backendFriendship.user2_id,
-          name: 'User',
+          name: 'Unknown User',
           email: '',
           phone: '',
           avatar_url: undefined,
@@ -128,7 +127,7 @@ export const loadFriends = createAsyncThunk(
           user1Id: backendFriendship.user1_id,
           user2Id: backendFriendship.user2_id,
           user1: {
-            id: backendFriendship.user1_id,
+            id: user1.id,
             name: user1.name ?? 'Unknown Friend',
             email: user1.email ?? '',
             phone: user1.phone ?? '',
@@ -137,7 +136,7 @@ export const loadFriends = createAsyncThunk(
             updatedAt: user1.updated_at ?? '',
           },
           user2: {
-            id: backendFriendship.user2_id,
+            id: user2.id,
             name: user2.name ?? 'Unknown Friend',
             email: user2.email ?? '',
             phone: user2.phone ?? '',

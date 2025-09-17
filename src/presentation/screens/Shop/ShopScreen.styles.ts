@@ -266,6 +266,10 @@ export const baseStyles = StyleSheet.create({
     borderLeftWidth: 4,
   } as ViewStyle,
 
+  shoppingItemReadOnly: {
+    opacity: 0.5,
+  } as ViewStyle,
+
   itemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -557,6 +561,10 @@ export const createThemedStyles = (theme: any) =>
 
     shoppingItemAssigned: {
       backgroundColor: '#F0F9FF', // Light blue background for assigned items
+    } as ViewStyle,
+
+    shoppingItemReadOnly: {
+      backgroundColor: theme.colors.gray?.['50'] || '#F9FAFB',
     } as ViewStyle,
 
     stackedAvatar: {

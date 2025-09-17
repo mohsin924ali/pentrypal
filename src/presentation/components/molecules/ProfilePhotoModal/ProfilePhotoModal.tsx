@@ -125,12 +125,16 @@ export const ProfilePhotoModal: React.FC<ProfilePhotoModalProps> = ({ visible, o
 
       console.log('📸 File object prepared:', file);
 
+      console.log('📸 Dispatching uploadAvatar with file:', file);
       const result = await dispatch(uploadAvatar(file));
+      console.log('📸 Upload result:', result);
 
       if (uploadAvatar.fulfilled.match(result)) {
+        console.log('✅ Avatar upload successful, result payload:', result.payload);
         Alert.alert('Success', 'Profile photo updated successfully!');
         onClose();
       } else {
+        console.error('❌ Avatar upload failed, result:', result);
         throw new Error((result.payload as any)?.message || 'Upload failed');
       }
     } catch (error: any) {
@@ -222,7 +226,13 @@ export const ProfilePhotoModal: React.FC<ProfilePhotoModalProps> = ({ visible, o
         {/* Current Photo */}
         {user?.avatar && (
           <View style={styles.currentPhotoContainer}>
-            <Image source={{ uri: user.avatar }} style={styles.currentPhoto} resizeMode='cover' />
+            <Image
+              source={{
+                uri: `${user.avatar.replace('http://localhost:8000', 'https://pantrypalbe-production.up.railway.app')}?t=${Date.now()}`,
+              }}
+              style={styles.currentPhoto}
+              resizeMode='cover'
+            />
           </View>
         )}
 
