@@ -368,12 +368,29 @@ class AuthServiceImpl implements IAuthService {
         };
       }
 
-      // Check if we have valid login data
+      // Check if we have valid login data - handle both nested and direct response structures
+      let user, tokens;
+      
       if (response.data && response.data.user && response.data.tokens) {
-        const { user, tokens } = response.data;
+        // Nested under 'data' property
+        ({ user, tokens } = response.data);
+      } else if (response.user && response.tokens) {
+        // Handle direct response structure (not nested under 'data')
+        ({ user, tokens } = response);
+      } else {
+        // No error response but also no valid data - unexpected response structure
+        authLogger.warn(
+          '🔍 DEBUG: Unexpected login response structure - no valid data found'
+        );
+        return {
+          success: false,
+          message: 'Invalid response from server',
+          errorCode: 'INVALID_RESPONSE',
+        };
+      }
 
-        // Convert backend user to frontend user format
-        const frontendUser = {
+      // Convert backend user to frontend user format
+      const frontendUser = {
           id: user.id,
           email: user.email,
           name: user.name,
@@ -421,15 +438,6 @@ class AuthServiceImpl implements IAuthService {
           requiresTwoFactor: false,
           requiresEmailVerification: false,
         };
-      } else {
-        // No error response but also no valid data - unexpected response structure
-        authLogger.warn('🔍 DEBUG: Unexpected login response structure - no valid data found');
-        return {
-          success: false,
-          message: 'Invalid response from server',
-          errorCode: 'INVALID_RESPONSE',
-        };
-      }
     } catch (error) {
       authLogger.error('Login failed:', error);
       return {
@@ -476,12 +484,29 @@ class AuthServiceImpl implements IAuthService {
         };
       }
 
-      // Check if we have valid registration data
+      // Check if we have valid registration data - handle both nested and direct response structures
+      let user, tokens;
+      
       if (response.data && response.data.user && response.data.tokens) {
-        const { user, tokens } = response.data;
+        // Nested under 'data' property
+        ({ user, tokens } = response.data);
+      } else if (response.user && response.tokens) {
+        // Handle direct response structure (not nested under 'data')
+        ({ user, tokens } = response);
+      } else {
+        // No error response but also no valid data - unexpected response structure
+        authLogger.warn(
+          '🔍 DEBUG: Unexpected registration response structure - no valid data found'
+        );
+        return {
+          success: false,
+          message: 'Invalid response from server',
+          errorCode: 'INVALID_RESPONSE',
+        };
+      }
 
-        // Convert backend user to frontend user format
-        const frontendUser = {
+      // Convert backend user to frontend user format
+      const frontendUser = {
           id: user.id,
           email: user.email,
           name: user.name,
@@ -528,17 +553,6 @@ class AuthServiceImpl implements IAuthService {
           sessionId: this.generateSecureToken('session', frontendUser.id),
           requiresEmailVerification: false, // Backend doesn't require email verification per requirements
         };
-      } else {
-        // No error response but also no valid data - unexpected response structure
-        authLogger.warn(
-          '🔍 DEBUG: Unexpected registration response structure - no valid data found'
-        );
-        return {
-          success: false,
-          message: 'Invalid response from server',
-          errorCode: 'INVALID_RESPONSE',
-        };
-      }
     } catch (error) {
       authLogger.error('Registration failed:', error);
       return {
