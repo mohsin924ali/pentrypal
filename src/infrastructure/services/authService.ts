@@ -355,13 +355,39 @@ class AuthServiceImpl implements IAuthService {
         password: request.password,
       });
 
-      // Debug logging to understand the response structure
-      console.log('🔍 DEBUG: Login API response:', response);
-      console.log('🔍 DEBUG: Response data:', response.data);
-      console.log('🔍 DEBUG: Response detail:', response.detail);
-      console.log('🔍 DEBUG: response.data exists:', !!response.data);
-      console.log('🔍 DEBUG: response.data.user exists:', !!(response.data && response.data.user));
-      console.log('🔍 DEBUG: response.data.tokens exists:', !!(response.data && response.data.tokens));
+      // Debug API configuration and response structure
+      const { API_CONFIG: ApiConfig } = require('@/shared/constants');
+      const configInfo = {
+        apiBaseUrl: ApiConfig.baseUrl,
+        envApiUrl: process.env.API_BASE_URL,
+        isDev: __DEV__,
+      };
+
+      const debugInfo = {
+        config: configInfo,
+        hasResponse: !!response,
+        hasData: !!response.data,
+        hasDetail: !!response.detail,
+        hasUser: !!(response.data && response.data.user),
+        hasTokens: !!(response.data && response.data.tokens),
+        responseKeys: response ? Object.keys(response) : [],
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        responseType: typeof response,
+        dataType: typeof response.data,
+      };
+
+      // Log to both console and alert for production debugging
+      console.log('🔍 DEBUG: Auth response analysis:', JSON.stringify(debugInfo, null, 2));
+
+      // For production debugging - show critical info in alert
+      if (__DEV__ === false) {
+        setTimeout(() => {
+          Alert?.alert(
+            'Debug Info',
+            `API URL: ${configInfo.apiBaseUrl}\nEnv: ${configInfo.envApiUrl}\nResponse: ${JSON.stringify(debugInfo, null, 2).substring(0, 300)}...`
+          );
+        }, 1000);
+      }
 
       // Check if this is an error response first (has detail or error_code)
       if (response.detail || response.error_code) {
@@ -490,9 +516,39 @@ class AuthServiceImpl implements IAuthService {
 
       const response = await authApi.register(registrationData);
 
-      // Debug logging to understand the response structure
-      authLogger.debug('🔍 DEBUG: Registration API response:', response);
-      authLogger.debug('🔍 DEBUG: Response data:', response.data);
+      // Debug API configuration and response structure (same as login)
+      const { API_CONFIG: ApiConfig } = require('@/shared/constants');
+      const configInfo = {
+        apiBaseUrl: ApiConfig.baseUrl,
+        envApiUrl: process.env.API_BASE_URL,
+        isDev: __DEV__,
+      };
+
+      const debugInfo = {
+        config: configInfo,
+        hasResponse: !!response,
+        hasData: !!response.data,
+        hasDetail: !!response.detail,
+        hasUser: !!(response.data && response.data.user),
+        hasTokens: !!(response.data && response.data.tokens),
+        responseKeys: response ? Object.keys(response) : [],
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        responseType: typeof response,
+        dataType: typeof response.data,
+      };
+
+      // Log to both console and alert for production debugging
+      console.log('🔍 DEBUG: Registration response analysis:', JSON.stringify(debugInfo, null, 2));
+
+      // For production debugging - show critical info in alert
+      if (__DEV__ === false) {
+        setTimeout(() => {
+          Alert?.alert(
+            'Register Debug',
+            `API URL: ${configInfo.apiBaseUrl}\nEnv: ${configInfo.envApiUrl}\nResponse: ${JSON.stringify(debugInfo, null, 2).substring(0, 300)}...`
+          );
+        }, 1000);
+      }
       authLogger.debug('🔍 DEBUG: Response detail:', response.detail);
 
       // Check if this is an error response first (has detail or error_code)
