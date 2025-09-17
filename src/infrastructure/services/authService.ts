@@ -443,6 +443,14 @@ class AuthServiceImpl implements IAuthService {
         requiresEmailVerification: false,
       };
     } catch (error) {
+      // Debug: Log the caught error
+      console.log('🔍 DEBUG: Exception caught in login:', error);
+      console.log('🔍 DEBUG: Error type:', typeof error);
+      console.log(
+        '🔍 DEBUG: Error message:',
+        error instanceof Error ? error.message : String(error)
+      );
+
       authLogger.error('Login failed:', error);
       return {
         success: false,
@@ -455,7 +463,12 @@ class AuthServiceImpl implements IAuthService {
   async register(request: RegisterRequest): Promise<RegisterResponse> {
     try {
       // Import the auth API
-      const { authApi } = await import('../api');
+      const { authApi, checkApiHealth } = await import('../api');
+
+      // Debug: Test API connectivity first
+      console.log('🔍 DEBUG: Testing API connectivity...');
+      const isHealthy = await checkApiHealth();
+      console.log('🔍 DEBUG: API health check result:', isHealthy);
 
       // Make real API call
       // Debug: Log what we're receiving
@@ -563,6 +576,14 @@ class AuthServiceImpl implements IAuthService {
         requiresEmailVerification: false, // Backend doesn't require email verification per requirements
       };
     } catch (error) {
+      // Debug: Log the caught error
+      console.log('🔍 DEBUG: Exception caught in registration:', error);
+      console.log('🔍 DEBUG: Error type:', typeof error);
+      console.log(
+        '🔍 DEBUG: Error message:',
+        error instanceof Error ? error.message : String(error)
+      );
+
       authLogger.error('Registration failed:', error);
       return {
         success: false,

@@ -36,4 +36,4 @@ config.transformer.minifierConfig = {
 // Enable SVG support
 config.resolver.assetExts.push('svg');
 
-module.exports = config;
+module.exports = withNativeWind(config, { input: './global.css' });

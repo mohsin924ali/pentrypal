@@ -41,8 +41,7 @@
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.WAKE_LOCK",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.VIBRATE"
       ],
       "intentFilters": [
         {
@@ -67,8 +66,7 @@
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#ffffff",
-          "sounds": ["./assets/notification.wav"]
+          "color": "#ffffff"
         }
       ],
       [
@@ -92,6 +90,7 @@
       "eas": {
         "projectId": "c580e335-2c07-49b5-a8b4-a18a09fcc1fc"
       }
-    }
+    },
+    "owner": "mohsinali585"
   }
 }

@@ -273,9 +273,18 @@ export class ApiClient {
 
       clearTimeout(timeoutId);
 
+      // Debug: Log response details
+      console.log('🔍 DEBUG: Response status:', response.status);
+      console.log('🔍 DEBUG: Response statusText:', response.statusText);
+      console.log('🔍 DEBUG: Response headers:', Object.fromEntries(response.headers.entries()));
+
       const responseData = await response.json();
+      console.log('🔍 DEBUG: Response data:', responseData);
 
       if (!response.ok) {
+        console.log('🔍 DEBUG: HTTP Error - Status:', response.status);
+        console.log('🔍 DEBUG: HTTP Error - Response data:', responseData);
+
         return {
           data: undefined,
           detail: responseData.detail || `HTTP ${response.status}`,
@@ -290,6 +299,15 @@ export class ApiClient {
       };
     } catch (error) {
       clearTimeout(timeoutId);
+
+      // Debug: Log fetch errors
+      console.log('🔍 DEBUG: Fetch error occurred:', error);
+      console.log('🔍 DEBUG: Error type:', typeof error);
+      console.log('🔍 DEBUG: Error name:', error instanceof Error ? error.name : 'Unknown');
+      console.log(
+        '🔍 DEBUG: Error message:',
+        error instanceof Error ? error.message : String(error)
+      );
 
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Request timeout');
@@ -330,6 +348,7 @@ export class ApiClient {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      'ngrok-skip-browser-warning': 'true', // Skip ngrok browser warning
       ...customHeaders,
     };
 
