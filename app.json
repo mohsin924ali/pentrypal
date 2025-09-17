@@ -41,7 +41,8 @@
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.WAKE_LOCK",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE"
+        "android.permission.VIBRATE",
+        "android.permission.RECORD_AUDIO"
       ],
       "intentFilters": [
         {
@@ -86,11 +87,11 @@
       "expo-localization",
       "expo-font"
     ],
+    "owner": "mohsinali585",
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "c580e335-2c07-49b5-a8b4-a18a09fcc1fc"
       }
-    },
-    "owner": "your-expo-username"
+    }
   }
 }

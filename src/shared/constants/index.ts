@@ -12,11 +12,12 @@ export const APP_CONFIG = {
 } as const;
 
 export const API_CONFIG = {
-  baseUrl: process.env.API_BASE_URL ?? 'http://192.168.1.108:8000/api/v1',
+  baseUrl: process.env.API_BASE_URL ?? 'https://pantrypalbe-production.up.railway.app/api/v1',
   timeout: parseInt(process.env.API_TIMEOUT ?? '30000', 10),
   retryAttempts: parseInt(process.env.API_RETRY_ATTEMPTS ?? '3', 10),
   retryDelay: 1000, // milliseconds
-  websocketUrl: process.env.WEBSOCKET_URL ?? 'ws://192.168.1.108:8000/api/v1/realtime/ws',
+  websocketUrl:
+    process.env.WEBSOCKET_URL ?? 'ws://pantrypalbe-production.up.railway.app/api/v1/realtime/ws',
 } as const;
 
 export const STORAGE_KEYS = {

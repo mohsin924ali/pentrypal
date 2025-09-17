@@ -354,7 +354,22 @@ class AuthServiceImpl implements IAuthService {
         password: request.password,
       });
 
-      if (response.data) {
+      // Debug logging to understand the response structure
+      authLogger.debug('🔍 DEBUG: Login API response:', response);
+      authLogger.debug('🔍 DEBUG: Response data:', response.data);
+      authLogger.debug('🔍 DEBUG: Response detail:', response.detail);
+
+      // Check if this is an error response first (has detail or error_code)
+      if (response.detail || response.error_code) {
+        return {
+          success: false,
+          message: response.detail || 'Login failed',
+          errorCode: response.error_code || 'LOGIN_FAILED',
+        };
+      }
+
+      // Check if we have valid login data
+      if (response.data && response.data.user && response.data.tokens) {
         const { user, tokens } = response.data;
 
         // Convert backend user to frontend user format
@@ -407,17 +422,19 @@ class AuthServiceImpl implements IAuthService {
           requiresEmailVerification: false,
         };
       } else {
+        // No error response but also no valid data - unexpected response structure
+        authLogger.warn('🔍 DEBUG: Unexpected login response structure - no valid data found');
         return {
           success: false,
-          message: response.detail || 'Login failed',
-          errorCode: response.error_code || 'LOGIN_FAILED',
+          message: 'Invalid response from server',
+          errorCode: 'INVALID_RESPONSE',
         };
       }
     } catch (error) {
       authLogger.error('Login failed:', error);
       return {
         success: false,
-        message: 'Login failed',
+        message: (error as Error)?.message || 'Login failed',
         errorCode: 'INTERNAL_ERROR',
       };
     }
@@ -445,7 +462,22 @@ class AuthServiceImpl implements IAuthService {
 
       const response = await authApi.register(registrationData);
 
-      if (response.data) {
+      // Debug logging to understand the response structure
+      authLogger.debug('🔍 DEBUG: Registration API response:', response);
+      authLogger.debug('🔍 DEBUG: Response data:', response.data);
+      authLogger.debug('🔍 DEBUG: Response detail:', response.detail);
+
+      // Check if this is an error response first (has detail or error_code)
+      if (response.detail || response.error_code) {
+        return {
+          success: false,
+          message: response.detail || 'Registration failed',
+          errorCode: response.error_code || 'REGISTRATION_FAILED',
+        };
+      }
+
+      // Check if we have valid registration data
+      if (response.data && response.data.user && response.data.tokens) {
         const { user, tokens } = response.data;
 
         // Convert backend user to frontend user format
@@ -497,10 +529,14 @@ class AuthServiceImpl implements IAuthService {
           requiresEmailVerification: false, // Backend doesn't require email verification per requirements
         };
       } else {
+        // No error response but also no valid data - unexpected response structure
+        authLogger.warn(
+          '🔍 DEBUG: Unexpected registration response structure - no valid data found'
+        );
         return {
           success: false,
-          message: response.detail || 'Registration failed',
-          errorCode: response.error_code || 'REGISTRATION_FAILED',
+          message: 'Invalid response from server',
+          errorCode: 'INVALID_RESPONSE',
         };
       }
     } catch (error) {
