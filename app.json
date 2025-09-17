@@ -85,6 +85,7 @@
       "expo-localization",
       "expo-font"
     ],
+    "owner": "mohsinali585",
     "extra": {
       "eas": {
         "projectId": "c580e335-2c07-49b5-a8b4-a18a09fcc1fc"

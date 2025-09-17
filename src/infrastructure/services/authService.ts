@@ -354,12 +354,22 @@ class AuthServiceImpl implements IAuthService {
         password: request.password,
       });
 
-      // Debug: Log the full response structure
-      console.log('🔍 DEBUG: Full API Response:', JSON.stringify(response, null, 2));
-      console.log('🔍 DEBUG: Response.data exists:', !!response.data);
-      console.log('🔍 DEBUG: Response.data structure:', response.data);
+      // Debug logging to understand the response structure
+      authLogger.debug('🔍 DEBUG: Login API response:', response);
+      authLogger.debug('🔍 DEBUG: Response data:', response.data);
+      authLogger.debug('🔍 DEBUG: Response detail:', response.detail);
 
-      if (response.data) {
+      // Check if this is an error response first (has detail or error_code)
+      if (response.detail || response.error_code) {
+        return {
+          success: false,
+          message: response.detail || 'Login failed',
+          errorCode: response.error_code || 'LOGIN_FAILED',
+        };
+      }
+
+      // Check if we have valid login data
+      if (response.data && response.data.user && response.data.tokens) {
         const { user, tokens } = response.data;
 
         // Convert backend user to frontend user format
@@ -412,15 +422,12 @@ class AuthServiceImpl implements IAuthService {
           requiresEmailVerification: false,
         };
       } else {
-        // Debug: Log why response.data is falsy
-        console.log('🔍 DEBUG: Response.data is falsy');
-        console.log('🔍 DEBUG: Response.detail:', response.detail);
-        console.log('🔍 DEBUG: Response.error_code:', response.error_code);
-
+        // No error response but also no valid data - unexpected response structure
+        authLogger.warn('🔍 DEBUG: Unexpected login response structure - no valid data found');
         return {
           success: false,
-          message: response.detail || 'Login failed',
-          errorCode: response.error_code || 'LOGIN_FAILED',
+          message: 'Invalid response from server',
+          errorCode: 'INVALID_RESPONSE',
         };
       }
     } catch (error) {
@@ -435,7 +442,7 @@ class AuthServiceImpl implements IAuthService {
       authLogger.error('Login failed:', error);
       return {
         success: false,
-        message: 'Login failed',
+        message: (error as Error)?.message || 'Login failed',
         errorCode: 'INTERNAL_ERROR',
       };
     }
@@ -468,14 +475,22 @@ class AuthServiceImpl implements IAuthService {
 
       const response = await authApi.register(registrationData);
 
-      // Debug: Log the full response structure
-      console.log('🔍 DEBUG: Full Registration API Response:', JSON.stringify(response, null, 2));
-      console.log('🔍 DEBUG: Response.data exists:', !!response.data);
-      console.log('🔍 DEBUG: Response.data structure:', response.data);
-      console.log('🔍 DEBUG: Response.detail:', response.detail);
-      console.log('🔍 DEBUG: Response.error_code:', response.error_code);
+      // Debug logging to understand the response structure
+      authLogger.debug('🔍 DEBUG: Registration API response:', response);
+      authLogger.debug('🔍 DEBUG: Response data:', response.data);
+      authLogger.debug('🔍 DEBUG: Response detail:', response.detail);
 
-      if (response.data) {
+      // Check if this is an error response first (has detail or error_code)
+      if (response.detail || response.error_code) {
+        return {
+          success: false,
+          message: response.detail || 'Registration failed',
+          errorCode: response.error_code || 'REGISTRATION_FAILED',
+        };
+      }
+
+      // Check if we have valid registration data
+      if (response.data && response.data.user && response.data.tokens) {
         const { user, tokens } = response.data;
 
         // Convert backend user to frontend user format
@@ -527,15 +542,14 @@ class AuthServiceImpl implements IAuthService {
           requiresEmailVerification: false, // Backend doesn't require email verification per requirements
         };
       } else {
-        // Debug: Log why response.data is falsy
-        console.log('🔍 DEBUG: Registration response.data is falsy');
-        console.log('🔍 DEBUG: Registration response.detail:', response.detail);
-        console.log('🔍 DEBUG: Registration response.error_code:', response.error_code);
-
+        // No error response but also no valid data - unexpected response structure
+        authLogger.warn(
+          '🔍 DEBUG: Unexpected registration response structure - no valid data found'
+        );
         return {
           success: false,
-          message: response.detail || 'Registration failed',
-          errorCode: response.error_code || 'REGISTRATION_FAILED',
+          message: 'Invalid response from server',
+          errorCode: 'INVALID_RESPONSE',
         };
       }
     } catch (error) {
