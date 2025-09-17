@@ -23,6 +23,7 @@ import type {
   LoginRequest,
   RegisterRequest,
 } from '../../application/store/slices/authSlice';
+import type { BackendLoginResponse, BackendRegisterResponse } from '../../shared/types/backend';
 import { authLogger } from '../../shared/utils/logger';
 
 // ========================================
@@ -370,18 +371,21 @@ class AuthServiceImpl implements IAuthService {
 
       // Check if we have valid login data - handle both nested and direct response structures
       let user, tokens;
-      
+
+      // Type guard for direct response structure
+      const isDirectResponse = (obj: unknown): obj is BackendLoginResponse => {
+        return typeof obj === 'object' && obj !== null && 'user' in obj && 'tokens' in obj;
+      };
+
       if (response.data && response.data.user && response.data.tokens) {
-        // Nested under 'data' property
+        // Nested under 'data' property (expected structure)
         ({ user, tokens } = response.data);
-      } else if (response.user && response.tokens) {
-        // Handle direct response structure (not nested under 'data')
+      } else if (isDirectResponse(response)) {
+        // Handle direct response structure (backend returns data at root level)
         ({ user, tokens } = response);
       } else {
         // No error response but also no valid data - unexpected response structure
-        authLogger.warn(
-          '🔍 DEBUG: Unexpected login response structure - no valid data found'
-        );
+        authLogger.warn('🔍 DEBUG: Unexpected login response structure - no valid data found');
         return {
           success: false,
           message: 'Invalid response from server',
@@ -391,53 +395,53 @@ class AuthServiceImpl implements IAuthService {
 
       // Convert backend user to frontend user format
       const frontendUser = {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          mobile: user.phone,
-          avatar: user.avatar_url,
-          createdAt: user.created_at,
-          updatedAt: user.updated_at,
-          preferences: {
-            theme: 'system',
-            language: 'en',
-            currency: 'USD',
-            notifications: {
-              pushEnabled: true,
-              emailEnabled: true,
-              listUpdates: true,
-              reminders: true,
-              promotions: false,
-            },
-            privacy: {
-              profileVisibility: 'private',
-              locationSharing: false,
-              analyticsOptIn: true,
-            },
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        mobile: user.phone,
+        avatar: user.avatar_url,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
+        preferences: {
+          theme: 'system',
+          language: 'en',
+          currency: 'USD',
+          notifications: {
+            pushEnabled: true,
+            emailEnabled: true,
+            listUpdates: true,
+            reminders: true,
+            promotions: false,
           },
-        };
+          privacy: {
+            profileVisibility: 'private',
+            locationSharing: false,
+            analyticsOptIn: true,
+          },
+        },
+      };
 
-        // Convert backend tokens to frontend format
-        const frontendTokens: AuthTokens = {
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token,
-          tokenType: 'Bearer',
-          expiresIn: tokens.expires_in,
-          scope: ['read', 'write'],
-        };
+      // Convert backend tokens to frontend format
+      const frontendTokens: AuthTokens = {
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        tokenType: 'Bearer',
+        expiresIn: tokens.expires_in,
+        scope: ['read', 'write'],
+      };
 
-        // Store tokens securely
-        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-        await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
+      // Store tokens securely
+      await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+      await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
 
-        return {
-          success: true,
-          user: frontendUser as unknown as User,
-          tokens: frontendTokens,
-          sessionId: this.generateSecureToken('session', frontendUser.id),
-          requiresTwoFactor: false,
-          requiresEmailVerification: false,
-        };
+      return {
+        success: true,
+        user: frontendUser as unknown as User,
+        tokens: frontendTokens,
+        sessionId: this.generateSecureToken('session', frontendUser.id),
+        requiresTwoFactor: false,
+        requiresEmailVerification: false,
+      };
     } catch (error) {
       authLogger.error('Login failed:', error);
       return {
@@ -486,12 +490,17 @@ class AuthServiceImpl implements IAuthService {
 
       // Check if we have valid registration data - handle both nested and direct response structures
       let user, tokens;
-      
+
+      // Type guard for direct response structure
+      const isDirectResponse = (obj: unknown): obj is BackendRegisterResponse => {
+        return typeof obj === 'object' && obj !== null && 'user' in obj && 'tokens' in obj;
+      };
+
       if (response.data && response.data.user && response.data.tokens) {
-        // Nested under 'data' property
+        // Nested under 'data' property (expected structure)
         ({ user, tokens } = response.data);
-      } else if (response.user && response.tokens) {
-        // Handle direct response structure (not nested under 'data')
+      } else if (isDirectResponse(response)) {
+        // Handle direct response structure (backend returns data at root level)
         ({ user, tokens } = response);
       } else {
         // No error response but also no valid data - unexpected response structure
@@ -507,52 +516,52 @@ class AuthServiceImpl implements IAuthService {
 
       // Convert backend user to frontend user format
       const frontendUser = {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          mobile: user.phone,
-          avatar: user.avatar_url,
-          createdAt: user.created_at,
-          updatedAt: user.updated_at,
-          preferences: {
-            theme: 'system',
-            language: 'en',
-            currency: 'USD',
-            notifications: {
-              pushEnabled: true,
-              emailEnabled: true,
-              listUpdates: true,
-              reminders: true,
-              promotions: request.marketingConsent || false,
-            },
-            privacy: {
-              profileVisibility: 'private',
-              locationSharing: false,
-              analyticsOptIn: true,
-            },
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        mobile: user.phone,
+        avatar: user.avatar_url,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
+        preferences: {
+          theme: 'system',
+          language: 'en',
+          currency: 'USD',
+          notifications: {
+            pushEnabled: true,
+            emailEnabled: true,
+            listUpdates: true,
+            reminders: true,
+            promotions: request.marketingConsent || false,
           },
-        };
+          privacy: {
+            profileVisibility: 'private',
+            locationSharing: false,
+            analyticsOptIn: true,
+          },
+        },
+      };
 
-        // Convert backend tokens to frontend format
-        const frontendTokens: AuthTokens = {
-          accessToken: tokens.access_token,
-          refreshToken: tokens.refresh_token,
-          tokenType: 'Bearer',
-          expiresIn: tokens.expires_in,
-          scope: ['read', 'write'],
-        };
+      // Convert backend tokens to frontend format
+      const frontendTokens: AuthTokens = {
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        tokenType: 'Bearer',
+        expiresIn: tokens.expires_in,
+        scope: ['read', 'write'],
+      };
 
-        // Store tokens securely
-        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-        await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
+      // Store tokens securely
+      await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+      await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
 
-        return {
-          success: true,
-          user: frontendUser as unknown as User,
-          tokens: frontendTokens,
-          sessionId: this.generateSecureToken('session', frontendUser.id),
-          requiresEmailVerification: false, // Backend doesn't require email verification per requirements
-        };
+      return {
+        success: true,
+        user: frontendUser as unknown as User,
+        tokens: frontendTokens,
+        sessionId: this.generateSecureToken('session', frontendUser.id),
+        requiresEmailVerification: false, // Backend doesn't require email verification per requirements
+      };
     } catch (error) {
       authLogger.error('Registration failed:', error);
       return {
