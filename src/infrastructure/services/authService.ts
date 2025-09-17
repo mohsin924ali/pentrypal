@@ -354,6 +354,11 @@ class AuthServiceImpl implements IAuthService {
         password: request.password,
       });
 
+      // Debug: Log the full response structure
+      console.log('🔍 DEBUG: Full API Response:', JSON.stringify(response, null, 2));
+      console.log('🔍 DEBUG: Response.data exists:', !!response.data);
+      console.log('🔍 DEBUG: Response.data structure:', response.data);
+
       if (response.data) {
         const { user, tokens } = response.data;
 
@@ -407,6 +412,11 @@ class AuthServiceImpl implements IAuthService {
           requiresEmailVerification: false,
         };
       } else {
+        // Debug: Log why response.data is falsy
+        console.log('🔍 DEBUG: Response.data is falsy');
+        console.log('🔍 DEBUG: Response.detail:', response.detail);
+        console.log('🔍 DEBUG: Response.error_code:', response.error_code);
+
         return {
           success: false,
           message: response.detail || 'Login failed',
@@ -414,6 +424,14 @@ class AuthServiceImpl implements IAuthService {
         };
       }
     } catch (error) {
+      // Debug: Log the caught error
+      console.log('🔍 DEBUG: Exception caught in login:', error);
+      console.log('🔍 DEBUG: Error type:', typeof error);
+      console.log(
+        '🔍 DEBUG: Error message:',
+        error instanceof Error ? error.message : String(error)
+      );
+
       authLogger.error('Login failed:', error);
       return {
         success: false,
@@ -426,7 +444,12 @@ class AuthServiceImpl implements IAuthService {
   async register(request: RegisterRequest): Promise<RegisterResponse> {
     try {
       // Import the auth API
-      const { authApi } = await import('../api');
+      const { authApi, checkApiHealth } = await import('../api');
+
+      // Debug: Test API connectivity first
+      console.log('🔍 DEBUG: Testing API connectivity...');
+      const isHealthy = await checkApiHealth();
+      console.log('🔍 DEBUG: API health check result:', isHealthy);
 
       // Make real API call
       // Debug: Log what we're receiving
@@ -444,6 +467,13 @@ class AuthServiceImpl implements IAuthService {
       authLogger.debug('🔍 DEBUG: Sending to backend:', registrationData);
 
       const response = await authApi.register(registrationData);
+
+      // Debug: Log the full response structure
+      console.log('🔍 DEBUG: Full Registration API Response:', JSON.stringify(response, null, 2));
+      console.log('🔍 DEBUG: Response.data exists:', !!response.data);
+      console.log('🔍 DEBUG: Response.data structure:', response.data);
+      console.log('🔍 DEBUG: Response.detail:', response.detail);
+      console.log('🔍 DEBUG: Response.error_code:', response.error_code);
 
       if (response.data) {
         const { user, tokens } = response.data;
@@ -497,6 +527,11 @@ class AuthServiceImpl implements IAuthService {
           requiresEmailVerification: false, // Backend doesn't require email verification per requirements
         };
       } else {
+        // Debug: Log why response.data is falsy
+        console.log('🔍 DEBUG: Registration response.data is falsy');
+        console.log('🔍 DEBUG: Registration response.detail:', response.detail);
+        console.log('🔍 DEBUG: Registration response.error_code:', response.error_code);
+
         return {
           success: false,
           message: response.detail || 'Registration failed',
@@ -504,6 +539,14 @@ class AuthServiceImpl implements IAuthService {
         };
       }
     } catch (error) {
+      // Debug: Log the caught error
+      console.log('🔍 DEBUG: Exception caught in registration:', error);
+      console.log('🔍 DEBUG: Error type:', typeof error);
+      console.log(
+        '🔍 DEBUG: Error message:',
+        error instanceof Error ? error.message : String(error)
+      );
+
       authLogger.error('Registration failed:', error);
       return {
         success: false,

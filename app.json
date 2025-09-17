@@ -66,8 +66,7 @@
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#ffffff",
-          "sounds": ["./assets/notification.wav"]
+          "color": "#ffffff"
         }
       ],
       [
@@ -88,9 +87,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "c580e335-2c07-49b5-a8b4-a18a09fcc1fc"
       }
     },
-    "owner": "your-expo-username"
+    "owner": "mohsinali585"
   }
 }
