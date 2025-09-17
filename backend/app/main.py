@@ -77,7 +77,12 @@ app.add_middleware(
 # Add trusted host middleware for security
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*"] if settings.DEBUG else ["localhost", "127.0.0.1"]
+    allowed_hosts=["*"] if settings.DEBUG else [
+        "localhost", 
+        "127.0.0.1", 
+        "pantrypalbe-production.up.railway.app",
+        "*.up.railway.app"
+    ]
 )
 
 # Include API router
@@ -94,8 +99,19 @@ app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    await connection_manager.initialize_redis()
-    print("🚀 PentryPal API started successfully")
+    try:
+        print("🔄 Initializing PentryPal API...")
+        print(f"🔧 Debug mode: {settings.DEBUG}")
+        print(f"🔧 Database URL configured: {'Yes' if settings.DATABASE_URL else 'No'}")
+        print(f"🔧 Redis URL: {settings.REDIS_URL}")
+        
+        await connection_manager.initialize_redis()
+        print("🚀 PentryPal API started successfully")
+    except Exception as e:
+        print(f"❌ Startup failed: {str(e)}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
+        raise
 
 
 @app.on_event("shutdown")
@@ -123,10 +139,11 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=port,
         reload=settings.DEBUG,
         log_level=settings.LOG_LEVEL.lower()
     )
