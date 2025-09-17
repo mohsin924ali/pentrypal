@@ -356,9 +356,12 @@ class AuthServiceImpl implements IAuthService {
       });
 
       // Debug logging to understand the response structure
-      authLogger.debug('🔍 DEBUG: Login API response:', response);
-      authLogger.debug('🔍 DEBUG: Response data:', response.data);
-      authLogger.debug('🔍 DEBUG: Response detail:', response.detail);
+      console.log('🔍 DEBUG: Login API response:', response);
+      console.log('🔍 DEBUG: Response data:', response.data);
+      console.log('🔍 DEBUG: Response detail:', response.detail);
+      console.log('🔍 DEBUG: response.data exists:', !!response.data);
+      console.log('🔍 DEBUG: response.data.user exists:', !!(response.data && response.data.user));
+      console.log('🔍 DEBUG: response.data.tokens exists:', !!(response.data && response.data.tokens));
 
       // Check if this is an error response first (has detail or error_code)
       if (response.detail || response.error_code) {
