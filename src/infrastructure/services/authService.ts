@@ -454,31 +454,43 @@ class AuthServiceImpl implements IAuthService {
           }, 3000);
         }
 
-        // BYPASS ALL OBJECT CREATION AND STORAGE - RETURN SUCCESS IMMEDIATELY
+        // STEP 1: Test with proper frontendTokens creation but simple user object
+        console.log('🔍 DEBUG: Creating frontendTokens object');
+
+        const frontendTokens = {
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          tokenType: 'Bearer' as const,
+          expiresIn: tokens.expires_in,
+          scope: ['read', 'write'],
+        };
+
+        console.log('🔍 DEBUG: frontendTokens created successfully');
+
+        // Simple user object (like bypass)
+        const frontendUser = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          mobile: user.phone,
+          avatar: user.avatar_url,
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
+        };
+
+        console.log('🔍 DEBUG: Simple frontendUser created successfully');
+
         if (__DEV__ === false) {
           setTimeout(() => {
-            Alert?.alert(
-              'BYPASSING ALL LOGIC',
-              'Returning success without object creation or storage'
-            );
+            Alert?.alert('STEP 1 TEST', 'Testing with proper tokens + simple user object');
           }, 4000);
         }
 
         return {
           success: true,
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          } as User,
-          tokens: {
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token,
-            tokenType: 'Bearer' as const,
-            expiresIn: tokens.expires_in,
-            scope: ['read', 'write'],
-          },
-          sessionId: 'bypass-session',
+          user: frontendUser as User,
+          tokens: frontendTokens,
+          sessionId: 'step1-test-session',
           requiresTwoFactor: false,
           requiresEmailVerification: false,
         };
@@ -767,31 +779,43 @@ class AuthServiceImpl implements IAuthService {
           }, 3500);
         }
 
-        // BYPASS ALL REGISTER OBJECT CREATION AND STORAGE - RETURN SUCCESS IMMEDIATELY
+        // STEP 1: Test register with proper frontendTokens creation but simple user object
+        console.log('🔍 DEBUG: Creating register frontendTokens object');
+
+        const frontendTokens = {
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          tokenType: 'Bearer' as const,
+          expiresIn: tokens.expires_in,
+          scope: ['read', 'write'],
+        };
+
+        console.log('🔍 DEBUG: Register frontendTokens created successfully');
+
+        // Simple user object (like bypass)
+        const frontendUser = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          mobile: user.phone,
+          avatar: user.avatar_url,
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
+        };
+
+        console.log('🔍 DEBUG: Register simple frontendUser created successfully');
+
         if (__DEV__ === false) {
           setTimeout(() => {
-            Alert?.alert(
-              'BYPASSING REGISTER LOGIC',
-              'Returning register success without object creation or storage'
-            );
+            Alert?.alert('REGISTER STEP 1 TEST', 'Testing with proper tokens + simple user object');
           }, 4500);
         }
 
         return {
           success: true,
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          } as User,
-          tokens: {
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token,
-            tokenType: 'Bearer' as const,
-            expiresIn: tokens.expires_in,
-            scope: ['read', 'write'],
-          },
-          sessionId: 'bypass-register-session',
+          user: frontendUser as User,
+          tokens: frontendTokens,
+          sessionId: 'register-step1-test-session',
           requiresEmailVerification: false,
         };
       } else if (isDirectResponse(response)) {
