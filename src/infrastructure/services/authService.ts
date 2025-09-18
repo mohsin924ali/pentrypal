@@ -454,6 +454,10 @@ class AuthServiceImpl implements IAuthService {
           }, 3000);
         }
 
+        console.log('🔍 DEBUG: IMMEDIATELY after destructuring alert - LINE 1');
+        console.log('🔍 DEBUG: IMMEDIATELY after destructuring alert - LINE 2');
+        console.log('🔍 DEBUG: IMMEDIATELY after destructuring alert - LINE 3');
+
         // Debug right after destructuring - this is where the error likely occurs
         console.log('🔍 DEBUG: About to start LOGIN user object conversion');
 
@@ -750,6 +754,10 @@ class AuthServiceImpl implements IAuthService {
             );
           }, 3500);
         }
+
+        console.log('🔍 DEBUG: REGISTER - IMMEDIATELY after destructuring alert - LINE 1');
+        console.log('🔍 DEBUG: REGISTER - IMMEDIATELY after destructuring alert - LINE 2');
+        console.log('🔍 DEBUG: REGISTER - IMMEDIATELY after destructuring alert - LINE 3');
 
         // Debug right after register destructuring - this is where the error likely occurs
         console.log('🔍 DEBUG: About to start REGISTER user object conversion');
