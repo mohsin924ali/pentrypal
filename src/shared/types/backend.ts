@@ -286,6 +286,8 @@ export interface BackendFriendship {
   readonly id: string;
   readonly user1_id: string;
   readonly user2_id: string;
+  readonly user1?: BackendUser; // Backend provides full user objects
+  readonly user2?: BackendUser; // Backend provides full user objects
   readonly initiated_by: string;
   readonly status: 'active' | 'blocked';
   readonly created_at: string;

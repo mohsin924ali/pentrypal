@@ -513,13 +513,16 @@ class AuthServiceImpl implements IAuthService {
 
         try {
           console.log('🔍 DEBUG: About to call SecureTokenStorage.storeTokens');
-          await SecureTokenStorage.storeTokens(frontendTokens);
+          await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
           console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully');
-        } catch (storageError) {
+        } catch (storageError: any) {
           console.error('❌ STORAGE ERROR:', storageError);
           if (__DEV__ === false) {
             setTimeout(() => {
-              Alert?.alert('STORAGE ERROR FOUND', `Error: ${storageError.message || storageError}`);
+              Alert?.alert(
+                'STORAGE ERROR FOUND',
+                `Error: ${storageError?.message || storageError}`
+              );
             }, 5000);
           }
           throw storageError;
@@ -879,15 +882,15 @@ class AuthServiceImpl implements IAuthService {
 
         try {
           console.log('🔍 DEBUG: About to call SecureTokenStorage.storeTokens (REGISTER)');
-          await SecureTokenStorage.storeTokens(frontendTokens);
+          await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
           console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully (REGISTER)');
-        } catch (storageError) {
+        } catch (storageError: any) {
           console.error('❌ REGISTER STORAGE ERROR:', storageError);
           if (__DEV__ === false) {
             setTimeout(() => {
               Alert?.alert(
                 'REGISTER STORAGE ERROR',
-                `Error: ${storageError.message || storageError}`
+                `Error: ${storageError?.message || storageError}`
               );
             }, 6000);
           }

@@ -206,7 +206,12 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
         <View style={[baseStyles.avatar, { backgroundColor: theme.colors.primary[100] }]}>
           {item.fromUser?.avatar ? (
             <Image
-              source={{ uri: item.fromUser.avatar }}
+              source={{
+                uri: item.fromUser.avatar.replace(
+                  'http://localhost:8000',
+                  'https://pantrypalbe-production.up.railway.app'
+                ),
+              }}
               style={baseStyles.avatarImage as any}
               resizeMode='cover'
             />
@@ -278,7 +283,12 @@ export const SocialScreen: React.FC<SocialScreenProps> = () => {
           <View style={[baseStyles.avatar, { backgroundColor: theme.colors.primary[100] }]}>
             {friendUser?.avatar ? (
               <Image
-                source={{ uri: friendUser.avatar }}
+                source={{
+                  uri: friendUser.avatar.replace(
+                    'http://localhost:8000',
+                    'https://pantrypalbe-production.up.railway.app'
+                  ),
+                }}
                 style={baseStyles.avatarImage as any}
                 resizeMode='cover'
               />

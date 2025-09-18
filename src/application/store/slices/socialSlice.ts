@@ -98,8 +98,8 @@ export const loadFriends = createAsyncThunk(
           console.log('🔍 Converting backend friendship:', backendFriendship);
         }
 
-        // Backend friendship only provides user IDs, not full user objects
-        const user1 = {
+        // Extract actual user data from backend response (backend DOES provide full user objects)
+        const user1 = backendFriendship.user1 || {
           id: backendFriendship.user1_id,
           name: 'Unknown User',
           email: '',
@@ -110,7 +110,7 @@ export const loadFriends = createAsyncThunk(
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        const user2 = {
+        const user2 = backendFriendship.user2 || {
           id: backendFriendship.user2_id,
           name: 'Unknown User',
           email: '',
