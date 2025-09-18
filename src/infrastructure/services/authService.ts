@@ -501,15 +501,37 @@ class AuthServiceImpl implements IAuthService {
 
         if (__DEV__ === false) {
           setTimeout(() => {
-            Alert?.alert('STEP 2 TEST', 'Testing with COMPLEX user object + nested preferences');
+            Alert?.alert(
+              'STEP 3 TEST',
+              'Testing with STORAGE OPERATIONS - this will find the exact failing call'
+            );
           }, 4000);
         }
+
+        // STEP 3: Now add back STORAGE OPERATIONS with comprehensive debugging
+        console.log('🔍 DEBUG: Starting STORAGE operations...');
+
+        try {
+          console.log('🔍 DEBUG: About to call SecureTokenStorage.storeTokens');
+          await SecureTokenStorage.storeTokens(frontendTokens);
+          console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully');
+        } catch (storageError) {
+          console.error('❌ STORAGE ERROR:', storageError);
+          if (__DEV__ === false) {
+            setTimeout(() => {
+              Alert?.alert('STORAGE ERROR FOUND', `Error: ${storageError.message || storageError}`);
+            }, 5000);
+          }
+          throw storageError;
+        }
+
+        console.log('🔍 DEBUG: All storage operations completed successfully');
 
         return {
           success: true,
           user: frontendUser as User,
           tokens: frontendTokens,
-          sessionId: 'step1-test-session',
+          sessionId: 'step3-test-session',
           requiresTwoFactor: false,
           requiresEmailVerification: false,
         };
@@ -846,17 +868,39 @@ class AuthServiceImpl implements IAuthService {
         if (__DEV__ === false) {
           setTimeout(() => {
             Alert?.alert(
-              'REGISTER STEP 2 TEST',
-              'Testing with COMPLEX user object + nested preferences'
+              'REGISTER STEP 3 TEST',
+              'Testing with STORAGE OPERATIONS - finding exact failing call'
             );
           }, 4500);
         }
+
+        // STEP 3: Add back REGISTER STORAGE OPERATIONS with comprehensive debugging
+        console.log('🔍 DEBUG: Starting REGISTER STORAGE operations...');
+
+        try {
+          console.log('🔍 DEBUG: About to call SecureTokenStorage.storeTokens (REGISTER)');
+          await SecureTokenStorage.storeTokens(frontendTokens);
+          console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully (REGISTER)');
+        } catch (storageError) {
+          console.error('❌ REGISTER STORAGE ERROR:', storageError);
+          if (__DEV__ === false) {
+            setTimeout(() => {
+              Alert?.alert(
+                'REGISTER STORAGE ERROR',
+                `Error: ${storageError.message || storageError}`
+              );
+            }, 6000);
+          }
+          throw storageError;
+        }
+
+        console.log('🔍 DEBUG: All REGISTER storage operations completed successfully');
 
         return {
           success: true,
           user: frontendUser as User,
           tokens: frontendTokens,
-          sessionId: 'register-step1-test-session',
+          sessionId: 'register-step3-test-session',
           requiresEmailVerification: false,
         };
       } else if (isDirectResponse(response)) {
