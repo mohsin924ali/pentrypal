@@ -83,15 +83,16 @@ interface RegisterResponse {
 class SecureStorage {
   private static encrypt(data: string): string {
     try {
-      // In development/Expo Go, use base64 encoding instead of AES encryption
+      // In development/Expo Go, use simple base64 encoding
       if (__DEV__) {
-        return btoa(data);
+        // Use Buffer for React Native compatible base64 encoding
+        return Buffer.from(data, 'utf8').toString('base64');
       }
       return CryptoJS.AES.encrypt(data, AUTH_CONFIG.ENCRYPTION_KEY).toString();
     } catch (error) {
       authLogger.error('Encryption failed, falling back to base64:', error);
-      // Fallback to base64 encoding
-      return btoa(data);
+      // Fallback to base64 encoding (React Native compatible)
+      return Buffer.from(data, 'utf8').toString('base64');
     }
   }
 
@@ -99,15 +100,16 @@ class SecureStorage {
     try {
       // In development/Expo Go, use base64 decoding
       if (__DEV__) {
-        return atob(encryptedData);
+        // Use Buffer for React Native compatible base64 decoding
+        return Buffer.from(encryptedData, 'base64').toString('utf8');
       }
       const bytes = CryptoJS.AES.decrypt(encryptedData, AUTH_CONFIG.ENCRYPTION_KEY);
       return bytes.toString(CryptoJS.enc.Utf8);
     } catch (error) {
       authLogger.error('Decryption failed, falling back to base64:', error);
-      // Fallback to base64 decoding
+      // Fallback to base64 decoding (React Native compatible)
       try {
-        return atob(encryptedData);
+        return Buffer.from(encryptedData, 'base64').toString('utf8');
       } catch (base64Error) {
         authLogger.error('Base64 decoding also failed:', base64Error);
         throw new Error('Failed to decrypt data');
