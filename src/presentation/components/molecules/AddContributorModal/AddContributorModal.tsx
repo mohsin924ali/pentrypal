@@ -288,7 +288,12 @@ export const AddContributorModal: React.FC<AddContributorModalProps> = ({
               ]}>
               {friendUser.avatar ? (
                 <Image
-                  source={{ uri: friendUser.avatar }}
+                  source={{
+                    uri: friendUser.avatar.replace(
+                      'http://localhost:8000',
+                      'https://pantrypalbe-production.up.railway.app'
+                    ),
+                  }}
                   style={styles.friendAvatarImage as any}
                   resizeMode='cover'
                 />

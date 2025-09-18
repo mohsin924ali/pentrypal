@@ -182,7 +182,12 @@ export const ConsultContributorsModal: FC<ConsultContributorsModalProps> = ({
           <View style={[styles.contributorAvatar, { backgroundColor: roleColor }]}>
             {contributor.avatar ? (
               <Image
-                source={{ uri: contributor.avatar }}
+                source={{
+                  uri: contributor.avatar.replace(
+                    'http://localhost:8000',
+                    'https://pantrypalbe-production.up.railway.app'
+                  ),
+                }}
                 style={styles.contributorAvatarImage as any}
                 resizeMode='cover'
               />

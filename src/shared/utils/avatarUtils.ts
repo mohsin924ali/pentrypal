@@ -85,7 +85,12 @@ export const getAvatarProps = (
     if (isCustomImageUri(avatar)) {
       return {
         type: 'uri',
-        source: { uri: avatar },
+        source: {
+          uri: avatar.replace(
+            'http://localhost:8000',
+            'https://pantrypalbe-production.up.railway.app'
+          ),
+        },
       };
     }
 
@@ -194,7 +199,8 @@ export const sanitizeAvatar = (avatar: unknown): string => {
     'uri' in avatar &&
     typeof (avatar as { uri?: unknown }).uri === 'string'
   ) {
-    return (avatar as { uri: string }).uri;
+    const uri = (avatar as { uri: string }).uri;
+    return uri.replace('http://localhost:8000', 'https://pantrypalbe-production.up.railway.app');
   }
 
   return '👤'; // Default fallback
