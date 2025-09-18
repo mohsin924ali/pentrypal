@@ -453,6 +453,9 @@ class AuthServiceImpl implements IAuthService {
             Alert?.alert('After Destructuring', JSON.stringify(destructuredDebug, null, 2));
           }, 3000);
         }
+
+        // Debug right after destructuring - this is where the error likely occurs
+        console.log('🔍 DEBUG: About to start LOGIN user object conversion');
       } else if (isDirectResponse(response)) {
         console.log('🔍 DEBUG: Taking direct response path');
         // Handle direct response structure (backend returns data at root level)
@@ -469,6 +472,11 @@ class AuthServiceImpl implements IAuthService {
       }
 
       // Convert backend user to frontend user format
+      console.log('🔍 DEBUG: Starting LOGIN user object conversion');
+      console.log('🔍 DEBUG: user object keys:', Object.keys(user || {}));
+      console.log('🔍 DEBUG: user.id type:', typeof user?.id);
+      console.log('🔍 DEBUG: About to create frontendUser object...');
+
       const frontendUser = {
         id: user.id,
         email: user.email,
@@ -715,6 +723,9 @@ class AuthServiceImpl implements IAuthService {
             );
           }, 3500);
         }
+
+        // Debug right after register destructuring - this is where the error likely occurs
+        console.log('🔍 DEBUG: About to start REGISTER user object conversion');
       } else if (isDirectResponse(response)) {
         console.log('🔍 DEBUG: Register taking direct response path');
         // Handle direct response structure (backend returns data at root level)
@@ -733,6 +744,11 @@ class AuthServiceImpl implements IAuthService {
       }
 
       // Convert backend user to frontend user format
+      console.log('🔍 DEBUG: Starting REGISTER user object conversion');
+      console.log('🔍 DEBUG: register user object keys:', Object.keys(user || {}));
+      console.log('🔍 DEBUG: register user.id type:', typeof user?.id);
+      console.log('🔍 DEBUG: About to create REGISTER frontendUser object...');
+
       const frontendUser = {
         id: user.id,
         email: user.email,
