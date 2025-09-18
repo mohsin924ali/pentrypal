@@ -153,6 +153,18 @@ export const baseStyles = StyleSheet.create({
     paddingTop: 2,
   } as ViewStyle,
 
+  rightActions: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  } as ViewStyle,
+
+  listCardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  } as ViewStyle,
+
   // Progress Styles
   progressBarContainer: {
     marginBottom: 16,
@@ -186,12 +198,6 @@ export const baseStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
-  } as ViewStyle,
-
-  progressText: {
-    fontWeight: '600',
-    fontSize: 11,
-    textAlign: 'center',
   } as ViewStyle,
 
   // Collaborator Styles
@@ -862,6 +868,24 @@ export const baseStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   } as ViewStyle,
+
+  // Shop Screen Progress Bar Design
+  listProgress: {
+    alignItems: 'flex-end',
+    minWidth: 70,
+  } as ViewStyle,
+
+  progressText: {
+    fontSize: 11,
+    marginBottom: 4,
+  } as ViewStyle,
+
+  shopStyleProgressBar: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    width: '100%',
+  } as ViewStyle,
 });
 
 /**
@@ -885,6 +909,15 @@ export const createThemedStyles = (theme: Theme) =>
     secondaryText: {
       color: theme.colors.text.secondary,
     } as TextStyle,
+
+    // Shop Screen Progress Bar Themed Styles
+    shopStyleProgressBar: {
+      backgroundColor: theme.colors.border.secondary || '#e5e7eb',
+    } as ViewStyle,
+
+    shopStyleProgressFill: {
+      backgroundColor: theme.colors.primary['500'] || '#3b82f6',
+    } as ViewStyle,
   });
 
 /**

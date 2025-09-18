@@ -664,7 +664,29 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                 </Typography>
               </View>
 
-              <View style={baseStyles.rightSection}>
+              {/* Shop Screen Style Progress Bar - EXACTLY like Shop screen */}
+              <View style={baseStyles.listProgress}>
+                <Typography
+                  variant='caption'
+                  color={safeTheme?.colors?.text?.secondary || '#666666'}
+                  style={baseStyles.progressText}>
+                  {Math.round(list.progress || 0)}%
+                </Typography>
+                <View style={[baseStyles.shopStyleProgressBar, themedStyles.shopStyleProgressBar]}>
+                  <View
+                    style={[
+                      themedStyles.shopStyleProgressFill,
+                      { width: `${Math.round(list.progress || 0)}%` },
+                    ]}
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Share/Archive Actions - Positioned after header like Shop's footer */}
+            <View style={baseStyles.listCardFooter}>
+              <View />
+              <View style={baseStyles.rightActions}>
                 {!isArchived && list.ownerId === user?.id && (
                   <TouchableOpacity
                     onPress={event => {
@@ -694,29 +716,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                     </Typography>
                   </View>
                 )}
-              </View>
-            </View>
-
-            {/* Enhanced Progress Bar with Percentage Inside */}
-            <View style={baseStyles.progressBarContainer}>
-              <View style={baseStyles.progressBar}>
-                <View
-                  style={[baseStyles.progressFill, { width: `${Math.round(list.progress || 0)}%` }]}
-                />
-                <View style={baseStyles.progressTextContainer}>
-                  <Typography
-                    variant='caption'
-                    color={
-                      (list.progress || 0) > 50
-                        ? (safeTheme?.colors as any)?.background?.primary ||
-                          safeTheme?.colors?.text?.onPrimary ||
-                          '#ffffff'
-                        : safeTheme?.colors?.text?.secondary || '#666666'
-                    }
-                    style={baseStyles.progressText}>
-                    {Math.round(list.progress || 0)}% completed
-                  </Typography>
-                </View>
               </View>
             </View>
 
@@ -867,7 +866,22 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         </View>
       );
     },
-    [user, selectedList, handleAddContributor, theme, userCurrency, friends]
+    [
+      user,
+      selectedList,
+      handleAddContributor,
+      userCurrency,
+      getUserAvatar,
+      getUserName,
+      handleAssignItem,
+      handleListSelection,
+      handleViewArchivedList,
+      onEditListPress,
+      renderAvatar,
+      safeTheme?.colors,
+      themedStyles.shopStyleProgressBar,
+      themedStyles.shopStyleProgressFill,
+    ]
   );
 
   // PERFORMANCE OPTIMIZED: Memoize expensive archived list calculations
