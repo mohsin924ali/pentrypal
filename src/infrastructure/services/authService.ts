@@ -467,7 +467,9 @@ class AuthServiceImpl implements IAuthService {
 
         console.log('🔍 DEBUG: frontendTokens created successfully');
 
-        // Simple user object (like bypass)
+        // STEP 2: Test with FULL COMPLEX user object including nested preferences
+        console.log('🔍 DEBUG: Creating COMPLEX frontendUser with preferences');
+
         const frontendUser = {
           id: user.id,
           email: user.email,
@@ -476,13 +478,30 @@ class AuthServiceImpl implements IAuthService {
           avatar: user.avatar_url,
           createdAt: user.created_at,
           updatedAt: user.updated_at,
+          preferences: {
+            theme: 'system',
+            language: 'en',
+            currency: 'USD',
+            notifications: {
+              pushEnabled: true,
+              emailEnabled: true,
+              listUpdates: true,
+              reminders: true,
+              promotions: false,
+            },
+            privacy: {
+              profileVisibility: 'private',
+              locationSharing: false,
+              analyticsOptIn: true,
+            },
+          },
         };
 
-        console.log('🔍 DEBUG: Simple frontendUser created successfully');
+        console.log('🔍 DEBUG: COMPLEX frontendUser created successfully');
 
         if (__DEV__ === false) {
           setTimeout(() => {
-            Alert?.alert('STEP 1 TEST', 'Testing with proper tokens + simple user object');
+            Alert?.alert('STEP 2 TEST', 'Testing with COMPLEX user object + nested preferences');
           }, 4000);
         }
 
@@ -792,7 +811,9 @@ class AuthServiceImpl implements IAuthService {
 
         console.log('🔍 DEBUG: Register frontendTokens created successfully');
 
-        // Simple user object (like bypass)
+        // STEP 2: Test register with FULL COMPLEX user object including nested preferences
+        console.log('🔍 DEBUG: Creating REGISTER COMPLEX frontendUser with preferences');
+
         const frontendUser = {
           id: user.id,
           email: user.email,
@@ -801,13 +822,33 @@ class AuthServiceImpl implements IAuthService {
           avatar: user.avatar_url,
           createdAt: user.created_at,
           updatedAt: user.updated_at,
+          preferences: {
+            theme: 'system',
+            language: 'en',
+            currency: 'USD',
+            notifications: {
+              pushEnabled: true,
+              emailEnabled: true,
+              listUpdates: true,
+              reminders: true,
+              promotions: false,
+            },
+            privacy: {
+              profileVisibility: 'private',
+              locationSharing: false,
+              analyticsOptIn: true,
+            },
+          },
         };
 
-        console.log('🔍 DEBUG: Register simple frontendUser created successfully');
+        console.log('🔍 DEBUG: REGISTER COMPLEX frontendUser created successfully');
 
         if (__DEV__ === false) {
           setTimeout(() => {
-            Alert?.alert('REGISTER STEP 1 TEST', 'Testing with proper tokens + simple user object');
+            Alert?.alert(
+              'REGISTER STEP 2 TEST',
+              'Testing with COMPLEX user object + nested preferences'
+            );
           }, 4500);
         }
 
