@@ -456,6 +456,16 @@ class AuthServiceImpl implements IAuthService {
 
         // Debug right after destructuring - this is where the error likely occurs
         console.log('🔍 DEBUG: About to start LOGIN user object conversion');
+
+        // CRITICAL: Try-catch to catch ANY error right here
+        try {
+          console.log('🔍 DEBUG: In try block after destructuring');
+        } catch (immediateError) {
+          console.log('🔍 DEBUG: IMMEDIATE ERROR after destructuring:', immediateError);
+          const errorMsg =
+            immediateError instanceof Error ? immediateError.message : String(immediateError);
+          throw new Error(`Immediate error after destructuring: ${errorMsg}`);
+        }
       } else if (isDirectResponse(response)) {
         console.log('🔍 DEBUG: Taking direct response path');
         // Handle direct response structure (backend returns data at root level)
@@ -472,58 +482,75 @@ class AuthServiceImpl implements IAuthService {
       }
 
       // Convert backend user to frontend user format
-      console.log('🔍 DEBUG: Starting LOGIN user object conversion');
-      console.log('🔍 DEBUG: user object keys:', Object.keys(user || {}));
-      console.log('🔍 DEBUG: user.id type:', typeof user?.id);
-      console.log('🔍 DEBUG: About to create frontendUser object...');
+      let frontendUser;
+      try {
+        console.log('🔍 DEBUG: Starting LOGIN user object conversion');
+        console.log('🔍 DEBUG: user object keys:', Object.keys(user || {}));
+        console.log('🔍 DEBUG: user.id type:', typeof user?.id);
+        console.log('🔍 DEBUG: About to create frontendUser object...');
 
-      const frontendUser = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        mobile: user.phone,
-        avatar: user.avatar_url,
-        createdAt: user.created_at,
-        updatedAt: user.updated_at,
-        preferences: {
-          theme: 'system',
-          language: 'en',
-          currency: 'USD',
-          notifications: {
-            pushEnabled: true,
-            emailEnabled: true,
-            listUpdates: true,
-            reminders: true,
-            promotions: false,
+        frontendUser = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          mobile: user.phone,
+          avatar: user.avatar_url,
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
+          preferences: {
+            theme: 'system',
+            language: 'en',
+            currency: 'USD',
+            notifications: {
+              pushEnabled: true,
+              emailEnabled: true,
+              listUpdates: true,
+              reminders: true,
+              promotions: false,
+            },
+            privacy: {
+              profileVisibility: 'private',
+              locationSharing: false,
+              analyticsOptIn: true,
+            },
           },
-          privacy: {
-            profileVisibility: 'private',
-            locationSharing: false,
-            analyticsOptIn: true,
-          },
-        },
-      };
+        };
+        console.log('🔍 DEBUG: frontendUser created successfully');
+      } catch (userError) {
+        console.log('🔍 DEBUG: ERROR creating frontendUser:', userError);
+        const errorMsg = userError instanceof Error ? userError.message : String(userError);
+        console.log('🔍 DEBUG: ERROR message:', errorMsg);
+        throw new Error(`Failed to create user object: ${errorMsg}`);
+      }
 
       // Convert backend tokens to frontend format
-      console.log('🔍 DEBUG: Converting backend tokens to frontend format');
-      console.log('🔍 DEBUG: tokens.access_token type:', typeof tokens.access_token);
-      console.log('🔍 DEBUG: tokens.access_token exists:', !!tokens.access_token);
-      console.log('🔍 DEBUG: tokens.refresh_token type:', typeof tokens.refresh_token);
-      console.log('🔍 DEBUG: tokens.refresh_token exists:', !!tokens.refresh_token);
-      console.log('🔍 DEBUG: tokens.expires_in type:', typeof tokens.expires_in);
-      console.log('🔍 DEBUG: tokens.expires_in value:', tokens.expires_in);
+      let frontendTokens;
+      try {
+        console.log('🔍 DEBUG: Converting backend tokens to frontend format');
+        console.log('🔍 DEBUG: tokens.access_token type:', typeof tokens.access_token);
+        console.log('🔍 DEBUG: tokens.access_token exists:', !!tokens.access_token);
+        console.log('🔍 DEBUG: tokens.refresh_token type:', typeof tokens.refresh_token);
+        console.log('🔍 DEBUG: tokens.refresh_token exists:', !!tokens.refresh_token);
+        console.log('🔍 DEBUG: tokens.expires_in type:', typeof tokens.expires_in);
+        console.log('🔍 DEBUG: tokens.expires_in value:', tokens.expires_in);
 
-      const frontendTokens: AuthTokens = {
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
-        tokenType: 'Bearer',
-        expiresIn: tokens.expires_in,
-        scope: ['read', 'write'],
-      };
+        frontendTokens = {
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          tokenType: 'Bearer' as const,
+          expiresIn: tokens.expires_in,
+          scope: ['read', 'write'],
+        };
 
-      console.log('🔍 DEBUG: frontendTokens created successfully');
-      console.log('🔍 DEBUG: frontendTokens.accessToken exists:', !!frontendTokens.accessToken);
-      console.log('🔍 DEBUG: frontendTokens.refreshToken exists:', !!frontendTokens.refreshToken);
+        console.log('🔍 DEBUG: frontendTokens created successfully');
+        console.log('🔍 DEBUG: frontendTokens.accessToken exists:', !!frontendTokens.accessToken);
+        console.log('🔍 DEBUG: frontendTokens.refreshToken exists:', !!frontendTokens.refreshToken);
+      } catch (tokenError) {
+        console.log('🔍 DEBUG: ERROR creating frontendTokens:', tokenError);
+        const errorMsg = tokenError instanceof Error ? tokenError.message : String(tokenError);
+        console.log('🔍 DEBUG: TOKEN ERROR message:', errorMsg);
+        throw new Error(`Failed to create tokens object: ${errorMsg}`);
+      }
 
       // Store tokens securely
       console.log('🔍 DEBUG: About to store login tokens and user data');
@@ -744,64 +771,81 @@ class AuthServiceImpl implements IAuthService {
       }
 
       // Convert backend user to frontend user format
-      console.log('🔍 DEBUG: Starting REGISTER user object conversion');
-      console.log('🔍 DEBUG: register user object keys:', Object.keys(user || {}));
-      console.log('🔍 DEBUG: register user.id type:', typeof user?.id);
-      console.log('🔍 DEBUG: About to create REGISTER frontendUser object...');
+      let frontendUser;
+      try {
+        console.log('🔍 DEBUG: Starting REGISTER user object conversion');
+        console.log('🔍 DEBUG: register user object keys:', Object.keys(user || {}));
+        console.log('🔍 DEBUG: register user.id type:', typeof user?.id);
+        console.log('🔍 DEBUG: About to create REGISTER frontendUser object...');
 
-      const frontendUser = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        mobile: user.phone,
-        avatar: user.avatar_url,
-        createdAt: user.created_at,
-        updatedAt: user.updated_at,
-        preferences: {
-          theme: 'system',
-          language: 'en',
-          currency: 'USD',
-          notifications: {
-            pushEnabled: true,
-            emailEnabled: true,
-            listUpdates: true,
-            reminders: true,
-            promotions: request.marketingConsent || false,
+        frontendUser = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          mobile: user.phone,
+          avatar: user.avatar_url,
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
+          preferences: {
+            theme: 'system',
+            language: 'en',
+            currency: 'USD',
+            notifications: {
+              pushEnabled: true,
+              emailEnabled: true,
+              listUpdates: true,
+              reminders: true,
+              promotions: request.marketingConsent || false,
+            },
+            privacy: {
+              profileVisibility: 'private',
+              locationSharing: false,
+              analyticsOptIn: true,
+            },
           },
-          privacy: {
-            profileVisibility: 'private',
-            locationSharing: false,
-            analyticsOptIn: true,
-          },
-        },
-      };
+        };
+        console.log('🔍 DEBUG: REGISTER frontendUser created successfully');
+      } catch (userError) {
+        console.log('🔍 DEBUG: ERROR creating REGISTER frontendUser:', userError);
+        const errorMsg = userError instanceof Error ? userError.message : String(userError);
+        console.log('🔍 DEBUG: REGISTER ERROR message:', errorMsg);
+        throw new Error(`Failed to create register user object: ${errorMsg}`);
+      }
 
       // Convert backend tokens to frontend format
-      console.log('🔍 DEBUG: Register - Converting backend tokens to frontend format');
-      console.log('🔍 DEBUG: Register - tokens.access_token type:', typeof tokens.access_token);
-      console.log('🔍 DEBUG: Register - tokens.access_token exists:', !!tokens.access_token);
-      console.log('🔍 DEBUG: Register - tokens.refresh_token type:', typeof tokens.refresh_token);
-      console.log('🔍 DEBUG: Register - tokens.refresh_token exists:', !!tokens.refresh_token);
-      console.log('🔍 DEBUG: Register - tokens.expires_in type:', typeof tokens.expires_in);
-      console.log('🔍 DEBUG: Register - tokens.expires_in value:', tokens.expires_in);
+      let frontendTokens;
+      try {
+        console.log('🔍 DEBUG: Register - Converting backend tokens to frontend format');
+        console.log('🔍 DEBUG: Register - tokens.access_token type:', typeof tokens.access_token);
+        console.log('🔍 DEBUG: Register - tokens.access_token exists:', !!tokens.access_token);
+        console.log('🔍 DEBUG: Register - tokens.refresh_token type:', typeof tokens.refresh_token);
+        console.log('🔍 DEBUG: Register - tokens.refresh_token exists:', !!tokens.refresh_token);
+        console.log('🔍 DEBUG: Register - tokens.expires_in type:', typeof tokens.expires_in);
+        console.log('🔍 DEBUG: Register - tokens.expires_in value:', tokens.expires_in);
 
-      const frontendTokens: AuthTokens = {
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
-        tokenType: 'Bearer',
-        expiresIn: tokens.expires_in,
-        scope: ['read', 'write'],
-      };
+        frontendTokens = {
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          tokenType: 'Bearer' as const,
+          expiresIn: tokens.expires_in,
+          scope: ['read', 'write'],
+        };
 
-      console.log('🔍 DEBUG: Register - frontendTokens created successfully');
-      console.log(
-        '🔍 DEBUG: Register - frontendTokens.accessToken exists:',
-        !!frontendTokens.accessToken
-      );
-      console.log(
-        '🔍 DEBUG: Register - frontendTokens.refreshToken exists:',
-        !!frontendTokens.refreshToken
-      );
+        console.log('🔍 DEBUG: Register - frontendTokens created successfully');
+        console.log(
+          '🔍 DEBUG: Register - frontendTokens.accessToken exists:',
+          !!frontendTokens.accessToken
+        );
+        console.log(
+          '🔍 DEBUG: Register - frontendTokens.refreshToken exists:',
+          !!frontendTokens.refreshToken
+        );
+      } catch (tokenError) {
+        console.log('🔍 DEBUG: ERROR creating REGISTER frontendTokens:', tokenError);
+        const errorMsg = tokenError instanceof Error ? tokenError.message : String(tokenError);
+        console.log('🔍 DEBUG: REGISTER TOKEN ERROR message:', errorMsg);
+        throw new Error(`Failed to create register tokens object: ${errorMsg}`);
+      }
 
       // Store tokens securely
       console.log('🔍 DEBUG: About to store register tokens and user data');
@@ -914,7 +958,7 @@ class AuthServiceImpl implements IAuthService {
         const frontendTokens: AuthTokens = {
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token,
-          tokenType: 'Bearer',
+          tokenType: 'Bearer' as const,
           expiresIn: tokens.expires_in,
           scope: ['read', 'write'],
         };
@@ -1029,7 +1073,7 @@ class AuthServiceImpl implements IAuthService {
         const frontendTokens: AuthTokens = {
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token,
-          tokenType: 'Bearer',
+          tokenType: 'Bearer' as const,
           expiresIn: tokens.expires_in,
           scope: ['read', 'write'],
         };
