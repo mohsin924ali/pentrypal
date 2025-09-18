@@ -519,12 +519,18 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
   // PERFORMANCE OPTIMIZED: Memoize expensive list filtering operations
   const activeLists = useMemo(
-    () => shoppingLists.filter(list => list.status !== 'archived'),
+    () =>
+      shoppingLists
+        .filter(list => list.status !== 'archived')
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
     [shoppingLists]
   );
 
   const archivedLists = useMemo(
-    () => shoppingLists.filter(list => list.status === 'archived'),
+    () =>
+      shoppingLists
+        .filter(list => list.status === 'archived')
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
     [shoppingLists]
   );
 
