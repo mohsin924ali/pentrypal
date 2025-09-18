@@ -497,6 +497,14 @@ class AuthServiceImpl implements IAuthService {
       };
 
       // Convert backend tokens to frontend format
+      console.log('🔍 DEBUG: Converting backend tokens to frontend format');
+      console.log('🔍 DEBUG: tokens.access_token type:', typeof tokens.access_token);
+      console.log('🔍 DEBUG: tokens.access_token exists:', !!tokens.access_token);
+      console.log('🔍 DEBUG: tokens.refresh_token type:', typeof tokens.refresh_token);
+      console.log('🔍 DEBUG: tokens.refresh_token exists:', !!tokens.refresh_token);
+      console.log('🔍 DEBUG: tokens.expires_in type:', typeof tokens.expires_in);
+      console.log('🔍 DEBUG: tokens.expires_in value:', tokens.expires_in);
+
       const frontendTokens: AuthTokens = {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
@@ -504,6 +512,10 @@ class AuthServiceImpl implements IAuthService {
         expiresIn: tokens.expires_in,
         scope: ['read', 'write'],
       };
+
+      console.log('🔍 DEBUG: frontendTokens created successfully');
+      console.log('🔍 DEBUG: frontendTokens.accessToken exists:', !!frontendTokens.accessToken);
+      console.log('🔍 DEBUG: frontendTokens.refreshToken exists:', !!frontendTokens.refreshToken);
 
       // Store tokens securely
       console.log('🔍 DEBUG: About to store login tokens and user data');
@@ -749,6 +761,14 @@ class AuthServiceImpl implements IAuthService {
       };
 
       // Convert backend tokens to frontend format
+      console.log('🔍 DEBUG: Register - Converting backend tokens to frontend format');
+      console.log('🔍 DEBUG: Register - tokens.access_token type:', typeof tokens.access_token);
+      console.log('🔍 DEBUG: Register - tokens.access_token exists:', !!tokens.access_token);
+      console.log('🔍 DEBUG: Register - tokens.refresh_token type:', typeof tokens.refresh_token);
+      console.log('🔍 DEBUG: Register - tokens.refresh_token exists:', !!tokens.refresh_token);
+      console.log('🔍 DEBUG: Register - tokens.expires_in type:', typeof tokens.expires_in);
+      console.log('🔍 DEBUG: Register - tokens.expires_in value:', tokens.expires_in);
+
       const frontendTokens: AuthTokens = {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
@@ -756,6 +776,16 @@ class AuthServiceImpl implements IAuthService {
         expiresIn: tokens.expires_in,
         scope: ['read', 'write'],
       };
+
+      console.log('🔍 DEBUG: Register - frontendTokens created successfully');
+      console.log(
+        '🔍 DEBUG: Register - frontendTokens.accessToken exists:',
+        !!frontendTokens.accessToken
+      );
+      console.log(
+        '🔍 DEBUG: Register - frontendTokens.refreshToken exists:',
+        !!frontendTokens.refreshToken
+      );
 
       // Store tokens securely
       console.log('🔍 DEBUG: About to store register tokens and user data');
