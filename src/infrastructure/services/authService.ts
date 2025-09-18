@@ -509,6 +509,15 @@ class AuthServiceImpl implements IAuthService {
       console.log('🔍 DEBUG: About to store login tokens and user data');
 
       try {
+        // Debug the exact tokens being stored
+        console.log(
+          '🔍 DEBUG: About to store frontendTokens:',
+          JSON.stringify(frontendTokens, null, 2)
+        );
+        console.log('🔍 DEBUG: Storage key:', AUTH_CONFIG.TOKEN_STORAGE_KEY);
+        console.log('🔍 DEBUG: frontendTokens type:', typeof frontendTokens);
+        console.log('🔍 DEBUG: frontendTokens keys:', Object.keys(frontendTokens));
+
         await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
         console.log('🔍 DEBUG: Login tokens stored successfully');
 
@@ -752,6 +761,15 @@ class AuthServiceImpl implements IAuthService {
       console.log('🔍 DEBUG: About to store register tokens and user data');
 
       try {
+        // Debug the exact tokens being stored for register
+        console.log(
+          '🔍 DEBUG: About to store register frontendTokens:',
+          JSON.stringify(frontendTokens, null, 2)
+        );
+        console.log('🔍 DEBUG: Register storage key:', AUTH_CONFIG.TOKEN_STORAGE_KEY);
+        console.log('🔍 DEBUG: Register frontendTokens type:', typeof frontendTokens);
+        console.log('🔍 DEBUG: Register frontendTokens keys:', Object.keys(frontendTokens));
+
         await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
         console.log('🔍 DEBUG: Register tokens stored successfully');
 
