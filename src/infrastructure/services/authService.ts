@@ -430,6 +430,27 @@ class AuthServiceImpl implements IAuthService {
         console.log('🔍 DEBUG: Taking nested data path');
         // Nested under 'data' property (expected structure)
         ({ user, tokens } = response.data);
+
+        // Debug the actual destructured data
+        const destructuredDebug = {
+          userExists: !!user,
+          tokensExists: !!tokens,
+          userKeys: user ? Object.keys(user) : [],
+          tokenKeys: tokens ? Object.keys(tokens) : [],
+          userId: user?.id,
+          userEmail: user?.email,
+          accessToken: tokens?.access_token,
+          refreshToken: tokens?.refresh_token,
+        };
+
+        console.log('🔍 DEBUG: After destructuring:', JSON.stringify(destructuredDebug, null, 2));
+
+        // For production debugging
+        if (__DEV__ === false) {
+          setTimeout(() => {
+            Alert?.alert('After Destructuring', JSON.stringify(destructuredDebug, null, 2));
+          }, 3000);
+        }
       } else if (isDirectResponse(response)) {
         console.log('🔍 DEBUG: Taking direct response path');
         // Handle direct response structure (backend returns data at root level)
@@ -483,8 +504,34 @@ class AuthServiceImpl implements IAuthService {
       };
 
       // Store tokens securely
-      await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-      await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
+      console.log('🔍 DEBUG: About to store login tokens and user data');
+
+      try {
+        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+        console.log('🔍 DEBUG: Login tokens stored successfully');
+
+        await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
+        console.log('🔍 DEBUG: Login user data stored successfully');
+
+        // For production debugging
+        if (__DEV__ === false) {
+          setTimeout(() => {
+            Alert?.alert('Login Storage Success', 'Tokens and user data stored successfully');
+          }, 4000);
+        }
+      } catch (storageError) {
+        console.log('🔍 DEBUG: Login storage failed:', storageError);
+
+        // For production debugging
+        if (__DEV__ === false) {
+          setTimeout(() => {
+            Alert?.alert('Login Storage Error', `Storage failed: ${storageError}`);
+          }, 4000);
+        }
+
+        // Re-throw to trigger the outer catch
+        throw storageError;
+      }
 
       return {
         success: true,
@@ -618,6 +665,33 @@ class AuthServiceImpl implements IAuthService {
         console.log('🔍 DEBUG: Register taking nested data path');
         // Nested under 'data' property (expected structure)
         ({ user, tokens } = response.data);
+
+        // Debug the actual destructured data for registration
+        const destructuredDebug = {
+          userExists: !!user,
+          tokensExists: !!tokens,
+          userKeys: user ? Object.keys(user) : [],
+          tokenKeys: tokens ? Object.keys(tokens) : [],
+          userId: user?.id,
+          userEmail: user?.email,
+          accessToken: tokens?.access_token,
+          refreshToken: tokens?.refresh_token,
+        };
+
+        console.log(
+          '🔍 DEBUG: Register after destructuring:',
+          JSON.stringify(destructuredDebug, null, 2)
+        );
+
+        // For production debugging
+        if (__DEV__ === false) {
+          setTimeout(() => {
+            Alert?.alert(
+              'Register After Destructuring',
+              JSON.stringify(destructuredDebug, null, 2)
+            );
+          }, 3500);
+        }
       } else if (isDirectResponse(response)) {
         console.log('🔍 DEBUG: Register taking direct response path');
         // Handle direct response structure (backend returns data at root level)
@@ -673,8 +747,34 @@ class AuthServiceImpl implements IAuthService {
       };
 
       // Store tokens securely
-      await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-      await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
+      console.log('🔍 DEBUG: About to store register tokens and user data');
+
+      try {
+        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+        console.log('🔍 DEBUG: Register tokens stored successfully');
+
+        await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
+        console.log('🔍 DEBUG: Register user data stored successfully');
+
+        // For production debugging
+        if (__DEV__ === false) {
+          setTimeout(() => {
+            Alert?.alert('Register Storage Success', 'Tokens and user data stored successfully');
+          }, 4500);
+        }
+      } catch (storageError) {
+        console.log('🔍 DEBUG: Register storage failed:', storageError);
+
+        // For production debugging
+        if (__DEV__ === false) {
+          setTimeout(() => {
+            Alert?.alert('Register Storage Error', `Storage failed: ${storageError}`);
+          }, 4500);
+        }
+
+        // Re-throw to trigger the outer catch
+        throw storageError;
+      }
 
       return {
         success: true,
