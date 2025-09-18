@@ -406,13 +406,36 @@ class AuthServiceImpl implements IAuthService {
         return typeof obj === 'object' && obj !== null && 'user' in obj && 'tokens' in obj;
       };
 
+      // Debug the exact condition checks
+      const conditionChecks = {
+        hasResponseData: !!response.data,
+        hasDataUser: !!(response.data && response.data.user),
+        hasDataTokens: !!(response.data && response.data.tokens),
+        fullCondition: !!(response.data && response.data.user && response.data.tokens),
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        userType: response.data?.user ? typeof response.data.user : 'undefined',
+        tokensType: response.data?.tokens ? typeof response.data.tokens : 'undefined',
+      };
+
+      console.log('🔍 DEBUG: Login condition analysis:', JSON.stringify(conditionChecks, null, 2));
+
+      // For production debugging
+      if (__DEV__ === false) {
+        setTimeout(() => {
+          Alert?.alert('Login Conditions', JSON.stringify(conditionChecks, null, 2));
+        }, 2000);
+      }
+
       if (response.data && response.data.user && response.data.tokens) {
+        console.log('🔍 DEBUG: Taking nested data path');
         // Nested under 'data' property (expected structure)
         ({ user, tokens } = response.data);
       } else if (isDirectResponse(response)) {
+        console.log('🔍 DEBUG: Taking direct response path');
         // Handle direct response structure (backend returns data at root level)
         ({ user, tokens } = response);
       } else {
+        console.log('🔍 DEBUG: Taking error path - no valid structure found');
         // No error response but also no valid data - unexpected response structure
         authLogger.warn('🔍 DEBUG: Unexpected login response structure - no valid data found');
         return {
@@ -568,13 +591,39 @@ class AuthServiceImpl implements IAuthService {
         return typeof obj === 'object' && obj !== null && 'user' in obj && 'tokens' in obj;
       };
 
+      // Debug the exact condition checks for registration
+      const conditionChecks = {
+        hasResponseData: !!response.data,
+        hasDataUser: !!(response.data && response.data.user),
+        hasDataTokens: !!(response.data && response.data.tokens),
+        fullCondition: !!(response.data && response.data.user && response.data.tokens),
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        userType: response.data?.user ? typeof response.data.user : 'undefined',
+        tokensType: response.data?.tokens ? typeof response.data.tokens : 'undefined',
+      };
+
+      console.log(
+        '🔍 DEBUG: Register condition analysis:',
+        JSON.stringify(conditionChecks, null, 2)
+      );
+
+      // For production debugging
+      if (__DEV__ === false) {
+        setTimeout(() => {
+          Alert?.alert('Register Conditions', JSON.stringify(conditionChecks, null, 2));
+        }, 2500);
+      }
+
       if (response.data && response.data.user && response.data.tokens) {
+        console.log('🔍 DEBUG: Register taking nested data path');
         // Nested under 'data' property (expected structure)
         ({ user, tokens } = response.data);
       } else if (isDirectResponse(response)) {
+        console.log('🔍 DEBUG: Register taking direct response path');
         // Handle direct response structure (backend returns data at root level)
         ({ user, tokens } = response);
       } else {
+        console.log('🔍 DEBUG: Register taking error path - no valid structure found');
         // No error response but also no valid data - unexpected response structure
         authLogger.warn(
           '🔍 DEBUG: Unexpected registration response structure - no valid data found'
