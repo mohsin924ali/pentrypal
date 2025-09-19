@@ -532,8 +532,40 @@ class AuthServiceImpl implements IAuthService {
           }
 
           console.log('🔍 DEBUG: Making the actual method call NOW...');
-          await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-          console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully');
+
+          // MINIMAL TEST - Test each operation step by step instead of full method
+          try {
+            console.log('🔍 MINIMAL TEST: Step 1 - JSON.stringify');
+            const jsonString = JSON.stringify(frontendTokens);
+            console.log('🔍 MINIMAL TEST: Step 1 SUCCESS - length:', jsonString.length);
+
+            if (__DEV__ === false) {
+              setTimeout(() => {
+                Alert?.alert('MINIMAL TEST 1', 'JSON.stringify works fine');
+              }, 6000);
+            }
+
+            console.log('🔍 MINIMAL TEST: Step 2 - Check __DEV__');
+            console.log('🔍 MINIMAL TEST: __DEV__ value:', __DEV__);
+            console.log('🔍 MINIMAL TEST: Step 2 SUCCESS');
+
+            if (__DEV__ === false) {
+              setTimeout(() => {
+                Alert?.alert('MINIMAL TEST 2', '__DEV__ check works, going to encryption path');
+              }, 6500);
+            }
+
+            // Skip the actual storage for now, just test the preparation
+            console.log('🔍 MINIMAL TEST: All preparation steps work - skipping actual storage');
+          } catch (minimalError: any) {
+            console.error('❌ MINIMAL TEST FAILED:', minimalError);
+            if (__DEV__ === false) {
+              setTimeout(() => {
+                Alert?.alert('MINIMAL TEST ERROR', `Failed at: ${minimalError?.message}`);
+              }, 7000);
+            }
+            throw minimalError;
+          }
         } catch (storageError: any) {
           console.error('❌ STORAGE ERROR:', storageError);
           if (__DEV__ === false) {
@@ -923,8 +955,36 @@ class AuthServiceImpl implements IAuthService {
           }
 
           console.log('🔍 DEBUG: REGISTER Making the actual method call NOW...');
-          await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-          console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully (REGISTER)');
+
+          // MINIMAL TEST - Test each operation step by step instead of full method
+          try {
+            console.log('🔍 REGISTER MINIMAL TEST: Step 1 - JSON.stringify');
+            const jsonString = JSON.stringify(frontendTokens);
+            console.log('🔍 REGISTER MINIMAL TEST: Step 1 SUCCESS - length:', jsonString.length);
+
+            if (__DEV__ === false) {
+              setTimeout(() => {
+                Alert?.alert('REGISTER MINIMAL 1', 'JSON.stringify works fine');
+              }, 7500);
+            }
+
+            console.log('🔍 REGISTER MINIMAL TEST: Step 2 - Check __DEV__');
+            console.log('🔍 REGISTER MINIMAL TEST: __DEV__ value:', __DEV__);
+            console.log('🔍 REGISTER MINIMAL TEST: Step 2 SUCCESS');
+
+            // Skip the actual storage for now, just test the preparation
+            console.log(
+              '🔍 REGISTER MINIMAL TEST: All preparation steps work - skipping actual storage'
+            );
+          } catch (minimalError: any) {
+            console.error('❌ REGISTER MINIMAL TEST FAILED:', minimalError);
+            if (__DEV__ === false) {
+              setTimeout(() => {
+                Alert?.alert('REGISTER MINIMAL ERROR', `Failed at: ${minimalError?.message}`);
+              }, 8000);
+            }
+            throw minimalError;
+          }
         } catch (storageError: any) {
           console.error('❌ REGISTER STORAGE ERROR:', storageError);
           if (__DEV__ === false) {
