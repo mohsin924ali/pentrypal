@@ -555,8 +555,45 @@ class AuthServiceImpl implements IAuthService {
               }, 6500);
             }
 
-            // Skip the actual storage for now, just test the preparation
-            console.log('🔍 MINIMAL TEST: All preparation steps work - skipping actual storage');
+            // STEP 3: Test encryption operations step by step
+            console.log('🔍 MINIMAL TEST: Step 3 - Testing encryption operations');
+
+            try {
+              console.log('🔍 MINIMAL TEST: Step 3a - Check CryptoJS availability');
+              const CryptoJS = require('crypto-js');
+              console.log('🔍 MINIMAL TEST: CryptoJS exists:', !!CryptoJS);
+              console.log('🔍 MINIMAL TEST: CryptoJS.AES exists:', !!CryptoJS?.AES);
+
+              if (__DEV__ === false) {
+                setTimeout(() => {
+                  Alert?.alert(
+                    'MINIMAL TEST 3A',
+                    `CryptoJS: ${!!CryptoJS}, AES: ${!!CryptoJS?.AES}`
+                  );
+                }, 7000);
+              }
+
+              console.log('🔍 MINIMAL TEST: Step 3b - Test encryption call');
+              const ENCRYPTION_KEY = 'pentrypal_auth_key_2024';
+              const encrypted = CryptoJS.AES.encrypt(jsonString, ENCRYPTION_KEY).toString();
+              console.log('🔍 MINIMAL TEST: Encryption SUCCESS - length:', encrypted.length);
+
+              if (__DEV__ === false) {
+                setTimeout(() => {
+                  Alert?.alert('MINIMAL TEST 3B', `Encryption works! Length: ${encrypted.length}`);
+                }, 7500);
+              }
+            } catch (encryptionTestError: any) {
+              console.error('❌ ENCRYPTION TEST FAILED:', encryptionTestError);
+              if (__DEV__ === false) {
+                setTimeout(() => {
+                  Alert?.alert('ENCRYPTION TEST FAILED', `Error: ${encryptionTestError?.message}`);
+                }, 7500);
+              }
+              throw encryptionTestError;
+            }
+
+            console.log('🔍 MINIMAL TEST: All tests pass - skipping AsyncStorage for now');
           } catch (minimalError: any) {
             console.error('❌ MINIMAL TEST FAILED:', minimalError);
             if (__DEV__ === false) {
@@ -972,10 +1009,45 @@ class AuthServiceImpl implements IAuthService {
             console.log('🔍 REGISTER MINIMAL TEST: __DEV__ value:', __DEV__);
             console.log('🔍 REGISTER MINIMAL TEST: Step 2 SUCCESS');
 
-            // Skip the actual storage for now, just test the preparation
-            console.log(
-              '🔍 REGISTER MINIMAL TEST: All preparation steps work - skipping actual storage'
-            );
+            // STEP 3: Test encryption operations step by step
+            console.log('🔍 REGISTER MINIMAL TEST: Step 3 - Testing encryption operations');
+
+            try {
+              console.log('🔍 REGISTER MINIMAL TEST: Step 3a - Check CryptoJS availability');
+              const CryptoJS = require('crypto-js');
+              console.log('🔍 REGISTER MINIMAL TEST: CryptoJS exists:', !!CryptoJS);
+              console.log('🔍 REGISTER MINIMAL TEST: CryptoJS.AES exists:', !!CryptoJS?.AES);
+
+              console.log('🔍 REGISTER MINIMAL TEST: Step 3b - Test encryption call');
+              const ENCRYPTION_KEY = 'pentrypal_auth_key_2024';
+              const encrypted = CryptoJS.AES.encrypt(jsonString, ENCRYPTION_KEY).toString();
+              console.log(
+                '🔍 REGISTER MINIMAL TEST: Encryption SUCCESS - length:',
+                encrypted.length
+              );
+
+              if (__DEV__ === false) {
+                setTimeout(() => {
+                  Alert?.alert(
+                    'REGISTER ENCRYPTION TEST',
+                    `Encryption works! Length: ${encrypted.length}`
+                  );
+                }, 8000);
+              }
+            } catch (encryptionTestError: any) {
+              console.error('❌ REGISTER ENCRYPTION TEST FAILED:', encryptionTestError);
+              if (__DEV__ === false) {
+                setTimeout(() => {
+                  Alert?.alert(
+                    'REGISTER ENCRYPTION FAILED',
+                    `Error: ${encryptionTestError?.message}`
+                  );
+                }, 8000);
+              }
+              throw encryptionTestError;
+            }
+
+            console.log('🔍 REGISTER MINIMAL TEST: All tests pass - skipping AsyncStorage for now');
           } catch (minimalError: any) {
             console.error('❌ REGISTER MINIMAL TEST FAILED:', minimalError);
             if (__DEV__ === false) {
