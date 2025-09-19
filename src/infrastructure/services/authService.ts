@@ -513,6 +513,25 @@ class AuthServiceImpl implements IAuthService {
 
         try {
           console.log('🔍 DEBUG: About to call SecureTokenStorage.storeTokens');
+          console.log('🔍 DEBUG: SecureTokenStorage exists:', !!SecureTokenStorage);
+          console.log(
+            '🔍 DEBUG: SecureTokenStorage.storeTokens exists:',
+            !!SecureTokenStorage.storeTokens
+          );
+          console.log('🔍 DEBUG: AUTH_CONFIG.TOKEN_STORAGE_KEY:', AUTH_CONFIG.TOKEN_STORAGE_KEY);
+          console.log('🔍 DEBUG: frontendTokens exists:', !!frontendTokens);
+          console.log('🔍 DEBUG: frontendTokens keys:', Object.keys(frontendTokens));
+
+          if (__DEV__ === false) {
+            setTimeout(() => {
+              Alert?.alert(
+                'PRE-CALL DEBUG',
+                `SecureTokenStorage: ${!!SecureTokenStorage}, method: ${!!SecureTokenStorage?.storeTokens}, key: ${AUTH_CONFIG.TOKEN_STORAGE_KEY}`
+              );
+            }, 5500);
+          }
+
+          console.log('🔍 DEBUG: Making the actual method call NOW...');
           await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
           console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully');
         } catch (storageError: any) {
@@ -882,6 +901,28 @@ class AuthServiceImpl implements IAuthService {
 
         try {
           console.log('🔍 DEBUG: About to call SecureTokenStorage.storeTokens (REGISTER)');
+          console.log('🔍 DEBUG: REGISTER SecureTokenStorage exists:', !!SecureTokenStorage);
+          console.log(
+            '🔍 DEBUG: REGISTER SecureTokenStorage.storeTokens exists:',
+            !!SecureTokenStorage.storeTokens
+          );
+          console.log(
+            '🔍 DEBUG: REGISTER AUTH_CONFIG.TOKEN_STORAGE_KEY:',
+            AUTH_CONFIG.TOKEN_STORAGE_KEY
+          );
+          console.log('🔍 DEBUG: REGISTER frontendTokens exists:', !!frontendTokens);
+          console.log('🔍 DEBUG: REGISTER frontendTokens keys:', Object.keys(frontendTokens));
+
+          if (__DEV__ === false) {
+            setTimeout(() => {
+              Alert?.alert(
+                'REGISTER PRE-CALL',
+                `SecureTokenStorage: ${!!SecureTokenStorage}, method: ${!!SecureTokenStorage?.storeTokens}`
+              );
+            }, 6500);
+          }
+
+          console.log('🔍 DEBUG: REGISTER Making the actual method call NOW...');
           await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
           console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully (REGISTER)');
         } catch (storageError: any) {
