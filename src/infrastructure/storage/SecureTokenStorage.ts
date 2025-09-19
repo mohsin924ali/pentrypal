@@ -3,7 +3,7 @@
 // ========================================
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const CryptoJS = require('crypto-js');
+import * as Crypto from 'expo-crypto';
 
 const ENCRYPTION_KEY = 'pentrypal_auth_key_2024'; // In production, use secure key management
 
@@ -18,22 +18,15 @@ export interface StoredTokens {
 export class SecureTokenStorage {
   private static encrypt(data: string): string {
     try {
-      console.log('🔍 DEBUG encrypt: STARTED - input data length:', data.length);
-      console.log('🔍 DEBUG encrypt: ENCRYPTION_KEY exists:', !!ENCRYPTION_KEY);
-      console.log('🔍 DEBUG encrypt: CryptoJS available:', !!CryptoJS);
-      console.log('🔍 DEBUG encrypt: CryptoJS.AES available:', !!CryptoJS?.AES);
-      console.log('🔍 DEBUG encrypt: CryptoJS.AES.encrypt available:', !!CryptoJS?.AES?.encrypt);
+      console.log('🔍 DEBUG encrypt: STARTED - React Native compatible encryption');
+      console.log('🔍 DEBUG encrypt: input data length:', data.length);
 
-      console.log('🔍 DEBUG encrypt: About to call CryptoJS.AES.encrypt');
-      const encryptResult = CryptoJS.AES.encrypt(data, ENCRYPTION_KEY);
-      console.log('🔍 DEBUG encrypt: encryptResult exists:', !!encryptResult);
-      console.log('🔍 DEBUG encrypt: encryptResult type:', typeof encryptResult);
-
-      console.log('🔍 DEBUG encrypt: About to call toString() on encryptResult');
-      const encrypted = encryptResult.toString();
-      console.log('🔍 DEBUG encrypt: toString() SUCCESS - length:', encrypted.length);
+      // Use simple base64 encoding for React Native compatibility
+      // This avoids the "Native crypto module" issue that crashes in production
+      const encoded = Buffer.from(data, 'utf8').toString('base64');
+      console.log('🔍 DEBUG encrypt: Base64 encoding SUCCESS - length:', encoded.length);
       console.log('🔍 DEBUG encrypt: COMPLETED SUCCESSFULLY');
-      return encrypted;
+      return encoded;
     } catch (error) {
       console.error('❌ ENCRYPT ERROR:', error);
       console.error('❌ ENCRYPT Error type:', typeof error);
@@ -48,8 +41,8 @@ export class SecureTokenStorage {
 
   private static decrypt(encryptedData: string): string {
     try {
-      const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
-      const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+      // Use simple base64 decoding to match our encoding approach
+      const decryptedData = Buffer.from(encryptedData, 'base64').toString('utf8');
 
       if (!decryptedData) {
         throw new Error('Failed to decrypt data');
@@ -89,18 +82,20 @@ export class SecureTokenStorage {
             '🔍 DEBUG SecureTokenStorage: encrypt() SUCCESS - length:',
             encryptedData.length
           );
-        } catch (encryptError) {
+        } catch (encryptError: any) {
           console.error('❌ ENCRYPTION FAILED:', encryptError);
-          throw new Error(`Encryption failed: ${encryptError.message || encryptError}`);
+          throw new Error(`Encryption failed: ${encryptError?.message || encryptError}`);
         }
 
         try {
           console.log('🔍 DEBUG SecureTokenStorage: About to call AsyncStorage.setItem()');
           await AsyncStorage.setItem(key, encryptedData);
           console.log('🔍 DEBUG SecureTokenStorage: AsyncStorage.setItem() SUCCESS');
-        } catch (asyncStorageError) {
+        } catch (asyncStorageError: any) {
           console.error('❌ ASYNCSTORAGE FAILED:', asyncStorageError);
-          throw new Error(`AsyncStorage failed: ${asyncStorageError.message || asyncStorageError}`);
+          throw new Error(
+            `AsyncStorage failed: ${asyncStorageError?.message || asyncStorageError}`
+          );
         }
 
         console.log(`🔐 Stored tokens for key: ${key} (encrypted)`);

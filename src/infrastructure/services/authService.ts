@@ -532,77 +532,8 @@ class AuthServiceImpl implements IAuthService {
           }
 
           console.log('🔍 DEBUG: Making the actual method call NOW...');
-
-          // MINIMAL TEST - Test each operation step by step instead of full method
-          try {
-            console.log('🔍 MINIMAL TEST: Step 1 - JSON.stringify');
-            const jsonString = JSON.stringify(frontendTokens);
-            console.log('🔍 MINIMAL TEST: Step 1 SUCCESS - length:', jsonString.length);
-
-            if (__DEV__ === false) {
-              setTimeout(() => {
-                Alert?.alert('MINIMAL TEST 1', 'JSON.stringify works fine');
-              }, 6000);
-            }
-
-            console.log('🔍 MINIMAL TEST: Step 2 - Check __DEV__');
-            console.log('🔍 MINIMAL TEST: __DEV__ value:', __DEV__);
-            console.log('🔍 MINIMAL TEST: Step 2 SUCCESS');
-
-            if (__DEV__ === false) {
-              setTimeout(() => {
-                Alert?.alert('MINIMAL TEST 2', '__DEV__ check works, going to encryption path');
-              }, 6500);
-            }
-
-            // STEP 3: Test encryption operations step by step
-            console.log('🔍 MINIMAL TEST: Step 3 - Testing encryption operations');
-
-            try {
-              console.log('🔍 MINIMAL TEST: Step 3a - Check CryptoJS availability');
-              const CryptoJS = require('crypto-js');
-              console.log('🔍 MINIMAL TEST: CryptoJS exists:', !!CryptoJS);
-              console.log('🔍 MINIMAL TEST: CryptoJS.AES exists:', !!CryptoJS?.AES);
-
-              if (__DEV__ === false) {
-                setTimeout(() => {
-                  Alert?.alert(
-                    'MINIMAL TEST 3A',
-                    `CryptoJS: ${!!CryptoJS}, AES: ${!!CryptoJS?.AES}`
-                  );
-                }, 7000);
-              }
-
-              console.log('🔍 MINIMAL TEST: Step 3b - Test encryption call');
-              const ENCRYPTION_KEY = 'pentrypal_auth_key_2024';
-              const encrypted = CryptoJS.AES.encrypt(jsonString, ENCRYPTION_KEY).toString();
-              console.log('🔍 MINIMAL TEST: Encryption SUCCESS - length:', encrypted.length);
-
-              if (__DEV__ === false) {
-                setTimeout(() => {
-                  Alert?.alert('MINIMAL TEST 3B', `Encryption works! Length: ${encrypted.length}`);
-                }, 7500);
-              }
-            } catch (encryptionTestError: any) {
-              console.error('❌ ENCRYPTION TEST FAILED:', encryptionTestError);
-              if (__DEV__ === false) {
-                setTimeout(() => {
-                  Alert?.alert('ENCRYPTION TEST FAILED', `Error: ${encryptionTestError?.message}`);
-                }, 7500);
-              }
-              throw encryptionTestError;
-            }
-
-            console.log('🔍 MINIMAL TEST: All tests pass - skipping AsyncStorage for now');
-          } catch (minimalError: any) {
-            console.error('❌ MINIMAL TEST FAILED:', minimalError);
-            if (__DEV__ === false) {
-              setTimeout(() => {
-                Alert?.alert('MINIMAL TEST ERROR', `Failed at: ${minimalError?.message}`);
-              }, 7000);
-            }
-            throw minimalError;
-          }
+          await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+          console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully');
         } catch (storageError: any) {
           console.error('❌ STORAGE ERROR:', storageError);
           if (__DEV__ === false) {
@@ -992,71 +923,8 @@ class AuthServiceImpl implements IAuthService {
           }
 
           console.log('🔍 DEBUG: REGISTER Making the actual method call NOW...');
-
-          // MINIMAL TEST - Test each operation step by step instead of full method
-          try {
-            console.log('🔍 REGISTER MINIMAL TEST: Step 1 - JSON.stringify');
-            const jsonString = JSON.stringify(frontendTokens);
-            console.log('🔍 REGISTER MINIMAL TEST: Step 1 SUCCESS - length:', jsonString.length);
-
-            if (__DEV__ === false) {
-              setTimeout(() => {
-                Alert?.alert('REGISTER MINIMAL 1', 'JSON.stringify works fine');
-              }, 7500);
-            }
-
-            console.log('🔍 REGISTER MINIMAL TEST: Step 2 - Check __DEV__');
-            console.log('🔍 REGISTER MINIMAL TEST: __DEV__ value:', __DEV__);
-            console.log('🔍 REGISTER MINIMAL TEST: Step 2 SUCCESS');
-
-            // STEP 3: Test encryption operations step by step
-            console.log('🔍 REGISTER MINIMAL TEST: Step 3 - Testing encryption operations');
-
-            try {
-              console.log('🔍 REGISTER MINIMAL TEST: Step 3a - Check CryptoJS availability');
-              const CryptoJS = require('crypto-js');
-              console.log('🔍 REGISTER MINIMAL TEST: CryptoJS exists:', !!CryptoJS);
-              console.log('🔍 REGISTER MINIMAL TEST: CryptoJS.AES exists:', !!CryptoJS?.AES);
-
-              console.log('🔍 REGISTER MINIMAL TEST: Step 3b - Test encryption call');
-              const ENCRYPTION_KEY = 'pentrypal_auth_key_2024';
-              const encrypted = CryptoJS.AES.encrypt(jsonString, ENCRYPTION_KEY).toString();
-              console.log(
-                '🔍 REGISTER MINIMAL TEST: Encryption SUCCESS - length:',
-                encrypted.length
-              );
-
-              if (__DEV__ === false) {
-                setTimeout(() => {
-                  Alert?.alert(
-                    'REGISTER ENCRYPTION TEST',
-                    `Encryption works! Length: ${encrypted.length}`
-                  );
-                }, 8000);
-              }
-            } catch (encryptionTestError: any) {
-              console.error('❌ REGISTER ENCRYPTION TEST FAILED:', encryptionTestError);
-              if (__DEV__ === false) {
-                setTimeout(() => {
-                  Alert?.alert(
-                    'REGISTER ENCRYPTION FAILED',
-                    `Error: ${encryptionTestError?.message}`
-                  );
-                }, 8000);
-              }
-              throw encryptionTestError;
-            }
-
-            console.log('🔍 REGISTER MINIMAL TEST: All tests pass - skipping AsyncStorage for now');
-          } catch (minimalError: any) {
-            console.error('❌ REGISTER MINIMAL TEST FAILED:', minimalError);
-            if (__DEV__ === false) {
-              setTimeout(() => {
-                Alert?.alert('REGISTER MINIMAL ERROR', `Failed at: ${minimalError?.message}`);
-              }, 8000);
-            }
-            throw minimalError;
-          }
+          await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
+          console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully (REGISTER)');
         } catch (storageError: any) {
           console.error('❌ REGISTER STORAGE ERROR:', storageError);
           if (__DEV__ === false) {
