@@ -18,22 +18,31 @@ export interface StoredTokens {
 export class SecureTokenStorage {
   private static encrypt(data: string): string {
     try {
-      console.log('🔍 DEBUG SecureTokenStorage encrypt: input data length:', data.length);
-      console.log('🔍 DEBUG SecureTokenStorage encrypt: ENCRYPTION_KEY:', ENCRYPTION_KEY);
-      console.log('🔍 DEBUG SecureTokenStorage encrypt: CryptoJS available:', !!CryptoJS);
-      console.log('🔍 DEBUG SecureTokenStorage encrypt: CryptoJS.AES available:', !!CryptoJS.AES);
+      console.log('🔍 DEBUG encrypt: STARTED - input data length:', data.length);
+      console.log('🔍 DEBUG encrypt: ENCRYPTION_KEY exists:', !!ENCRYPTION_KEY);
+      console.log('🔍 DEBUG encrypt: CryptoJS available:', !!CryptoJS);
+      console.log('🔍 DEBUG encrypt: CryptoJS.AES available:', !!CryptoJS?.AES);
+      console.log('🔍 DEBUG encrypt: CryptoJS.AES.encrypt available:', !!CryptoJS?.AES?.encrypt);
 
-      const encrypted = CryptoJS.AES.encrypt(data, ENCRYPTION_KEY).toString();
-      console.log('🔍 DEBUG SecureTokenStorage encrypt: encrypted length:', encrypted.length);
+      console.log('🔍 DEBUG encrypt: About to call CryptoJS.AES.encrypt');
+      const encryptResult = CryptoJS.AES.encrypt(data, ENCRYPTION_KEY);
+      console.log('🔍 DEBUG encrypt: encryptResult exists:', !!encryptResult);
+      console.log('🔍 DEBUG encrypt: encryptResult type:', typeof encryptResult);
+
+      console.log('🔍 DEBUG encrypt: About to call toString() on encryptResult');
+      const encrypted = encryptResult.toString();
+      console.log('🔍 DEBUG encrypt: toString() SUCCESS - length:', encrypted.length);
+      console.log('🔍 DEBUG encrypt: COMPLETED SUCCESSFULLY');
       return encrypted;
     } catch (error) {
-      console.error('🔍 DEBUG SecureTokenStorage encrypt: Encryption failed:', error);
-      console.error('🔍 DEBUG SecureTokenStorage encrypt: Error type:', typeof error);
+      console.error('❌ ENCRYPT ERROR:', error);
+      console.error('❌ ENCRYPT Error type:', typeof error);
       console.error(
-        '🔍 DEBUG SecureTokenStorage encrypt: Error message:',
+        '❌ ENCRYPT Error message:',
         error instanceof Error ? error.message : 'Unknown error'
       );
-      throw new Error('Failed to encrypt data');
+      console.error('❌ ENCRYPT Error stack:', error instanceof Error ? error.stack : 'No stack');
+      throw new Error(`Failed to encrypt data: ${error instanceof Error ? error.message : error}`);
     }
   }
 
@@ -70,9 +79,30 @@ export class SecureTokenStorage {
       } else {
         // In production, use encryption
         console.log('🔍 DEBUG SecureTokenStorage: Using encryption for production');
-        const encryptedData = this.encrypt(jsonString);
-        console.log('🔍 DEBUG SecureTokenStorage: Encrypted data length:', encryptedData.length);
-        await AsyncStorage.setItem(key, encryptedData);
+
+        // STEP-BY-STEP DEBUGGING - Test each operation individually
+        let encryptedData: string;
+        try {
+          console.log('🔍 DEBUG SecureTokenStorage: About to call encrypt()');
+          encryptedData = this.encrypt(jsonString);
+          console.log(
+            '🔍 DEBUG SecureTokenStorage: encrypt() SUCCESS - length:',
+            encryptedData.length
+          );
+        } catch (encryptError) {
+          console.error('❌ ENCRYPTION FAILED:', encryptError);
+          throw new Error(`Encryption failed: ${encryptError.message || encryptError}`);
+        }
+
+        try {
+          console.log('🔍 DEBUG SecureTokenStorage: About to call AsyncStorage.setItem()');
+          await AsyncStorage.setItem(key, encryptedData);
+          console.log('🔍 DEBUG SecureTokenStorage: AsyncStorage.setItem() SUCCESS');
+        } catch (asyncStorageError) {
+          console.error('❌ ASYNCSTORAGE FAILED:', asyncStorageError);
+          throw new Error(`AsyncStorage failed: ${asyncStorageError.message || asyncStorageError}`);
+        }
+
         console.log(`🔐 Stored tokens for key: ${key} (encrypted)`);
       }
     } catch (error) {
