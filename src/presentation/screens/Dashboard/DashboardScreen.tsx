@@ -48,6 +48,107 @@ export type DashboardScreenProps = Record<string, never>;
 const { width: screenWidth } = Dimensions.get('window');
 
 /**
+ * Helper function to intelligently categorize items based on their names
+ */
+const getCategoryFromName = (itemName: string): string => {
+  if (!itemName || typeof itemName !== 'string') return 'other';
+
+  const name = itemName.toLowerCase();
+
+  // Fruits and vegetables
+  if (
+    name.includes('apple') ||
+    name.includes('banana') ||
+    name.includes('orange') ||
+    name.includes('grape') ||
+    name.includes('berry') ||
+    name.includes('cherry') ||
+    name.includes('peach') ||
+    name.includes('pear') ||
+    name.includes('lemon') ||
+    name.includes('lime') ||
+    name.includes('mango') ||
+    name.includes('pineapple') ||
+    name.includes('watermelon') ||
+    name.includes('melon') ||
+    name.includes('kiwi') ||
+    name.includes('strawberry') ||
+    name.includes('blueberry') ||
+    name.includes('blackberry') ||
+    name.includes('raspberry') ||
+    name.includes('tomato') ||
+    name.includes('cucumber') ||
+    name.includes('lettuce') ||
+    name.includes('spinach') ||
+    name.includes('carrot') ||
+    name.includes('potato') ||
+    name.includes('onion') ||
+    name.includes('garlic') ||
+    name.includes('pepper') ||
+    name.includes('broccoli') ||
+    name.includes('cauliflower') ||
+    name.includes('cabbage') ||
+    name.includes('celery') ||
+    name.includes('avocado')
+  ) {
+    return 'fruits';
+  }
+
+  // Dairy and eggs
+  if (
+    name.includes('milk') ||
+    name.includes('cheese') ||
+    name.includes('butter') ||
+    name.includes('yogurt') ||
+    name.includes('cream') ||
+    name.includes('egg')
+  ) {
+    return 'dairy';
+  }
+
+  // Meat and seafood
+  if (
+    name.includes('chicken') ||
+    name.includes('beef') ||
+    name.includes('fish') ||
+    name.includes('salmon') ||
+    name.includes('tuna') ||
+    name.includes('shrimp') ||
+    name.includes('meat') ||
+    name.includes('turkey') ||
+    name.includes('lamb')
+  ) {
+    return 'meat';
+  }
+
+  // Beverages
+  if (
+    name.includes('juice') ||
+    name.includes('soda') ||
+    name.includes('water') ||
+    name.includes('coffee') ||
+    name.includes('tea') ||
+    name.includes('drink')
+  ) {
+    return 'beverages';
+  }
+
+  // Snacks
+  if (
+    name.includes('chips') ||
+    name.includes('cookie') ||
+    name.includes('candy') ||
+    name.includes('chocolate') ||
+    name.includes('nuts') ||
+    name.includes('crackers')
+  ) {
+    return 'snacks';
+  }
+
+  return 'other';
+};
+
+/**
  * Dashboard Screen Component
  *
  * Comprehensive overview screen with:
@@ -210,16 +311,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
   // Helper function to get user display name
   const getUserName = (userId: string): string => {
-    if (!userId || typeof userId !== 'string') return 'Unknown';
+    if (!userId || typeof userId !== 'string') return 'Unknown User';
     if (userId === user?.id) return 'You';
 
     // Look up in collaborators from all lists
     for (const list of lists) {
-      const collaborator = list.collaborators.find(c => c.userId === userId);
-      if (collaborator && collaborator.name) return collaborator.name;
+      if (list.collaborators && Array.isArray(list.collaborators)) {
+        const collaborator = list.collaborators.find(c => c.userId === userId);
+        if (collaborator && collaborator.name && typeof collaborator.name === 'string') {
+          return collaborator.name;
+        }
+      }
     }
 
-    return 'Unknown';
+    return 'Unknown User';
   };
 
   // Helper function to get time ago
@@ -331,7 +436,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             : getUserName(list.ownerId);
 
           if (!userSpending[userId]) {
-            userSpending[userId] = { name: userName, amount: 0, itemCount: 0 };
+            userSpending[userId] = {
+              name: userName || 'Unknown User',
+              amount: 0,
+              itemCount: 0,
+            };
           }
 
           userSpending[userId]!.amount +=
@@ -345,11 +454,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
     return Object.entries(userSpending)
       .map(([userId, data]) => ({
-        userId,
-        name: data.name,
-        amount: data.amount,
-        itemCount: data.itemCount,
-        percentage: statistics.totalSpent > 0 ? (data.amount / statistics.totalSpent) * 100 : 0,
+        userId: userId || 'unknown',
+        name: data.name || 'Unknown User',
+        amount: data.amount || 0,
+        itemCount: data.itemCount || 0,
+        percentage:
+          statistics.totalSpent > 0 && data.amount
+            ? (data.amount / statistics.totalSpent) * 100
+            : 0,
       }))
       .sort((a, b) => b.amount - a.amount);
   }, [lists, statistics.totalSpent, user?.id]);
@@ -376,45 +488,67 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     };
 
     lists.forEach(list => {
-      list.items.forEach(item => {
-        if (item.completed && item.purchasedAmount) {
-          const userId = item.assignedTo || list.ownerId;
-          if (userId === user?.id) {
-            const amount =
-              (typeof item.purchasedAmount === 'number'
-                ? item.purchasedAmount
-                : parseFloat(String(item.purchasedAmount))) || 0;
-            // Get category from item or default to 'other'
-            const categoryId = item.category?.id || 'other';
-            const categoryData =
-              categoryInfo[categoryId as keyof typeof categoryInfo] || categoryInfo.other;
+      if (list && list.items && Array.isArray(list.items)) {
+        list.items.forEach(item => {
+          if (item && item.completed && item.purchasedAmount && item.name) {
+            const userId = item.assignedTo || list.ownerId;
+            if (userId === user?.id) {
+              const amount =
+                (typeof item.purchasedAmount === 'number'
+                  ? item.purchasedAmount
+                  : parseFloat(String(item.purchasedAmount))) || 0;
 
-            if (!categoryMap[categoryId]) {
-              categoryMap[categoryId] = {
-                name: categoryData.name,
-                icon: categoryData.icon,
-                amount: 0,
-                itemCount: 0,
-              };
+              // Get category ID - try item.category.id first, then intelligent categorization
+              let categoryId: string;
+              if (item.category && item.category.id && item.category.id !== 'other') {
+                categoryId = item.category.id;
+              } else {
+                // Intelligently categorize based on item name
+                categoryId = getCategoryFromName(item.name);
+              }
+
+              // Ensure categoryId is safe
+              categoryId = categoryId || 'other';
+
+              const categoryData =
+                categoryInfo[categoryId as keyof typeof categoryInfo] || categoryInfo.other;
+
+              if (!categoryMap[categoryId]) {
+                categoryMap[categoryId] = {
+                  name: categoryData.name || 'Unknown Category',
+                  icon: categoryData.icon || '📦',
+                  amount: 0,
+                  itemCount: 0,
+                };
+              }
+
+              categoryMap[categoryId]!.amount += amount;
+              categoryMap[categoryId]!.itemCount += 1;
             }
-
-            categoryMap[categoryId]!.amount += amount;
-            categoryMap[categoryId]!.itemCount += 1;
           }
-        }
-      });
+        });
+      }
     });
 
     return Object.entries(categoryMap)
-      .map(([categoryId, data]) => ({
-        categoryId,
-        name: data.name,
-        icon: data.icon,
-        amount: data.amount,
-        itemCount: data.itemCount,
-        percentage:
-          statistics.userTotalSpent > 0 ? (data.amount / statistics.userTotalSpent) * 100 : 0,
-      }))
+      .map(([categoryId, data]) => {
+        // Ensure all values are safe for rendering
+        if (!data || typeof data !== 'object') return null;
+
+        return {
+          categoryId: categoryId && typeof categoryId === 'string' ? categoryId : 'unknown',
+          name: data.name && typeof data.name === 'string' ? data.name : 'Unknown Category',
+          icon: data.icon && typeof data.icon === 'string' ? data.icon : '📦',
+          amount: typeof data.amount === 'number' && !isNaN(data.amount) ? data.amount : 0,
+          itemCount:
+            typeof data.itemCount === 'number' && !isNaN(data.itemCount) ? data.itemCount : 0,
+          percentage:
+            statistics.userTotalSpent > 0 && typeof data.amount === 'number' && data.amount > 0
+              ? (data.amount / statistics.userTotalSpent) * 100
+              : 0,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null) // Remove any null entries
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 6); // Show top 6 categories
   }, [lists, statistics.userTotalSpent, user?.id]);
@@ -437,34 +571,35 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         const timeAgo = getTimeAgo(list.updatedAt);
 
         if (list.status === 'archived') {
-          const activity: any = {
+          const baseActivity = {
             id: `${list.id || 'unknown'}_archived`,
-            type: 'list_completed',
-            title: `Completed "${list.name || 'Unknown List'}"`,
-            time: timeAgo,
-            user: getUserName(list.ownerId),
+            type: 'list_completed' as const,
+            title: `Completed "${(list.name || 'Unknown List').toString()}"`,
+            time: getTimeAgo(list.updatedAt) || 'Unknown time',
+            user: getUserName(list.ownerId) || 'Unknown',
           };
 
-          if (typeof list.totalSpent === 'number' && !isNaN(list.totalSpent)) {
-            activity.amount = list.totalSpent;
-          }
+          const activity =
+            typeof list.totalSpent === 'number' && !isNaN(list.totalSpent)
+              ? { ...baseActivity, amount: list.totalSpent }
+              : baseActivity;
 
           activities.push(activity);
         } else if (list.completedCount > 0) {
           activities.push({
             id: `${list.id || 'unknown'}_progress`,
-            type: 'items_completed',
-            title: `${list.completedCount || 0}/${list.itemsCount || 0} items completed in "${list.name || 'Unknown List'}"`,
-            time: timeAgo,
-            user: getUserName(list.ownerId),
+            type: 'items_completed' as const,
+            title: `${list.completedCount || 0}/${list.itemsCount || 0} items completed in "${(list.name || 'Unknown List').toString()}"`,
+            time: getTimeAgo(list.updatedAt) || 'Unknown time',
+            user: getUserName(list.ownerId) || 'Unknown',
           });
         } else {
           activities.push({
             id: `${list.id || 'unknown'}_created`,
-            type: 'list_created',
-            title: `Created "${list.name || 'Unknown List'}"`,
-            time: timeAgo,
-            user: getUserName(list.ownerId),
+            type: 'list_created' as const,
+            title: `Created "${(list.name || 'Unknown List').toString()}"`,
+            time: getTimeAgo(list.updatedAt) || 'Unknown time',
+            user: getUserName(list.ownerId) || 'Unknown',
           });
         }
       });
@@ -726,10 +861,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                   <View style={baseStyles.userSpendingHeader}>
                     <View style={baseStyles.userSpendingInfo}>
                       <Typography variant='body1' color={theme.colors.text.primary}>
-                        {userSpending.name}
+                        {userSpending.name || 'Unknown User'}
                       </Typography>
                       <Typography variant='caption' color={theme.colors.text.secondary}>
-                        {userSpending.itemCount} items purchased
+                        {userSpending.itemCount || 0} items purchased
                       </Typography>
                     </View>
                     <View style={baseStyles.userSpendingAmount}>
@@ -788,14 +923,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     <View style={baseStyles.categorySpendingInfo}>
                       <View style={baseStyles.categorySpendingTitleRow}>
                         <Typography variant='h6' style={baseStyles.categoryIcon}>
-                          {category.icon}
+                          {category.icon || '📦'}
                         </Typography>
                         <Typography variant='body1' color={theme.colors.text.primary}>
-                          {category.name}
+                          {category.name || 'Unknown Category'}
                         </Typography>
                       </View>
                       <Typography variant='caption' color={theme.colors.text.secondary}>
-                        {category.itemCount} items purchased
+                        {category.itemCount || 0} items purchased
                       </Typography>
                     </View>
                     <View style={baseStyles.categorySpendingAmount}>
@@ -985,12 +1120,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                   ]}>
                   <View style={baseStyles.activityContent}>
                     <Typography variant='body1' color={theme.colors.text.primary}>
-                      {activity.title}
+                      {(activity.title || 'Unknown activity').toString()}
                     </Typography>
 
                     <View style={baseStyles.activityMeta}>
                       <Typography variant='caption' color={theme.colors.text.tertiary}>
-                        {activity.time} • by {activity.user}
+                        {(activity.time || 'Unknown time').toString()} • by{' '}
+                        {(activity.user || 'Unknown').toString()}
                       </Typography>
                       {activity.amount &&
                         typeof activity.amount === 'number' &&

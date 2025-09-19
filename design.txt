@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shopping List App</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#4F46E5",
+            "background-light": "#F9FAFB",
+            "background-dark": "#111827",
+            "card-light": "#FFFFFF",
+            "card-dark": "#1F2937",
+            "text-light": "#1F2937",
+            "text-dark": "#F9FAFB",
+            "subtext-light": "#6B7280",
+            "subtext-dark": "#9CA3AF",
+          },
+          fontFamily: {
+            display: ["Poppins", "sans-serif"],
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            "lg": "1.5rem",
+          },
+        },
+      },
+    };
+  </script>
+<style>
+    .material-icons {
+      font-size: 24px;
+      vertical-align: middle;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .group[data-state='open'] .group-data-\[state\=open\]\:block {
+        display: block;
+    }
+    .group[data-state='open'] .group-data-\[state\=open\]\:flex {
+        display: flex;
+    }
+    .group[data-state='closed'] .group-data-\[state\=closed\]\:block {
+        display: block;
+    }
+    .group[data-state='closed'] .group-data-\[state\=closed\]\:flex {
+        display: flex;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="min-h-screen flex flex-col" x-data="{ expandedList: 'Test123' }">
+<header class="p-6">
+<h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Shopping Lists</h1>
+</header>
+<main class="flex-grow p-6 space-y-4">
+<div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md group" data-state="closed" x-data="{ open: false }" x-on:click.away="open = false">
+<div class="p-4 cursor-pointer" x-on:click="open = !open">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="text-xl font-bold text-text-light dark:text-text-dark">Weekend Party</h2>
+<span class="text-sm text-subtext-light dark:text-subtext-dark">Shared</span>
+</div>
+<div class="flex items-center">
+<div class="flex -space-x-2 mr-2">
+<img alt="Your profile picture" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqIucRP4nxWCb0TfBWCZVigk4mm4aduy-OQmVHkC6yMIg2blDm-7c9o5NQXfQ0B5sRpyHX9Z7zDbvYtgXL2eQZ0nF9TDAyCMjkFKMtq8QIc0ewgPqunUESh80dTi2soxyq3myH9JANCNDrtLwoMAKWB66zZHrm1FX0zgkkvtMXMEfku9HdaJWLw-iunCqXFpIatqZjKlOf6vSkFjJn_A41TczYkZp2I46ZGxVuPk6ZonrDi-5D7mNRmileGFQw7CBrP6opsrd-lhk"/>
+<img alt="Rabia Ghaffar's profile picture" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAUCANMIhZG5x7mnTesb3ecz5f7mnrq_uvuun9c2O4LYPxLmcjAOY-fEAFiXnYz-QQ5--VL7L2L7jq_IdbO7f1VHSaXMGIQxPCTMaMxiQGZzEqKACOX6nncwK67q3QhUh0UPrr-87wYVglVSC7tpe0YXA3JLqjRqZ8xMHWEVkwdUZGCP8fM6aro8V9WWTdFHkz33aJArPfXcokStBAQL1T_d4OvCjuS955Ep3XMCQ75fukdPnxPPj1yL8KoWZh0qF6BdDrs40Gri8"/>
+</div>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-icons text-subtext-light dark:text-subtext-dark" x-text="open ? 'unfold_less' : 'unfold_more'">unfold_more</span>
+</button>
+</div>
+</div>
+<div class="flex items-center text-subtext-light dark:text-subtext-dark text-sm mt-2">
+<span class="material-icons mr-1 text-sm text-green-500">check_circle_outline</span>
+<span>1/5 items</span>
+<span class="mx-2">•</span>
+<span class="material-icons mr-1 text-sm text-yellow-500">paid</span>
+<span>$25.50</span>
+</div>
+<div class="mt-2">
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 20%"></div>
+</div>
+</div>
+</div>
+<div :class="{ 'block': open }" class="px-4 pb-4 hidden">
+<div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-semibold text-text-light dark:text-text-dark">Items</h3>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-icons text-subtext-light dark:text-subtext-dark">add</span>
+</button>
+</div>
+<ul class="space-y-3">
+<li class="flex items-center p-3 bg-background-light dark:bg-background-dark rounded-lg">
+<div class="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 rounded-md mr-3 cursor-pointer"></div>
+<div class="flex-grow">
+<p class="font-medium text-text-light dark:text-text-dark">Tortilla Chips</p>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">2 bags</p>
+</div>
+<img alt="Your profile picture" class="w-6 h-6 rounded-full ml-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqIucRP4nxWCb0TfBWCZVigk4mm4aduy-OQmVHkC6yMIg2blDm-7c9o5NQXfQ0B5sRpyHX9Z7zDbvYtgXL2eQZ0nF9TDAyCMjkFKMtq8QIc0ewgPqunUESh80dTi2soxyq3myH9JANCNDrtLwoMAKWB66zZHrm1FX0zgkkvtMXMEfku9HdaJWLw-iunCqXFpIatqZjKlOf6vSkFjJn_A41TczYkZp2I46ZGxVuPk6ZonrDi-5D7mNRmileGFQw7CBrP6opsrd-lhk"/>
+</li>
+<li class="flex items-center p-3 bg-background-light dark:bg-background-dark rounded-lg">
+<div class="w-6 h-6 bg-primary rounded-md flex items-center justify-center mr-3 cursor-pointer">
+<span class="material-icons text-white text-base">check</span>
+</div>
+<div class="flex-grow">
+<p class="font-medium text-text-light dark:text-text-dark line-through">Salsa</p>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">1 jar • Spicy</p>
+</div>
+<img alt="Rabia Ghaffar's profile picture" class="w-6 h-6 rounded-full ml-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAUCANMIhZG5x7mnTesb3ecz5f7mnrq_uvuun9c2O4LYPxLmcjAOY-fEAFiXnYz-QQ5--VL7L2L7jq_IdbO7f1VHSaXMGIQxPCTMaMxiQGZzEqKACOX6nncwK67q3QhUh0UPrr-87wYVglVSC7tpe0YXA3JLqjRqZ8xMHWEVkwdUZGCP8fM6aro8V9WWTdFHkz33aJArPfXcokStBAQL1T_d4OvCjuS955Ep3XMCQ75fukdPnxPPj1yL8KoWZh0qF6BdDrs40Gri8"/>
+</li>
+<li class="flex items-center p-3 bg-background-light dark:bg-background-dark rounded-lg">
+<div class="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 rounded-md mr-3 cursor-pointer"></div>
+<div class="flex-grow">
+<p class="font-medium text-text-light dark:text-text-dark">Avocados</p>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">4 ripe</p>
+</div>
+<div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-subtext-light dark:text-subtext-dark text-xs font-bold ml-2">
+                        +
+                    </div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md group" data-state="open" x-data="{ open: true }" x-on:click.away="open = false">
+<div class="p-4 cursor-pointer" x-on:click="open = !open">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="text-xl font-bold text-text-light dark:text-text-dark">Test123</h2>
+<span class="text-sm text-subtext-light dark:text-subtext-dark">Shared</span>
+</div>
+<div class="flex items-center">
+<div class="flex -space-x-2 mr-2">
+<img alt="Your profile picture" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqIucRP4nxWCb0TfBWCZVigk4mm4aduy-OQmVHkC6yMIg2blDm-7c9o5NQXfQ0B5sRpyHX9Z7zDbvYtgXL2eQZ0nF9TDAyCMjkFKMtq8QIc0ewgPqunUESh80dTi2soxyq3myH9JANCNDrtLwoMAKWB66zZHrm1FX0zgkkvtMXMEfku9HdaJWLw-iunCqXFpIatqZjKlOf6vSkFjJn_A41TczYkZp2I46ZGxVuPk6ZonrDi-5D7mNRmileGFQw7CBrP6opsrd-lhk"/>
+<img alt="Rabia Ghaffar's profile picture" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAUCANMIhZG5x7mnTesb3ecz5f7mnrq_uvuun9c2O4LYPxLmcjAOY-fEAFiXnYz-QQ5--VL7L2L7jq_IdbO7f1VHSaXMGIQxPCTMaMxiQGZzEqKACOX6nncwK67q3QhUh0UPrr-87wYVglVSC7tpe0YXA3JLqjRqZ8xMHWEVkwdUZGCP8fM6aro8V9WWTdFHkz33aJArPfXcokStBAQL1T_d4OvCjuS955Ep3XMCQ75fukdPnxPPj1yL8KoWZh0qF6BdDrs40Gri8"/>
+</div>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-icons text-subtext-light dark:text-subtext-dark" x-text="open ? 'unfold_less' : 'unfold_more'">unfold_less</span>
+</button>
+</div>
+</div>
+<div class="flex items-center text-subtext-light dark:text-subtext-dark text-sm mt-2">
+<span class="material-icons mr-1 text-sm text-green-500">check_circle_outline</span>
+<span>2/3 items</span>
+<span class="mx-2">•</span>
+<span class="material-icons mr-1 text-sm text-yellow-500">paid</span>
+<span>$90.00</span>
+</div>
+<div class="mt-2">
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 67%"></div>
+</div>
+</div>
+</div>
+<div :class="{ 'block': open, 'hidden': !open }" class="px-4 pb-4">
+<div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-semibold text-text-light dark:text-text-dark">Items</h3>
+<div class="flex items-center space-x-2">
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-icons text-subtext-light dark:text-subtext-dark">add</span>
+</button>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-icons text-subtext-light dark:text-subtext-dark">more_vert</span>
+</button>
+</div>
+</div>
+<ul class="space-y-4">
+<li class="flex items-center p-4 bg-background-light dark:bg-background-dark rounded-lg">
+<div class="w-6 h-6 bg-primary rounded-md flex items-center justify-center mr-4 cursor-pointer">
+<span class="material-icons text-white text-base">check</span>
+</div>
+<div class="flex-grow">
+<p class="font-semibold text-text-light dark:text-text-dark">Apple</p>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">1.000 pieces • Other</p>
+<div class="flex items-center mt-1">
+<p class="text-sm text-primary">Assigned to You</p>
+<img alt="Your profile picture" class="w-5 h-5 rounded-full ml-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXuijEIuOWzwMVHzWR8c5VTvS3fKPhGRFWhILvsXllg4icjwtV54K4RuWdObKHrI-vqjdHn0cHgdSqRKMihFUNOXAs2M9PYHFB3-pThV8gJOndlknbj0pxB8uBXqlNFQJJ3KCijyHNJ5ebvtKHDqROIQqzPqpWgPiBVv1yzsLkklmcORf3pF_F5W49UDWrze8P5y65hpRAs3DJ8WfvZEJ7tYCj4SoKOik91xMs2QRiYjnZQgD8RkgxS5YIpOlMIpqatDoZ3KHPRSo"/>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-icons text-subtext-light dark:text-subtext-dark">refresh</span>
+</button>
+</li>
+<li class="flex items-center p-4 bg-background-light dark:bg-background-dark rounded-lg">
+<div class="w-6 h-6 bg-primary rounded-md flex items-center justify-center mr-4 cursor-pointer">
+<span class="material-icons text-white text-base">check</span>
+</div>
+<div class="flex-grow">
+<p class="font-semibold text-text-light dark:text-text-dark">Blackberry</p>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">1.000 pieces • Other</p>
+<div class="flex items-center mt-1">
+<p class="text-sm text-primary">Assigned to Rabia Ghaffar</p>
+<img alt="Rabia Ghaffar's profile picture" class="w-5 h-5 rounded-full ml-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC71BwAlTBsKVg67rPDtBOFtqJ_JsjdtnWMc8z5k1rGwgWJuLUAGVFcOnI2U5UQefvfrpC3fvYZZ4fKiJpOYNI1r0RT9X_LIoDR7MuQbdJfbkV5fthR3blMku0Li4P5drdVlhER2k2kzRZmOhnDNfRALObCmCLYK9Bc12DwQphppKNP3BKe67vw3gNWWuJ3M7jvfD6-lwnnmuWRI5zhiKQfr_XUQrHovo32T366QoMaCJ6A5sp9Kcp6UeRcmYPGr72m94EZMXvxPZk"/>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-icons text-subtext-light dark:text-subtext-dark">refresh</span>
+</button>
+</li>
+<li class="flex items-center p-4 bg-background-light dark:bg-background-dark rounded-lg">
+<div class="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 rounded-md mr-4 cursor-pointer"></div>
+<div class="flex-grow">
+<p class="font-semibold text-text-light dark:text-text-dark">Cranberry</p>
+<p class="text-sm text-subtext-light dark:text-subtext-dark">1.000 pieces • Other</p>
+<div class="flex items-center mt-1">
+<p class="text-sm text-primary">Assigned to Rabia Ghaffar</p>
+<img alt="Rabia Ghaffar's profile picture" class="w-5 h-5 rounded-full ml-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2UN-I_9mW6c5kXQJ6IGn2XKHo2jwfNLzKOFsHsoQkqeRlGaxB2XbyEMEDZmI8de6SgwhP8qEm29QKKfZvc6ln5kWb9rEIimEIqoA0fbkIt2KvMWE5Zqh_rZINzKHYIuYOBy4dkKwNJWU0HKsGQz6ssMgYXA1fLL6YwwU3j8hB2Q2P-IEONvvdeHd0Kcd_6YDbgB_JAP9Zr-w9m19HxM_8_qdxdpxwyJIfs72ebXGlSUUeyAsZjkNNB5tsSjz4n6_yCDliBqGo0R8"/>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-icons text-subtext-light dark:text-subtext-dark">refresh</span>
+</button>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-card-light dark:bg-card-dark shadow-t w-full sticky bottom-0">
+<nav class="flex justify-around p-4">
+<a class="text-center text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary" href="#">
+<span class="material-icons">home</span>
+<span class="block text-xs">Home</span>
+</a>
+<a class="text-center text-primary dark:text-primary" href="#">
+<span class="material-icons">list_alt</span>
+<span class="block text-xs font-bold">Lists</span>
+</a>
+<a class="text-center text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary" href="#">
+<span class="material-icons">inventory_2</span>
+<span class="block text-xs">Pantry</span>
+</a>
+<a class="text-center text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary" href="#">
+<span class="material-icons">shopping_cart</span>
+<span class="block text-xs">Shop</span>
+</a>
+<a class="text-center text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary" href="#">
+<span class="material-icons">person</span>
+<span class="block text-xs">Profile</span>
+</a>
+</nav>
+</footer>
+</div>
+<script defer="" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
+
+</body></html>

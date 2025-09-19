@@ -4,17 +4,15 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import {
   Alert,
   Animated,
   Image,
-  Modal,
   RefreshControl,
   ScrollView,
   TouchableOpacity,
   View,
-  ViewStyle,
 } from 'react-native';
 
 // Components
@@ -32,7 +30,6 @@ import { useTheme } from '../../providers/ThemeProvider';
 import { useContributorManagement, useListAnimation, useListManagement } from './hooks';
 import { shoppingLogger } from '../../../shared/utils/logger';
 
-const ShareIcon = '📤';
 import { DEFAULT_CURRENCY, formatCurrency } from '../../../shared/utils/currencyUtils';
 import { getAvatarProps, getFallbackAvatar } from '../../../shared/utils/avatarUtils';
 
@@ -49,9 +46,6 @@ import {
   loadShoppingList,
   loadShoppingLists,
   removeCollaboratorFromList,
-  selectIsLoadingLists,
-  selectShoppingListError,
-  selectShoppingLists,
   unassignShoppingItem,
 } from '../../../application/store/slices/shoppingListSlice';
 import { selectUser } from '../../../application/store/slices/authSlice';
@@ -66,7 +60,6 @@ import type {
   AvatarType,
   CurrencyCode,
   EnhancedListsScreenProps,
-  Notification,
   ShoppingItem,
   ShoppingList,
 } from '../../../shared/types/lists';
@@ -79,7 +72,6 @@ type NavigationProp = StackNavigationProp<ListsStackParamList, 'ListsHome'>;
  * Complete shopping lists management with:
  * - Advanced collaboration features
  * - Item assignment system
- * - Notification center
  * - Avatar management
  * - Currency formatting
  * - Animated modals
@@ -106,7 +98,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   const {
     shoppingLists,
     isLoading,
-    error,
     handleRefresh,
     handleViewArchivedList,
     showArchivedDetailModal,
@@ -144,7 +135,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
   // Styles
   const themedStyles = createThemedStyles(theme);
-  const dynamicStyles = createDynamicStyles({ theme });
 
   // Redux selectors and dispatch (remaining)
   const dispatch = useDispatch<AppDispatch>();
@@ -176,16 +166,168 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   // State management (remaining local state)
   const [selectedList, setSelectedList] = useState<string | null>(null);
 
+  // Bulk assignment state
+  const [selectedItems, setSelectedItems] = useState<Record<string, Set<string>>>({});
+
+  // Animation state for expand/collapse
+  const [animatedValues] = useState<Record<string, Animated.Value>>({});
+
+  // Archive pagination state
+  const [archivePage, setArchivePage] = useState(0);
+  const [archiveLimit] = useState(10);
+  const [isLoadingArchive, setIsLoadingArchive] = useState(false);
+  const [archivedListsData, setArchivedListsData] = useState<ShoppingList[]>([]);
+  const [hasMoreArchived, setHasMoreArchived] = useState(true);
+
   // Handle success animation completion (local handler)
   const handleSuccessAnimationComplete = useCallback(() => {
     setShowSuccessAnimation(false);
   }, [setShowSuccessAnimation]);
 
-  // Handle list selection for real-time updates
+  // Get or create animated value for a list
+  const getAnimatedValue = useCallback(
+    (listId: string): Animated.Value => {
+      if (!animatedValues[listId]) {
+        animatedValues[listId] = new Animated.Value(0);
+      }
+      return animatedValues[listId]!; // Non-null assertion since we just created it if it didn't exist
+    },
+    [animatedValues]
+  );
+
+  // Load archived lists with pagination
+  const loadArchivedLists = useCallback(
+    async (page: number, append: boolean = false) => {
+      if (isLoadingArchive) return;
+
+      setIsLoadingArchive(true);
+      try {
+        const skip = page * archiveLimit;
+        const result = await dispatch(
+          loadShoppingLists({
+            status: 'archived',
+            skip,
+            limit: archiveLimit,
+          })
+        ).unwrap();
+
+        const newArchivedLists = result.filter(list => list.status === 'archived');
+
+        if (append) {
+          setArchivedListsData(prev => [...prev, ...newArchivedLists]);
+        } else {
+          setArchivedListsData(newArchivedLists);
+        }
+
+        setHasMoreArchived(newArchivedLists.length === archiveLimit);
+      } catch (error) {
+        console.error('Failed to load archived lists:', error);
+      } finally {
+        setIsLoadingArchive(false);
+      }
+    },
+    [dispatch, archiveLimit]
+  );
+
+  // Load initial archived lists
+  useEffect(() => {
+    if (user?.id) {
+      loadArchivedLists(0, false);
+    }
+  }, [user?.id, loadArchivedLists]);
+
+  // Archive pagination handlers
+  const handleLoadMoreArchived = useCallback(() => {
+    const nextPage = archivePage + 1;
+    setArchivePage(nextPage);
+    loadArchivedLists(nextPage, true);
+  }, [archivePage, loadArchivedLists]);
+
+  const handlePreviousArchivePage = useCallback(() => {
+    if (archivePage > 0) {
+      const prevPage = archivePage - 1;
+      setArchivePage(prevPage);
+      loadArchivedLists(prevPage, false);
+    }
+  }, [archivePage, loadArchivedLists]);
+
+  const handleNextArchivePage = useCallback(() => {
+    if (hasMoreArchived) {
+      const nextPage = archivePage + 1;
+      setArchivePage(nextPage);
+      loadArchivedLists(nextPage, false);
+    }
+  }, [archivePage, hasMoreArchived, loadArchivedLists]);
+
+  // Bulk assignment handlers
+  const toggleItemSelection = useCallback((listId: string, itemId: string) => {
+    setSelectedItems(prev => {
+      const newSelected = { ...prev };
+      if (!newSelected[listId]) {
+        newSelected[listId] = new Set();
+      } else {
+        newSelected[listId] = new Set(newSelected[listId]);
+      }
+
+      const currentSet = newSelected[listId];
+      if (currentSet && currentSet.has(itemId)) {
+        currentSet.delete(itemId);
+      } else if (currentSet) {
+        currentSet.add(itemId);
+      }
+
+      // Clean up empty sets
+      const setToCheck = newSelected[listId];
+      if (setToCheck && setToCheck.size === 0) {
+        delete newSelected[listId];
+      }
+
+      return newSelected;
+    });
+  }, []);
+
+  const clearSelectedItems = useCallback((listId: string) => {
+    setSelectedItems(prev => {
+      const newSelected = { ...prev };
+      delete newSelected[listId];
+      return newSelected;
+    });
+  }, []);
+
+  const getSelectedItemsForList = useCallback(
+    (listId: string): string[] => {
+      return Array.from(selectedItems[listId] || []);
+    },
+    [selectedItems]
+  );
+
+  // Handle list selection for real-time updates with animation
   const handleListSelection = useCallback(
     async (list: ShoppingList) => {
       const newSelectedId = selectedList === list.id ? null : list.id;
-      setSelectedList(newSelectedId);
+      const animatedValue = getAnimatedValue(list.id);
+
+      // Animate expand/collapse
+      if (newSelectedId) {
+        // Expanding - set state first, then animate
+        setSelectedList(newSelectedId);
+        Animated.timing(animatedValue, {
+          toValue: 1,
+          duration: 350,
+          useNativeDriver: false,
+        }).start();
+      } else {
+        // Collapsing - animate first, then clear state
+        Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: false,
+        }).start(() => {
+          setSelectedList(newSelectedId);
+          // Clear selections when collapsing
+          clearSelectedItems(list.id);
+        });
+      }
 
       // If selecting a list (not deselecting), load it for WebSocket room joining
       if (newSelectedId) {
@@ -197,7 +339,7 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
         }
       }
     },
-    [dispatch, selectedList]
+    [dispatch, selectedList, getAnimatedValue, clearSelectedItems]
   );
 
   // Notification state
@@ -208,6 +350,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     null
   );
   const [selectedListForAssignment, setSelectedListForAssignment] = useState<string | null>(null);
+
+  // Bulk assignment state
+  const [showBulkAssignmentModal, setShowBulkAssignmentModal] = useState(false);
+  const [bulkAssignmentListId, setBulkAssignmentListId] = useState<string | null>(null);
 
   // Archive state
   const [showArchivedLists, setShowArchivedLists] = useState(false);
@@ -453,6 +599,79 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     }
   };
 
+  // Bulk assignment handlers
+  const handleBulkAssign = useCallback(
+    (listId: string) => {
+      const selectedItemIds = getSelectedItemsForList(listId);
+      if (selectedItemIds.length < 2) return; // Only enable for 2+ items
+
+      setBulkAssignmentListId(listId);
+      setShowBulkAssignmentModal(true);
+    },
+    [getSelectedItemsForList]
+  );
+
+  const handleBulkAssignToUser = useCallback(
+    async (userId: string) => {
+      if (!bulkAssignmentListId) return;
+
+      const selectedItemIds = getSelectedItemsForList(bulkAssignmentListId);
+      if (selectedItemIds.length === 0) return;
+
+      try {
+        // Assign all selected items to the user
+        const assignPromises = selectedItemIds.map(itemId =>
+          dispatch(
+            assignShoppingItem({
+              listId: bulkAssignmentListId,
+              itemId,
+              userId,
+            })
+          ).unwrap()
+        );
+
+        await Promise.all(assignPromises);
+
+        // Show success message
+        const itemCount = selectedItemIds.length;
+        showSuccessModalWithAnimation(
+          'Items Assigned',
+          `${itemCount} items have been successfully assigned`
+        );
+
+        // Clear selections and close modal
+        clearSelectedItems(bulkAssignmentListId);
+        setShowBulkAssignmentModal(false);
+        setBulkAssignmentListId(null);
+
+        // Refresh lists
+        setTimeout(() => {
+          dispatch(loadShoppingLists({ limit: 100 })).catch(console.error);
+        }, 500);
+
+        // Auto-hide success message
+        setTimeout(hideSuccessModalWithAnimation, 2000);
+      } catch (bulkAssignError: unknown) {
+        shoppingLogger.error('Error bulk assigning items:', bulkAssignError);
+        const bulkAssignErrorMessage =
+          (bulkAssignError as { message?: string })?.message ??
+          'Failed to assign items. Please try again.';
+        showErrorModalWithAnimation('Bulk Assignment Failed', bulkAssignErrorMessage);
+        setTimeout(hideErrorModalWithAnimation, 3000);
+      }
+    },
+    [
+      bulkAssignmentListId,
+      getSelectedItemsForList,
+      dispatch,
+      showSuccessModalWithAnimation,
+      clearSelectedItems,
+      showErrorModalWithAnimation,
+      hideSuccessModalWithAnimation,
+      hideErrorModalWithAnimation,
+    ]
+  );
+
   const getUserName = useCallback(
     (userId: string): string => {
       if (userId === user?.id) return 'You';
@@ -528,10 +747,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
   const archivedLists = useMemo(
     () =>
-      shoppingLists
-        .filter(list => list.status === 'archived')
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
-    [shoppingLists]
+      archivedListsData.sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      ),
+    [archivedListsData]
   );
 
   const archivedCount = useMemo(() => archivedLists.length, [archivedLists]);
@@ -613,262 +832,299 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   const renderListCard = useCallback(
     (list: ShoppingList) => {
       const isShared = list.collaborators.length > 1;
-      const timeAgo = getTimeAgo(list.createdAt);
       const isArchived = list.status === 'archived';
+      const isExpanded = selectedList === list.id;
+      const selectedItemIds = getSelectedItemsForList(list.id);
+      const hasSelectedItems = selectedItemIds.length > 1;
+      const animatedValue = getAnimatedValue(list.id);
+
+      // Interpolated values for animation
+      const animatedOpacity = animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 1],
+      });
+
+      const animatedMaxHeight = animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 2000], // Large enough to accommodate any content
+      });
 
       return (
         <View key={list.id} style={baseStyles.listCardContainer}>
-          <TouchableOpacity
-            style={[baseStyles.listCard, isArchived && baseStyles.archivedListCard]}
-            onPress={
-              isArchived ? () => handleViewArchivedList(list) : () => handleListSelection(list)
-            }
-            accessibilityRole='button'
-            accessibilityLabel={
-              isArchived ? `View archived ${list.name} list` : `Open ${list.name} list`
-            }
-            activeOpacity={0.8}>
-            <View style={baseStyles.listHeader}>
-              <View style={baseStyles.listInfo}>
-                <View style={baseStyles.listTitleRow}>
-                  <Typography
-                    variant='h5'
-                    color={safeTheme?.colors?.text?.primary || '#000000'}
-                    style={baseStyles.listTitle}>
-                    {list.name}
-                  </Typography>
-                  {isShared && (
-                    <Typography
-                      variant='caption'
-                      color={safeTheme?.colors?.text?.secondary || '#666666'}
-                      style={baseStyles.sharedText}>
-                      Shared
-                    </Typography>
-                  )}
-                </View>
-
+          <View style={[baseStyles.listCard, isArchived && baseStyles.archivedListCard]}>
+            {/* Header - Following design.txt layout */}
+            <View style={baseStyles.newCardHeader}>
+              <View style={baseStyles.leftSection}>
                 <Typography
-                  variant='body1'
-                  color={safeTheme?.colors?.text?.secondary || '#666666'}
-                  style={baseStyles.listSubtitle}>
-                  {list.completedCount || 0} of {list.itemsCount || 0} items completed
+                  variant='h5'
+                  color={safeTheme?.colors?.text?.primary || '#000000'}
+                  style={baseStyles.cardTitle}>
+                  {list.name}
                 </Typography>
-
-                {list.totalSpent > 0 && (
+                {isShared && (
                   <Typography
                     variant='caption'
-                    style={{ color: '#16a34a', ...baseStyles.totalSpent }}>
-                    💰 Total spent: {formatCurrency(list.totalSpent, userCurrency)}
+                    color={safeTheme?.colors?.text?.secondary || '#666666'}
+                    style={baseStyles.sharedBadge}>
+                    Shared
                   </Typography>
                 )}
-
-                <Typography
-                  variant='caption'
-                  color={safeTheme?.colors?.text?.secondary || '#666666'}
-                  style={baseStyles.lastUpdated}>
-                  Created {timeAgo}
-                </Typography>
               </View>
 
-              {/* Shop Screen Style Progress Bar - EXACTLY like Shop screen */}
-              <View style={baseStyles.listProgress}>
-                <Typography
-                  variant='caption'
-                  color={safeTheme?.colors?.text?.secondary || '#666666'}
-                  style={baseStyles.progressText}>
-                  {Math.round(list.progress || 0)}%
-                </Typography>
-                <View style={[baseStyles.shopStyleProgressBar, themedStyles.shopStyleProgressBar]}>
-                  <View
-                    style={[
-                      themedStyles.shopStyleProgressFill,
-                      { width: `${Math.round(list.progress || 0)}%` },
-                    ]}
-                  />
-                </View>
+              <View style={baseStyles.cardRightSection}>
+                {/* Collaborator avatars - overlapping style from design */}
+                {list.collaborators.length > 0 && (
+                  <View style={baseStyles.avatarsContainer}>
+                    {list.collaborators.slice(0, 2).map((collaborator, index) => (
+                      <View
+                        key={`${collaborator.id}-${index}`}
+                        style={[baseStyles.avatarWrapper, { marginLeft: index > 0 ? -8 : 0 }]}>
+                        {renderAvatar(getUserAvatar(collaborator.userId), 24)}
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                {/* Expand/Collapse button */}
+                {!isArchived && (
+                  <TouchableOpacity
+                    style={baseStyles.expandButton}
+                    onPress={() => handleListSelection(list)}
+                    accessibilityRole='button'
+                    accessibilityLabel={
+                      isExpanded ? `Collapse ${list.name} list` : `Expand ${list.name} list`
+                    }
+                    activeOpacity={0.7}>
+                    <Typography style={baseStyles.expandIcon}>{isExpanded ? '▲' : '▼'}</Typography>
+                  </TouchableOpacity>
+                )}
+                {/* For archived lists, show a view button instead of expand/collapse */}
+                {isArchived && (
+                  <TouchableOpacity
+                    style={baseStyles.expandButton}
+                    onPress={() => handleViewArchivedList(list)}
+                    accessibilityRole='button'
+                    accessibilityLabel={`View archived ${list.name} list`}
+                    activeOpacity={0.7}>
+                    <Typography style={baseStyles.expandIcon}>👁</Typography>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
-            {/* Share/Archive Actions - Positioned after header like Shop's footer */}
-            <View style={baseStyles.listCardFooter}>
-              <View />
-              <View style={baseStyles.rightActions}>
-                {!isArchived && list.ownerId === user?.id && (
-                  <TouchableOpacity
-                    onPress={event => {
-                      event.stopPropagation();
-                      handleAddContributor(list.id);
-                    }}
-                    accessibilityRole='button'
-                    accessibilityLabel='Add contributor'>
-                    <Typography
-                      variant='body1'
-                      style={{
-                        fontSize: 22,
-                        lineHeight: 22,
-                        color: safeTheme?.colors?.primary?.['500'] || '#3b82f6',
-                      }}>
-                      {ShareIcon}
-                    </Typography>
-                  </TouchableOpacity>
-                )}
-                {isArchived && (
-                  <View style={baseStyles.archivedBadge}>
+            {/* Progress info - stats on one line */}
+            <View style={baseStyles.progressInfo}>
+              <View style={baseStyles.statsRow}>
+                <Typography
+                  variant='caption'
+                  color={safeTheme?.colors?.text?.secondary || '#666666'}
+                  style={baseStyles.statsText}>
+                  ✓ {list.completedCount || 0}/{list.itemsCount || 0} items
+                </Typography>
+                {list.totalSpent > 0 && (
+                  <>
                     <Typography
                       variant='caption'
                       color={safeTheme?.colors?.text?.secondary || '#666666'}
-                      style={baseStyles.archivedText}>
-                      📦 Archived
+                      style={baseStyles.statsSeparator}>
+                      •
                     </Typography>
-                  </View>
+                    <Typography variant='caption' color='#f59e0b' style={baseStyles.statsText}>
+                      💰 {formatCurrency(list.totalSpent, userCurrency)}
+                    </Typography>
+                  </>
                 )}
               </View>
             </View>
 
-            {/* Collaborators */}
-            {list.collaborators.length > 0 && (
-              <View style={baseStyles.collaboratorsSection}>
-                <Typography
-                  variant='caption'
-                  color={safeTheme?.colors?.text?.secondary || '#666666'}
-                  style={baseStyles.collaboratorsLabel}>
-                  Collaborators:
-                </Typography>
-                <View style={baseStyles.collaboratorsList}>
-                  {list.collaborators.map((collaborator, index) => {
-                    const displayName =
-                      collaborator.name === 'You' || collaborator.name === user?.name
-                        ? 'You'
-                        : collaborator.name;
-
-                    const avatar = getUserAvatar(collaborator.userId);
-
-                    return (
-                      <View key={`${collaborator.id}-${index}`} style={baseStyles.collaboratorChip}>
-                        {renderAvatar(avatar, 20)}
-                        <Typography
-                          variant='caption'
-                          color={safeTheme?.colors?.text?.primary || '#000000'}>
-                          {displayName}
-                        </Typography>
-                      </View>
-                    );
-                  })}
-                </View>
+            {/* Thin progress bar */}
+            <View style={baseStyles.progressBarSection}>
+              <View style={[baseStyles.thinProgressBar, themedStyles.shopStyleProgressBar]}>
+                <View
+                  style={[
+                    themedStyles.shopStyleProgressFill,
+                    { width: `${Math.round(list.progress || 0)}%` },
+                  ]}
+                />
               </View>
-            )}
+            </View>
 
-            {/* Expanded List Items */}
-            {selectedList === list.id && (
-              <View style={baseStyles.listItems}>
+            {/* Animated Expanded View */}
+            <Animated.View
+              style={[
+                baseStyles.expandedSection,
+                {
+                  maxHeight: animatedMaxHeight,
+                  opacity: animatedOpacity,
+                  overflow: 'hidden',
+                },
+              ]}
+              pointerEvents={isExpanded ? 'auto' : 'none'}>
+              {/* Divider */}
+              <View style={baseStyles.sectionDivider} />
+
+              {/* Items Header */}
+              <View style={baseStyles.itemsHeader}>
                 <Typography
                   variant='body1'
                   color={safeTheme?.colors?.text?.primary || '#000000'}
                   style={baseStyles.itemsTitle}>
-                  Items:
+                  Items
                 </Typography>
+                <View style={baseStyles.itemsActions}>
+                  {!isArchived && list.ownerId === user?.id && (
+                    <TouchableOpacity
+                      onPress={event => {
+                        event.stopPropagation();
+                        handleAddContributor(list.id);
+                      }}
+                      style={baseStyles.shareButton}
+                      accessibilityRole='button'
+                      accessibilityLabel='Share list'>
+                      <Typography style={baseStyles.shareButtonText}>Share</Typography>
+                    </TouchableOpacity>
+                  )}
+                  {!isArchived && (
+                    <TouchableOpacity
+                      onPress={event => {
+                        event.stopPropagation();
+                        handleBulkAssign(list.id);
+                      }}
+                      style={[
+                        baseStyles.bulkAssignButton,
+                        !hasSelectedItems && baseStyles.bulkAssignButtonDisabled,
+                      ]}
+                      disabled={!hasSelectedItems}
+                      accessibilityRole='button'
+                      accessibilityLabel={`Assign ${selectedItemIds.length} selected items`}>
+                      <Typography
+                        style={[
+                          baseStyles.bulkAssignButtonText,
+                          !hasSelectedItems && baseStyles.bulkAssignButtonTextDisabled,
+                        ]}>
+                        Assign
+                      </Typography>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+
+              {/* Items List */}
+              <View style={baseStyles.itemsList}>
                 {list.items.map(item => {
                   const isOwner = user?.id === list.ownerId;
                   const canAssign =
                     !isArchived && (isOwner || item.assignedTo === user?.id || !item.assignedTo);
+                  const isItemSelected = selectedItemIds.includes(item.id);
+                  const isInSelectionMode = selectedItemIds.length > 0;
 
                   return (
                     <TouchableOpacity
                       key={item.id}
                       style={[
-                        baseStyles.listItem,
-                        !!item.assignedTo && baseStyles.listItemAssigned, // PRODUCTION SAFE: Convert to boolean
+                        baseStyles.expandedListItem,
+                        !!item.assignedTo && baseStyles.listItemAssigned,
                         isArchived && baseStyles.archivedListItem,
+                        isItemSelected && baseStyles.selectedListItem,
                       ]}
+                      onPress={() => {
+                        if (!isArchived) {
+                          toggleItemSelection(list.id, item.id);
+                        }
+                      }}
                       onLongPress={canAssign ? () => handleAssignItem(list.id, item) : undefined}
                       delayLongPress={500}
                       activeOpacity={isArchived ? 1 : 0.7}
                       disabled={isArchived}>
-                      <View style={baseStyles.itemLeft}>
+                      {/* Unified Checkbox - Selection or Completion */}
+                      <TouchableOpacity
+                        onPress={e => {
+                          e.stopPropagation();
+                          if (!isArchived) {
+                            toggleItemSelection(list.id, item.id);
+                          }
+                        }}
+                        style={baseStyles.checkboxContainer}>
                         <View
                           style={[
-                            baseStyles.checkbox,
-                            item.completed && baseStyles.checkboxCompleted,
+                            baseStyles.unifiedCheckbox,
+                            isInSelectionMode
+                              ? isItemSelected && baseStyles.unifiedCheckboxSelected
+                              : item.completed && baseStyles.unifiedCheckboxCompleted,
                           ]}>
-                          {item.completed && (
-                            <Typography
-                              variant='caption'
-                              color={
-                                (safeTheme?.colors as any)?.background?.primary ||
-                                safeTheme?.colors?.text?.onPrimary ||
-                                '#ffffff'
-                              }>
-                              ✓
-                            </Typography>
+                          {(isInSelectionMode ? isItemSelected : item.completed) && (
+                            <Typography style={baseStyles.unifiedCheckmark}>✓</Typography>
                           )}
                         </View>
-                        <View style={baseStyles.itemInfo}>
-                          <Typography
-                            variant='body1'
-                            color={
-                              item.completed
-                                ? safeTheme?.colors?.text?.secondary || '#666666'
-                                : safeTheme?.colors?.text?.primary || '#000000'
-                            }
-                            style={[
-                              baseStyles.itemName,
-                              item.completed && baseStyles.itemNameCompleted,
-                            ]}>
-                            {item.icon} {item.name}
-                          </Typography>
-                          <View style={baseStyles.itemDetails}>
+                      </TouchableOpacity>
+
+                      {/* Item Content */}
+                      <View style={baseStyles.itemContent}>
+                        <Typography
+                          variant='body1'
+                          color={
+                            item.completed
+                              ? safeTheme?.colors?.text?.secondary || '#666666'
+                              : safeTheme?.colors?.text?.primary || '#000000'
+                          }
+                          style={[
+                            baseStyles.expandedItemName,
+                            item.completed && baseStyles.itemNameCompleted,
+                          ]}>
+                          {item.name}
+                        </Typography>
+
+                        <Typography
+                          variant='caption'
+                          color={safeTheme?.colors?.text?.secondary || '#666666'}>
+                          {item.quantity} {item.unit} • {item.category.name}
+                        </Typography>
+
+                        {item.assignedTo && (
+                          <View style={baseStyles.assignedInfo}>
                             <Typography
                               variant='caption'
-                              color={safeTheme?.colors?.text?.secondary || '#666666'}>
-                              {item.quantity} {item.unit} • {item.category.name}
+                              color='#3B82F6'
+                              style={baseStyles.assignedText}>
+                              Assigned to {getUserName(item.assignedTo)}
                             </Typography>
-                            {item.assignedTo && (
-                              <View style={baseStyles.assignmentRow}>
-                                <Typography
-                                  variant='caption'
-                                  color='#3B82F6'
-                                  style={baseStyles.assignmentIndicator}>
-                                  • Assigned to {getUserName(item.assignedTo)}
-                                </Typography>
-                                <View style={baseStyles.assignedAvatarInline}>
-                                  {renderAvatar(getUserAvatar(item.assignedTo), 16)}
-                                </View>
-                              </View>
-                            )}
+                            <View style={baseStyles.assignedAvatar}>
+                              {renderAvatar(getUserAvatar(item.assignedTo), 20)}
+                            </View>
                           </View>
-                        </View>
+                        )}
                       </View>
 
+                      {/* Assignment/Action Button */}
                       {canAssign && (
                         <TouchableOpacity
-                          style={baseStyles.assignButton}
+                          style={baseStyles.itemActionButton}
                           onPress={() => handleAssignItem(list.id, item)}>
                           <Typography
                             variant='caption'
-                            color={safeTheme?.colors?.primary?.['500'] || '#3b82f6'}>
-                            {item.assignedTo ? '↻' : '+'}
+                            color={safeTheme?.colors?.text?.secondary || '#666666'}>
+                            ↻
                           </Typography>
                         </TouchableOpacity>
                       )}
                     </TouchableOpacity>
                   );
                 })}
+              </View>
+            </Animated.View>
 
-                {/* Edit button - only show for lists owned by current user */}
-                {!isArchived && user?.id === list.ownerId && (
-                  <View style={baseStyles.editButtonContainer}>
-                    <Button
-                      title='✏️ Edit List'
-                      variant='primary'
-                      size='md'
-                      onPress={() => onEditListPress?.(list)}
-                      style={baseStyles.editButton}
-                    />
-                  </View>
-                )}
+            {/* Archived badge for collapsed archived lists */}
+            {isArchived && !isExpanded && (
+              <View style={baseStyles.archivedInfo}>
+                <Typography
+                  variant='caption'
+                  color={safeTheme?.colors?.text?.secondary || '#666666'}
+                  style={baseStyles.archivedText}>
+                  📦 Archived
+                </Typography>
               </View>
             )}
-          </TouchableOpacity>
+          </View>
         </View>
       );
     },
@@ -882,11 +1138,14 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       handleAssignItem,
       handleListSelection,
       handleViewArchivedList,
-      onEditListPress,
       renderAvatar,
       safeTheme?.colors,
       themedStyles.shopStyleProgressBar,
       themedStyles.shopStyleProgressFill,
+      getSelectedItemsForList,
+      handleBulkAssign,
+      toggleItemSelection,
+      getAnimatedValue,
     ]
   );
 
@@ -981,24 +1240,89 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                 </Typography>
               </View>
             ) : showArchivedLists ? (
-              archivedLists.length > 0 ? (
-                archivedLists.map(renderListCard)
-              ) : (
-                <View style={baseStyles.emptyContainer}>
-                  <Typography
-                    variant='h3'
-                    color={safeTheme.colors.text.secondary}
-                    style={baseStyles.emptyTitle}>
-                    No Archived Lists
-                  </Typography>
-                  <Typography
-                    variant='body1'
-                    color={safeTheme.colors.text.secondary}
-                    style={baseStyles.emptyText}>
-                    Archived lists will appear here when you finish shopping.
-                  </Typography>
-                </View>
-              )
+              <>
+                {archivedLists.length > 0 ? (
+                  <>
+                    {archivedLists.map(renderListCard)}
+
+                    {/* Archive Pagination Controls */}
+                    <View style={baseStyles.paginationContainer}>
+                      <View style={baseStyles.paginationInfo}>
+                        <Typography
+                          variant='caption'
+                          color={safeTheme.colors.text.secondary}
+                          style={baseStyles.paginationText}>
+                          Page {archivePage + 1} • {archivedLists.length} of {archiveLimit} per page
+                        </Typography>
+                      </View>
+
+                      <View style={baseStyles.paginationButtons}>
+                        {/* Previous Page Button */}
+                        <TouchableOpacity
+                          style={[
+                            baseStyles.paginationButton,
+                            archivePage === 0 && baseStyles.paginationButtonDisabled,
+                          ]}
+                          onPress={handlePreviousArchivePage}
+                          disabled={archivePage === 0 || isLoadingArchive}
+                          accessibilityRole='button'
+                          accessibilityLabel='Previous page'>
+                          <Typography
+                            style={[
+                              baseStyles.paginationButtonText,
+                              archivePage === 0 && baseStyles.paginationButtonTextDisabled,
+                            ]}>
+                            ← Previous
+                          </Typography>
+                        </TouchableOpacity>
+
+                        {/* Next Page Button */}
+                        <TouchableOpacity
+                          style={[
+                            baseStyles.paginationButton,
+                            !hasMoreArchived && baseStyles.paginationButtonDisabled,
+                          ]}
+                          onPress={handleNextArchivePage}
+                          disabled={!hasMoreArchived || isLoadingArchive}
+                          accessibilityRole='button'
+                          accessibilityLabel='Next page'>
+                          <Typography
+                            style={[
+                              baseStyles.paginationButtonText,
+                              !hasMoreArchived && baseStyles.paginationButtonTextDisabled,
+                            ]}>
+                            Next →
+                          </Typography>
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Loading indicator */}
+                      {isLoadingArchive && (
+                        <View style={baseStyles.paginationLoading}>
+                          <Typography variant='caption' color={safeTheme.colors.text.secondary}>
+                            Loading...
+                          </Typography>
+                        </View>
+                      )}
+                    </View>
+                  </>
+                ) : (
+                  <View style={baseStyles.emptyContainer}>
+                    <Typography
+                      variant='h3'
+                      color={safeTheme.colors.text.secondary}
+                      style={baseStyles.emptyTitle}>
+                      No Archived Lists
+                    </Typography>
+                    <Typography
+                      variant='body1'
+                      color={safeTheme.colors.text.secondary}
+                      style={baseStyles.emptyText}>
+                      Archived lists will appear here when you finish shopping.
+                    </Typography>
+                  </View>
+                )}
+              </>
             ) : activeLists.length > 0 ? (
               activeLists.map(renderListCard)
             ) : (
@@ -1069,6 +1393,31 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
           }
           onAssign={handleAssignToUser}
           onUnassign={handleUnassignItem}
+          getUserName={getUserName}
+          getUserAvatar={getUserAvatar}
+        />
+
+        {/* Bulk Assignment Modal */}
+        <AssignmentModal
+          visible={showBulkAssignmentModal}
+          onClose={() => {
+            setShowBulkAssignmentModal(false);
+            setBulkAssignmentListId(null);
+          }}
+          item={null} // No specific item for bulk assignment
+          collaborators={
+            bulkAssignmentListId
+              ? shoppingLists.find(list => list.id === bulkAssignmentListId)?.collaborators || []
+              : []
+          }
+          currentUserId={user?.id || ''}
+          listOwnerId={
+            bulkAssignmentListId
+              ? shoppingLists.find(list => list.id === bulkAssignmentListId)?.ownerId || ''
+              : ''
+          }
+          onAssign={handleBulkAssignToUser}
+          onUnassign={() => {}} // No unassign for bulk
           getUserName={getUserName}
           getUserAvatar={getUserAvatar}
         />

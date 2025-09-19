@@ -454,6 +454,63 @@ export const baseStyles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   } as ViewStyle,
 
+  // Pagination Styles
+  paginationContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+    paddingHorizontal: 16,
+  } as ViewStyle,
+
+  paginationInfo: {
+    alignItems: 'center',
+    marginBottom: 12,
+  } as ViewStyle,
+
+  paginationText: {
+    fontSize: 12,
+    color: '#6B7280',
+  } as ViewStyle,
+
+  paginationButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+  } as ViewStyle,
+
+  paginationButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    minWidth: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+
+  paginationButtonDisabled: {
+    backgroundColor: '#F9FAFB',
+    borderColor: '#F3F4F6',
+    opacity: 0.5,
+  } as ViewStyle,
+
+  paginationButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+  } as ViewStyle,
+
+  paginationButtonTextDisabled: {
+    color: '#9CA3AF',
+  } as ViewStyle,
+
+  paginationLoading: {
+    alignItems: 'center',
+    marginTop: 8,
+  } as ViewStyle,
+
   // Success Modal Styles
   successModalOverlay: {
     flex: 1,
@@ -885,6 +942,304 @@ export const baseStyles = StyleSheet.create({
     borderRadius: 2,
     overflow: 'hidden',
     width: '100%',
+  } as ViewStyle,
+
+  // New Design Card Styles - Following design.txt
+  newCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  } as ViewStyle,
+
+  leftSection: {
+    flex: 1,
+    marginRight: 12,
+  } as ViewStyle,
+
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 4,
+  } as ViewStyle,
+
+  sharedBadge: {
+    fontSize: 12,
+    color: '#6B7280',
+  } as ViewStyle,
+
+  cardRightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  } as ViewStyle,
+
+  avatarsContainer: {
+    flexDirection: 'row',
+    marginRight: 8,
+  } as ViewStyle,
+
+  avatarWrapper: {
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    borderRadius: 12,
+  } as ViewStyle,
+
+  expandButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+
+  expandIcon: {
+    fontSize: 12,
+    color: '#6B7280',
+  } as ViewStyle,
+
+  progressInfo: {
+    marginBottom: 8,
+  } as ViewStyle,
+
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  } as ViewStyle,
+
+  statsText: {
+    fontSize: 14,
+  } as ViewStyle,
+
+  statsSeparator: {
+    marginHorizontal: 8,
+    fontSize: 14,
+  } as ViewStyle,
+
+  progressBarSection: {
+    marginBottom: 4,
+  } as ViewStyle,
+
+  thinProgressBar: {
+    height: 6,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 3,
+    overflow: 'hidden',
+  } as ViewStyle,
+
+  // Expanded Section Styles
+  expandedSection: {
+    marginTop: 16,
+  } as ViewStyle,
+
+  sectionDivider: {
+    height: 1,
+    backgroundColor: '#E5E7EB',
+    marginBottom: 16,
+  } as ViewStyle,
+
+  itemsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  } as ViewStyle,
+
+  itemsActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  } as ViewStyle,
+
+  addItemButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  } as ViewStyle,
+
+  addItemIcon: {
+    fontSize: 16,
+    color: '#6B7280',
+  } as ViewStyle,
+
+  moreButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+
+  moreIcon: {
+    fontSize: 16,
+    color: '#6B7280',
+  } as ViewStyle,
+
+  itemsList: {
+    // No specific styles needed - container
+  } as ViewStyle,
+
+  expandedListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    marginBottom: 8,
+  } as ViewStyle,
+
+  itemContent: {
+    flex: 1,
+    marginHorizontal: 16,
+  } as ViewStyle,
+
+  expandedItemName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  } as ViewStyle,
+
+  assignedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  } as ViewStyle,
+
+  assignedText: {
+    fontSize: 12,
+    fontWeight: '500',
+  } as ViewStyle,
+
+  assignedAvatar: {
+    marginLeft: 8,
+  } as ViewStyle,
+
+  itemActionButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+
+  archivedInfo: {
+    alignItems: 'center',
+    marginTop: 12,
+  } as ViewStyle,
+
+  // Bulk Assignment Styles
+  bulkAssignButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: '#3B82F6',
+    minWidth: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+
+  bulkAssignButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+    opacity: 0.6,
+  } as ViewStyle,
+
+  bulkAssignButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  } as ViewStyle,
+
+  bulkAssignButtonTextDisabled: {
+    color: '#D1D5DB',
+  } as ViewStyle,
+
+  // Share Button Styles (similar to bulkAssignButton)
+  shareButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: '#10B981',
+    minWidth: 70,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  } as ViewStyle,
+
+  shareButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  } as ViewStyle,
+
+  // Selection Checkbox Styles
+  selectionCheckbox: {
+    marginRight: 12,
+  } as ViewStyle,
+
+  selectionCheckboxInner: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  } as ViewStyle,
+
+  selectionCheckboxSelected: {
+    backgroundColor: '#3B82F6',
+    borderColor: '#3B82F6',
+  } as ViewStyle,
+
+  selectionCheckmark: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  } as ViewStyle,
+
+  selectedListItem: {
+    backgroundColor: '#EBF4FF',
+    borderWidth: 1,
+    borderColor: '#3B82F6',
+  } as ViewStyle,
+
+  // Unified Checkbox Styles (replaces both selection and completion checkboxes)
+  checkboxContainer: {
+    marginRight: 16,
+  } as ViewStyle,
+
+  unifiedCheckbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  } as ViewStyle,
+
+  unifiedCheckboxSelected: {
+    backgroundColor: '#3B82F6',
+    borderColor: '#3B82F6',
+  } as ViewStyle,
+
+  unifiedCheckboxCompleted: {
+    backgroundColor: '#10B981',
+    borderColor: '#10B981',
+  } as ViewStyle,
+
+  unifiedCheckmark: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
   } as ViewStyle,
 });
 
