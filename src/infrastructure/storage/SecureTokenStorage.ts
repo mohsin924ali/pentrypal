@@ -16,14 +16,59 @@ export interface StoredTokens {
 }
 
 export class SecureTokenStorage {
+  // Pure JavaScript base64 encode - works everywhere
+  private static base64Encode(str: string): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    let result = '';
+    let i = 0;
+
+    while (i < str.length) {
+      const a = str.charCodeAt(i++);
+      const b = i < str.length ? str.charCodeAt(i++) : 0;
+      const c = i < str.length ? str.charCodeAt(i++) : 0;
+
+      const bitmap = (a << 16) | (b << 8) | c;
+
+      result += chars.charAt((bitmap >> 18) & 63);
+      result += chars.charAt((bitmap >> 12) & 63);
+      result += i - 2 < str.length ? chars.charAt((bitmap >> 6) & 63) : '=';
+      result += i - 1 < str.length ? chars.charAt(bitmap & 63) : '=';
+    }
+
+    return result;
+  }
+
+  // Pure JavaScript base64 decode - works everywhere
+  private static base64Decode(str: string): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    let result = '';
+    let i = 0;
+
+    str = str.replace(/[^A-Za-z0-9+/]/g, '');
+
+    while (i < str.length) {
+      const encoded1 = chars.indexOf(str.charAt(i++));
+      const encoded2 = chars.indexOf(str.charAt(i++));
+      const encoded3 = chars.indexOf(str.charAt(i++));
+      const encoded4 = chars.indexOf(str.charAt(i++));
+
+      const bitmap = (encoded1 << 18) | (encoded2 << 12) | (encoded3 << 6) | encoded4;
+
+      result += String.fromCharCode((bitmap >> 16) & 255);
+      if (encoded3 !== 64) result += String.fromCharCode((bitmap >> 8) & 255);
+      if (encoded4 !== 64) result += String.fromCharCode(bitmap & 255);
+    }
+
+    return result;
+  }
+
   private static encrypt(data: string): string {
     try {
-      console.log('🔍 DEBUG encrypt: STARTED - React Native compatible encryption');
+      console.log('🔍 DEBUG encrypt: STARTED - Pure JS base64');
       console.log('🔍 DEBUG encrypt: input data length:', data.length);
 
-      // Use simple base64 encoding for React Native compatibility
-      // This avoids the "Native crypto module" issue that crashes in production
-      const encoded = Buffer.from(data, 'utf8').toString('base64');
+      // Use pure JavaScript base64 encoding - works everywhere
+      const encoded = this.base64Encode(data);
       console.log('🔍 DEBUG encrypt: Base64 encoding SUCCESS - length:', encoded.length);
       console.log('🔍 DEBUG encrypt: COMPLETED SUCCESSFULLY');
       return encoded;
@@ -41,8 +86,8 @@ export class SecureTokenStorage {
 
   private static decrypt(encryptedData: string): string {
     try {
-      // Use simple base64 decoding to match our encoding approach
-      const decryptedData = Buffer.from(encryptedData, 'base64').toString('utf8');
+      // Use pure JavaScript base64 decoding
+      const decryptedData = this.base64Decode(encryptedData);
 
       if (!decryptedData) {
         throw new Error('Failed to decrypt data');
