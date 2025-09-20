@@ -559,6 +559,31 @@ const authSlice = createSlice({
 
       // Only restore if we have valid user and tokens
       if (user && tokens && Boolean(isAuthenticated)) {
+        // Check if tokens are expired
+        const now = new Date();
+        const expiresAt = tokenExpiresAt ? new Date(tokenExpiresAt) : null;
+
+        // If tokens are expired, don't restore authenticated state
+        if (expiresAt && now >= expiresAt) {
+          console.log('🚨 Tokens expired during app startup - clearing auth state');
+          // Keep user logged out - don't restore auth state
+          return;
+        }
+
+        // Alternative check: if no expiry time but tokens exist, check token age
+        if (!expiresAt && lastTokenRefresh) {
+          const refreshTime = new Date(lastTokenRefresh);
+          const tokenAge = now.getTime() - refreshTime.getTime();
+          const maxTokenAge = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+          if (tokenAge > maxTokenAge) {
+            console.log('🚨 Tokens too old during app startup - clearing auth state');
+            // Keep user logged out - don't restore auth state
+            return;
+          }
+        }
+
+        // Tokens are still valid - restore authenticated state
         state.user = user;
         state.tokens = tokens;
         state.isAuthenticated = Boolean(isAuthenticated);
