@@ -145,7 +145,7 @@ export class SecureTokenStorage {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         tokenType: tokens.tokenType || 'Bearer',
-        expiresIn: tokens.expiresIn || 1800,
+        expiresIn: tokens.expiresIn || 43200, // 12 hours default
         scope: tokens.scope || ['read', 'write'],
       };
     } else if (tokens.access_token && tokens.refresh_token) {
@@ -154,7 +154,7 @@ export class SecureTokenStorage {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
         tokenType: 'Bearer',
-        expiresIn: tokens.expires_in || 1800,
+        expiresIn: tokens.expires_in || 43200, // 12 hours default
         scope: tokens.scope || ['read', 'write'],
       };
     }

@@ -574,7 +574,7 @@ const authSlice = createSlice({
         if (!expiresAt && lastTokenRefresh) {
           const refreshTime = new Date(lastTokenRefresh);
           const tokenAge = now.getTime() - refreshTime.getTime();
-          const maxTokenAge = 30 * 60 * 1000; // 30 minutes in milliseconds
+          const maxTokenAge = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 
           if (tokenAge > maxTokenAge) {
             console.log('🚨 Tokens too old during app startup - clearing auth state');

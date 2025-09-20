@@ -40,7 +40,7 @@ const AUTH_CONFIG = {
   SESSION_STORAGE_KEY: '@pentrypal_session',
   MAX_LOGIN_ATTEMPTS: 5,
   LOCKOUT_DURATION: 15 * 60 * 1000, // 15 minutes
-  TOKEN_REFRESH_THRESHOLD: 5 * 60 * 1000, // Refresh 5 minutes before expiry
+  TOKEN_REFRESH_THRESHOLD: 30 * 60 * 1000, // Refresh 30 minutes before expiry (for 12h tokens)
 } as const;
 
 // ========================================
@@ -1125,8 +1125,8 @@ class AuthServiceImpl implements IAuthService {
 
   async generateTokens(user: User, deviceInfo?: DeviceInfo): Promise<AuthTokens> {
     // In production, this would be handled by the server
-    const now = Date.now();
-    const expiresIn = 60 * 60; // 1 hour
+    // Align with backend configuration: 12 hours = 720 minutes = 43200 seconds
+    const expiresIn = 12 * 60 * 60; // 12 hours (43200 seconds)
 
     return {
       accessToken: this.generateSecureToken('access', user.id),
