@@ -365,32 +365,6 @@ class AuthServiceImpl implements IAuthService {
         isDev: __DEV__,
       };
 
-      const debugInfo = {
-        config: configInfo,
-        hasResponse: !!response,
-        hasData: !!response.data,
-        hasDetail: !!response.detail,
-        hasUser: !!(response.data && response.data.user),
-        hasTokens: !!(response.data && response.data.tokens),
-        responseKeys: response ? Object.keys(response) : [],
-        dataKeys: response.data ? Object.keys(response.data) : [],
-        responseType: typeof response,
-        dataType: typeof response.data,
-      };
-
-      // Log to both console and alert for production debugging
-      console.log('🔍 DEBUG: Auth response analysis:', JSON.stringify(debugInfo, null, 2));
-
-      // For production debugging - show critical info in alert
-      if (__DEV__ === false) {
-        setTimeout(() => {
-          Alert?.alert(
-            'Debug Info',
-            `API URL: ${configInfo.apiBaseUrl}\nEnv: ${configInfo.envApiUrl}\nResponse: ${JSON.stringify(debugInfo, null, 2).substring(0, 300)}...`
-          );
-        }, 1000);
-      }
-
       // Check if this is an error response first (has detail or error_code)
       if (response.detail || response.error_code) {
         return {
@@ -419,43 +393,11 @@ class AuthServiceImpl implements IAuthService {
         tokensType: response.data?.tokens ? typeof response.data.tokens : 'undefined',
       };
 
-      console.log('🔍 DEBUG: Login condition analysis:', JSON.stringify(conditionChecks, null, 2));
-
-      // For production debugging
-      if (__DEV__ === false) {
-        setTimeout(() => {
-          Alert?.alert('Login Conditions', JSON.stringify(conditionChecks, null, 2));
-        }, 2000);
-      }
-
       if (response.data && response.data.user && response.data.tokens) {
-        console.log('🔍 DEBUG: Taking nested data path');
         // Nested under 'data' property (expected structure)
         ({ user, tokens } = response.data);
 
-        // Debug the actual destructured data
-        const destructuredDebug = {
-          userExists: !!user,
-          tokensExists: !!tokens,
-          userKeys: user ? Object.keys(user) : [],
-          tokenKeys: tokens ? Object.keys(tokens) : [],
-          userId: user?.id,
-          userEmail: user?.email,
-          accessToken: tokens?.access_token,
-          refreshToken: tokens?.refresh_token,
-        };
-
-        console.log('🔍 DEBUG: After destructuring:', JSON.stringify(destructuredDebug, null, 2));
-
-        // For production debugging
-        if (__DEV__ === false) {
-          setTimeout(() => {
-            Alert?.alert('After Destructuring', JSON.stringify(destructuredDebug, null, 2));
-          }, 3000);
-        }
-
         // STEP 1: Test with proper frontendTokens creation but simple user object
-        console.log('🔍 DEBUG: Creating frontendTokens object');
 
         const frontendTokens = {
           accessToken: tokens.access_token,
@@ -465,10 +407,7 @@ class AuthServiceImpl implements IAuthService {
           scope: ['read', 'write'],
         };
 
-        console.log('🔍 DEBUG: frontendTokens created successfully');
-
         // STEP 2: Test with FULL COMPLEX user object including nested preferences
-        console.log('🔍 DEBUG: Creating COMPLEX frontendUser with preferences');
 
         const frontendUser = {
           id: user.id,
@@ -508,13 +447,11 @@ class AuthServiceImpl implements IAuthService {
           requiresEmailVerification: false,
         };
       } else if (isDirectResponse(response)) {
-        console.log('🔍 DEBUG: Taking direct response path');
         // Handle direct response structure (backend returns data at root level)
         ({ user, tokens } = response);
       } else {
-        console.log('🔍 DEBUG: Taking error path - no valid structure found');
         // No error response but also no valid data - unexpected response structure
-        authLogger.warn('🔍 DEBUG: Unexpected login response structure - no valid data found');
+        authLogger.warn('Unexpected login response structure - no valid data found');
         return {
           success: false,
           message: 'Invalid response from server',
@@ -525,11 +462,6 @@ class AuthServiceImpl implements IAuthService {
       // Convert backend user to frontend user format
       let frontendUser;
       try {
-        console.log('🔍 DEBUG: Starting LOGIN user object conversion');
-        console.log('🔍 DEBUG: user object keys:', Object.keys(user || {}));
-        console.log('🔍 DEBUG: user.id type:', typeof user?.id);
-        console.log('🔍 DEBUG: About to create frontendUser object...');
-
         frontendUser = {
           id: user.id,
           email: user.email,
@@ -556,25 +488,14 @@ class AuthServiceImpl implements IAuthService {
             },
           },
         };
-        console.log('🔍 DEBUG: frontendUser created successfully');
       } catch (userError) {
-        console.log('🔍 DEBUG: ERROR creating frontendUser:', userError);
         const errorMsg = userError instanceof Error ? userError.message : String(userError);
-        console.log('🔍 DEBUG: ERROR message:', errorMsg);
         throw new Error(`Failed to create user object: ${errorMsg}`);
       }
 
       // Convert backend tokens to frontend format
       let frontendTokens;
       try {
-        console.log('🔍 DEBUG: Converting backend tokens to frontend format');
-        console.log('🔍 DEBUG: tokens.access_token type:', typeof tokens.access_token);
-        console.log('🔍 DEBUG: tokens.access_token exists:', !!tokens.access_token);
-        console.log('🔍 DEBUG: tokens.refresh_token type:', typeof tokens.refresh_token);
-        console.log('🔍 DEBUG: tokens.refresh_token exists:', !!tokens.refresh_token);
-        console.log('🔍 DEBUG: tokens.expires_in type:', typeof tokens.expires_in);
-        console.log('🔍 DEBUG: tokens.expires_in value:', tokens.expires_in);
-
         frontendTokens = {
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token,
@@ -582,19 +503,12 @@ class AuthServiceImpl implements IAuthService {
           expiresIn: tokens.expires_in,
           scope: ['read', 'write'],
         };
-
-        console.log('🔍 DEBUG: frontendTokens created successfully');
-        console.log('🔍 DEBUG: frontendTokens.accessToken exists:', !!frontendTokens.accessToken);
-        console.log('🔍 DEBUG: frontendTokens.refreshToken exists:', !!frontendTokens.refreshToken);
       } catch (tokenError) {
-        console.log('🔍 DEBUG: ERROR creating frontendTokens:', tokenError);
         const errorMsg = tokenError instanceof Error ? tokenError.message : String(tokenError);
-        console.log('🔍 DEBUG: TOKEN ERROR message:', errorMsg);
         throw new Error(`Failed to create tokens object: ${errorMsg}`);
       }
 
       // Store tokens securely
-      console.log('🔍 DEBUG: About to store login tokens and user data');
 
       try {
         // Debug the exact tokens being stored
@@ -602,15 +516,10 @@ class AuthServiceImpl implements IAuthService {
           '🔍 DEBUG: About to store frontendTokens:',
           JSON.stringify(frontendTokens, null, 2)
         );
-        console.log('🔍 DEBUG: Storage key:', AUTH_CONFIG.TOKEN_STORAGE_KEY);
-        console.log('🔍 DEBUG: frontendTokens type:', typeof frontendTokens);
-        console.log('🔍 DEBUG: frontendTokens keys:', Object.keys(frontendTokens));
 
         await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-        console.log('🔍 DEBUG: Login tokens stored successfully');
 
         await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
-        console.log('🔍 DEBUG: Login user data stored successfully');
 
         // For production debugging
         if (__DEV__ === false) {
@@ -619,8 +528,6 @@ class AuthServiceImpl implements IAuthService {
           }, 4000);
         }
       } catch (storageError) {
-        console.log('🔍 DEBUG: Login storage failed:', storageError);
-
         // For production debugging
         if (__DEV__ === false) {
           setTimeout(() => {
@@ -642,8 +549,6 @@ class AuthServiceImpl implements IAuthService {
       };
     } catch (error) {
       // Debug: Log the caught error
-      console.log('🔍 DEBUG: Exception caught in login:', error);
-      console.log('🔍 DEBUG: Error type:', typeof error);
       console.log(
         '🔍 DEBUG: Error message:',
         error instanceof Error ? error.message : String(error)
@@ -664,9 +569,7 @@ class AuthServiceImpl implements IAuthService {
       const { authApi, checkApiHealth } = await import('../api');
 
       // Debug: Test API connectivity first
-      console.log('🔍 DEBUG: Testing API connectivity...');
-      const isHealthy = await checkApiHealth();
-      console.log('🔍 DEBUG: API health check result:', isHealthy);
+      await checkApiHealth();
 
       // Make real API call
       // Debug: Log what we're receiving
@@ -693,31 +596,8 @@ class AuthServiceImpl implements IAuthService {
         isDev: __DEV__,
       };
 
-      const debugInfo = {
-        config: configInfo,
-        hasResponse: !!response,
-        hasData: !!response.data,
-        hasDetail: !!response.detail,
-        hasUser: !!(response.data && response.data.user),
-        hasTokens: !!(response.data && response.data.tokens),
-        responseKeys: response ? Object.keys(response) : [],
-        dataKeys: response.data ? Object.keys(response.data) : [],
-        responseType: typeof response,
-        dataType: typeof response.data,
-      };
-
       // Log to both console and alert for production debugging
-      console.log('🔍 DEBUG: Registration response analysis:', JSON.stringify(debugInfo, null, 2));
 
-      // For production debugging - show critical info in alert
-      if (__DEV__ === false) {
-        setTimeout(() => {
-          Alert?.alert(
-            'Register Debug',
-            `API URL: ${configInfo.apiBaseUrl}\nEnv: ${configInfo.envApiUrl}\nResponse: ${JSON.stringify(debugInfo, null, 2).substring(0, 300)}...`
-          );
-        }, 1000);
-      }
       authLogger.debug('🔍 DEBUG: Response detail:', response.detail);
 
       // Check if this is an error response first (has detail or error_code)
@@ -761,7 +641,6 @@ class AuthServiceImpl implements IAuthService {
       }
 
       if (response.data && response.data.user && response.data.tokens) {
-        console.log('🔍 DEBUG: Register taking nested data path');
         // Nested under 'data' property (expected structure)
         ({ user, tokens } = response.data);
 
@@ -777,23 +656,7 @@ class AuthServiceImpl implements IAuthService {
           refreshToken: tokens?.refresh_token,
         };
 
-        console.log(
-          '🔍 DEBUG: Register after destructuring:',
-          JSON.stringify(destructuredDebug, null, 2)
-        );
-
-        // For production debugging
-        if (__DEV__ === false) {
-          setTimeout(() => {
-            Alert?.alert(
-              'Register After Destructuring',
-              JSON.stringify(destructuredDebug, null, 2)
-            );
-          }, 3500);
-        }
-
         // STEP 1: Test register with proper frontendTokens creation but simple user object
-        console.log('🔍 DEBUG: Creating register frontendTokens object');
 
         const frontendTokens = {
           accessToken: tokens.access_token,
@@ -803,10 +666,7 @@ class AuthServiceImpl implements IAuthService {
           scope: ['read', 'write'],
         };
 
-        console.log('🔍 DEBUG: Register frontendTokens created successfully');
-
         // STEP 2: Test register with FULL COMPLEX user object including nested preferences
-        console.log('🔍 DEBUG: Creating REGISTER COMPLEX frontendUser with preferences');
 
         const frontendUser = {
           id: user.id,
@@ -845,11 +705,9 @@ class AuthServiceImpl implements IAuthService {
           requiresEmailVerification: false,
         };
       } else if (isDirectResponse(response)) {
-        console.log('🔍 DEBUG: Register taking direct response path');
         // Handle direct response structure (backend returns data at root level)
         ({ user, tokens } = response);
       } else {
-        console.log('🔍 DEBUG: Register taking error path - no valid structure found');
         // No error response but also no valid data - unexpected response structure
         authLogger.warn(
           '🔍 DEBUG: Unexpected registration response structure - no valid data found'
@@ -864,11 +722,6 @@ class AuthServiceImpl implements IAuthService {
       // Convert backend user to frontend user format
       let frontendUser;
       try {
-        console.log('🔍 DEBUG: Starting REGISTER user object conversion');
-        console.log('🔍 DEBUG: register user object keys:', Object.keys(user || {}));
-        console.log('🔍 DEBUG: register user.id type:', typeof user?.id);
-        console.log('🔍 DEBUG: About to create REGISTER frontendUser object...');
-
         frontendUser = {
           id: user.id,
           email: user.email,
@@ -895,25 +748,14 @@ class AuthServiceImpl implements IAuthService {
             },
           },
         };
-        console.log('🔍 DEBUG: REGISTER frontendUser created successfully');
       } catch (userError) {
-        console.log('🔍 DEBUG: ERROR creating REGISTER frontendUser:', userError);
         const errorMsg = userError instanceof Error ? userError.message : String(userError);
-        console.log('🔍 DEBUG: REGISTER ERROR message:', errorMsg);
         throw new Error(`Failed to create register user object: ${errorMsg}`);
       }
 
       // Convert backend tokens to frontend format
       let frontendTokens;
       try {
-        console.log('🔍 DEBUG: Register - Converting backend tokens to frontend format');
-        console.log('🔍 DEBUG: Register - tokens.access_token type:', typeof tokens.access_token);
-        console.log('🔍 DEBUG: Register - tokens.access_token exists:', !!tokens.access_token);
-        console.log('🔍 DEBUG: Register - tokens.refresh_token type:', typeof tokens.refresh_token);
-        console.log('🔍 DEBUG: Register - tokens.refresh_token exists:', !!tokens.refresh_token);
-        console.log('🔍 DEBUG: Register - tokens.expires_in type:', typeof tokens.expires_in);
-        console.log('🔍 DEBUG: Register - tokens.expires_in value:', tokens.expires_in);
-
         frontendTokens = {
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token,
@@ -922,7 +764,6 @@ class AuthServiceImpl implements IAuthService {
           scope: ['read', 'write'],
         };
 
-        console.log('🔍 DEBUG: Register - frontendTokens created successfully');
         console.log(
           '🔍 DEBUG: Register - frontendTokens.accessToken exists:',
           !!frontendTokens.accessToken
@@ -932,14 +773,11 @@ class AuthServiceImpl implements IAuthService {
           !!frontendTokens.refreshToken
         );
       } catch (tokenError) {
-        console.log('🔍 DEBUG: ERROR creating REGISTER frontendTokens:', tokenError);
         const errorMsg = tokenError instanceof Error ? tokenError.message : String(tokenError);
-        console.log('🔍 DEBUG: REGISTER TOKEN ERROR message:', errorMsg);
         throw new Error(`Failed to create register tokens object: ${errorMsg}`);
       }
 
       // Store tokens securely
-      console.log('🔍 DEBUG: About to store register tokens and user data');
 
       try {
         // Debug the exact tokens being stored for register
@@ -947,15 +785,10 @@ class AuthServiceImpl implements IAuthService {
           '🔍 DEBUG: About to store register frontendTokens:',
           JSON.stringify(frontendTokens, null, 2)
         );
-        console.log('🔍 DEBUG: Register storage key:', AUTH_CONFIG.TOKEN_STORAGE_KEY);
-        console.log('🔍 DEBUG: Register frontendTokens type:', typeof frontendTokens);
-        console.log('🔍 DEBUG: Register frontendTokens keys:', Object.keys(frontendTokens));
 
         await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-        console.log('🔍 DEBUG: Register tokens stored successfully');
 
         await SecureStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, frontendUser);
-        console.log('🔍 DEBUG: Register user data stored successfully');
 
         // For production debugging
         if (__DEV__ === false) {
@@ -964,8 +797,6 @@ class AuthServiceImpl implements IAuthService {
           }, 4500);
         }
       } catch (storageError) {
-        console.log('🔍 DEBUG: Register storage failed:', storageError);
-
         // For production debugging
         if (__DEV__ === false) {
           setTimeout(() => {
@@ -986,8 +817,6 @@ class AuthServiceImpl implements IAuthService {
       };
     } catch (error) {
       // Debug: Log the caught error
-      console.log('🔍 DEBUG: Exception caught in registration:', error);
-      console.log('🔍 DEBUG: Error type:', typeof error);
       console.log(
         '🔍 DEBUG: Error message:',
         error instanceof Error ? error.message : String(error)
