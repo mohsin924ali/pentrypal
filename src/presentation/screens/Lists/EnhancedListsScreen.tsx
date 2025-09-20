@@ -286,9 +286,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
   const [userCurrency, setUserCurrency] = useState<CurrencyCode>(DEFAULT_CURRENCY);
 
-  // Local state for list tracking
-  const [previousListCount, setPreviousListCount] = useState(0);
-
   // Load user currency preference - PRODUCTION SAFE
   useEffect(() => {
     // Safe access with type checking to prevent runtime crashes
@@ -298,23 +295,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
       setUserCurrency(preferredCurrency as CurrencyCode);
     }
   }, [user]);
-
-  // Check for new list creation and trigger success animation
-  useEffect(() => {
-    const currentListCount = shoppingLists?.length || 0;
-
-    // If list count increased (new list was created)
-    if (previousListCount > 0 && currentListCount > previousListCount) {
-      shoppingLogger.debug('🎉 New list detected! Triggering success animation...');
-      shoppingLogger.debug(
-        'Previous count:',
-        previousListCount,
-        'Current count:',
-        currentListCount
-      );
-      setShowSuccessAnimation(true);
-    }
-  }, [shoppingLists?.length, previousListCount]);
 
   // Load friends when modal opens
   useEffect(() => {

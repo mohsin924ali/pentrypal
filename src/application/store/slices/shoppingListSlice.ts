@@ -36,6 +36,7 @@ export interface ShoppingListState {
   readonly showCreateListModal: boolean;
   readonly showAddItemModal: boolean;
   readonly showCollaboratorModal: boolean;
+  readonly justCreatedListId: string | null; // Track the ID of a list that was just created by the user
 
   // Filters and search
   readonly statusFilter: 'all' | 'active' | 'completed' | 'archived';
@@ -92,6 +93,7 @@ const initialState: ShoppingListState = {
   showCreateListModal: false,
   showAddItemModal: false,
   showCollaboratorModal: false,
+  justCreatedListId: null,
 
   // Filters and search
   statusFilter: 'all',
@@ -852,6 +854,10 @@ const shoppingListSlice = createSlice({
       state.showCollaboratorModal = action.payload;
     },
 
+    clearJustCreatedListId: state => {
+      state.justCreatedListId = null;
+    },
+
     // Filters and search
     setStatusFilter: (
       state,
@@ -1096,6 +1102,8 @@ const shoppingListSlice = createSlice({
         state.lists.unshift(action.payload);
         state.totalLists += 1;
         state.activeLists += 1;
+        // Track that this list was just created by the user for animation purposes
+        state.justCreatedListId = action.payload.id;
         // Don't auto-close modal - let the component handle it for animation timing
       })
       .addCase(createShoppingList.rejected, (state, action) => {
@@ -1297,6 +1305,7 @@ export const {
   setShowCreateListModal,
   setShowAddItemModal,
   setShowCollaboratorModal,
+  clearJustCreatedListId,
   setStatusFilter,
   setSearchQuery,
   setSortBy,
@@ -1326,6 +1335,8 @@ export const selectIsLoadingList = (state: { shoppingList: ShoppingListState }) 
   state.shoppingList.isLoadingList;
 export const selectShoppingListError = (state: { shoppingList: ShoppingListState }) =>
   state.shoppingList.error;
+export const selectJustCreatedListId = (state: { shoppingList: ShoppingListState }) =>
+  state.shoppingList.justCreatedListId;
 
 // Filtered lists selector
 export const selectFilteredLists = (state: { shoppingList: ShoppingListState }) => {

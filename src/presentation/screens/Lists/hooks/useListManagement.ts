@@ -7,8 +7,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { AppDispatch } from '../../../../application/store';
 import {
+  clearJustCreatedListId,
   loadShoppingLists,
   selectIsLoadingLists,
+  selectJustCreatedListId,
   selectShoppingListError,
   selectShoppingLists,
 } from '../../../../application/store/slices/shoppingListSlice';
@@ -46,6 +48,7 @@ export const useListManagement = (): UseListManagementReturn => {
   const shoppingLists = useSelector(selectShoppingLists);
   const isLoading = useSelector(selectIsLoadingLists);
   const error = useSelector(selectShoppingListError);
+  const justCreatedListId = useSelector(selectJustCreatedListId);
 
   // Archived List Detail Modal state
   const [showArchivedDetailModal, setShowArchivedDetailModal] = useState(false);
@@ -53,7 +56,6 @@ export const useListManagement = (): UseListManagementReturn => {
 
   // List Creation Success Animation state
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
-  const [previousListCount, setPreviousListCount] = useState(0);
 
   // Load shopping lists on mount
   useEffect(() => {
@@ -95,24 +97,29 @@ export const useListManagement = (): UseListManagementReturn => {
     }
   }, [dispatch, user?.id]);
 
+  // Trigger success animation when a list is just created by the user
+  useEffect(() => {
+    if (justCreatedListId) {
+      shoppingLogger.debug(
+        '🎉 List just created by user! Triggering success animation...',
+        justCreatedListId
+      );
+      setShowSuccessAnimation(true);
+      // Clear the flag after triggering animation
+      dispatch(clearJustCreatedListId());
+    }
+  }, [justCreatedListId, dispatch]);
+
   // Refresh lists when screen comes into focus (e.g., returning from CreateList)
   useFocusEffect(
     useCallback(() => {
       if (typeof user?.id === 'string' && user.id.length > 0) {
-        // Check if new list was created (simple count comparison)
-        const currentListCount = shoppingLists?.length || 0;
-        if (currentListCount > previousListCount && previousListCount > 0) {
-          shoppingLogger.debug('📝 New list detected - showing success animation');
-          setShowSuccessAnimation(true);
-        }
-        setPreviousListCount(currentListCount);
-
-        // Refresh the list data
+        // Refresh the list data without triggering animations
         dispatch(loadShoppingLists({ limit: 100 })).catch(focusError => {
           console.error('Focus refresh failed:', focusError);
         });
       }
-    }, [dispatch, user?.id, shoppingLists?.length, previousListCount])
+    }, [dispatch, user?.id])
   );
 
   // Handle view archived list
