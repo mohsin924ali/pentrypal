@@ -1128,9 +1128,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                         {(activity.time || 'Unknown time').toString()} • by{' '}
                         {(activity.user || 'Unknown').toString()}
                       </Typography>
-                      {activity.amount &&
-                        typeof activity.amount === 'number' &&
-                        !isNaN(activity.amount) && (
+                      {typeof activity.amount === 'number' &&
+                        !isNaN(activity.amount) &&
+                        activity.amount > 0 && (
                           <Typography variant='caption' color={theme.colors.primary[500]}>
                             ${activity.amount.toFixed(2)}
                           </Typography>

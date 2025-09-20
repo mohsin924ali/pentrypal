@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { CreateListScreen, EnhancedListsScreen } from '../screens/Lists';
+import { ArchivedListsScreen, CreateListScreen, EnhancedListsScreen } from '../screens/Lists';
 import type { CreateListScreenProps } from '../screens/Lists';
 
 // Navigation types
@@ -16,6 +16,7 @@ export type ListsStackParamList = {
     existingListName?: string;
     existingItems?: any[];
   };
+  ArchivedLists: undefined;
 };
 
 const Stack = createStackNavigator<ListsStackParamList>();
@@ -49,6 +50,13 @@ export const ListsStackNavigator: React.FC = () => {
           />
         )}
       </Stack.Screen>
+      <Stack.Screen
+        name='ArchivedLists'
+        component={ArchivedListsScreen}
+        options={{
+          title: 'Archived Lists',
+        }}
+      />
     </Stack.Navigator>
   );
 };

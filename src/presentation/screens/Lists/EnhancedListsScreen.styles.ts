@@ -454,63 +454,6 @@ export const baseStyles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   } as ViewStyle,
 
-  // Pagination Styles
-  paginationContainer: {
-    marginTop: 20,
-    marginBottom: 20,
-    paddingHorizontal: 16,
-  } as ViewStyle,
-
-  paginationInfo: {
-    alignItems: 'center',
-    marginBottom: 12,
-  } as ViewStyle,
-
-  paginationText: {
-    fontSize: 12,
-    color: '#6B7280',
-  } as ViewStyle,
-
-  paginationButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-  } as ViewStyle,
-
-  paginationButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#F3F4F6',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    minWidth: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  paginationButtonDisabled: {
-    backgroundColor: '#F9FAFB',
-    borderColor: '#F3F4F6',
-    opacity: 0.5,
-  } as ViewStyle,
-
-  paginationButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-  } as ViewStyle,
-
-  paginationButtonTextDisabled: {
-    color: '#9CA3AF',
-  } as ViewStyle,
-
-  paginationLoading: {
-    alignItems: 'center',
-    marginTop: 8,
-  } as ViewStyle,
-
   // Success Modal Styles
   successModalOverlay: {
     flex: 1,

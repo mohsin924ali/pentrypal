@@ -172,13 +172,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   // Animation state for expand/collapse
   const [animatedValues] = useState<Record<string, Animated.Value>>({});
 
-  // Archive pagination state
-  const [archivePage, setArchivePage] = useState(0);
-  const [archiveLimit] = useState(10);
-  const [isLoadingArchive, setIsLoadingArchive] = useState(false);
-  const [archivedListsData, setArchivedListsData] = useState<ShoppingList[]>([]);
-  const [hasMoreArchived, setHasMoreArchived] = useState(true);
-
   // Handle success animation completion (local handler)
   const handleSuccessAnimationComplete = useCallback(() => {
     setShowSuccessAnimation(false);
@@ -194,70 +187,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
     },
     [animatedValues]
   );
-
-  // Load archived lists with pagination
-  const loadArchivedLists = useCallback(
-    async (page: number, append: boolean = false) => {
-      if (isLoadingArchive) return;
-
-      setIsLoadingArchive(true);
-      try {
-        const skip = page * archiveLimit;
-        const result = await dispatch(
-          loadShoppingLists({
-            status: 'archived',
-            skip,
-            limit: archiveLimit,
-          })
-        ).unwrap();
-
-        const newArchivedLists = result.filter(list => list.status === 'archived');
-
-        if (append) {
-          setArchivedListsData(prev => [...prev, ...newArchivedLists]);
-        } else {
-          setArchivedListsData(newArchivedLists);
-        }
-
-        setHasMoreArchived(newArchivedLists.length === archiveLimit);
-      } catch (error) {
-        console.error('Failed to load archived lists:', error);
-      } finally {
-        setIsLoadingArchive(false);
-      }
-    },
-    [dispatch, archiveLimit]
-  );
-
-  // Load initial archived lists
-  useEffect(() => {
-    if (user?.id) {
-      loadArchivedLists(0, false);
-    }
-  }, [user?.id, loadArchivedLists]);
-
-  // Archive pagination handlers
-  const handleLoadMoreArchived = useCallback(() => {
-    const nextPage = archivePage + 1;
-    setArchivePage(nextPage);
-    loadArchivedLists(nextPage, true);
-  }, [archivePage, loadArchivedLists]);
-
-  const handlePreviousArchivePage = useCallback(() => {
-    if (archivePage > 0) {
-      const prevPage = archivePage - 1;
-      setArchivePage(prevPage);
-      loadArchivedLists(prevPage, false);
-    }
-  }, [archivePage, loadArchivedLists]);
-
-  const handleNextArchivePage = useCallback(() => {
-    if (hasMoreArchived) {
-      const nextPage = archivePage + 1;
-      setArchivePage(nextPage);
-      loadArchivedLists(nextPage, false);
-    }
-  }, [archivePage, hasMoreArchived, loadArchivedLists]);
 
   // Bulk assignment handlers
   const toggleItemSelection = useCallback((listId: string, itemId: string) => {
@@ -355,8 +284,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
   const [showBulkAssignmentModal, setShowBulkAssignmentModal] = useState(false);
   const [bulkAssignmentListId, setBulkAssignmentListId] = useState<string | null>(null);
 
-  // Archive state
-  const [showArchivedLists, setShowArchivedLists] = useState(false);
   const [userCurrency, setUserCurrency] = useState<CurrencyCode>(DEFAULT_CURRENCY);
 
   // Local state for list tracking
@@ -747,10 +674,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
 
   const archivedLists = useMemo(
     () =>
-      archivedListsData.sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      ),
-    [archivedListsData]
+      shoppingLists
+        .filter(list => list.status === 'archived')
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+    [shoppingLists]
   );
 
   const archivedCount = useMemo(() => archivedLists.length, [archivedLists]);
@@ -1239,90 +1166,6 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
                   Loading your lists...
                 </Typography>
               </View>
-            ) : showArchivedLists ? (
-              <>
-                {archivedLists.length > 0 ? (
-                  <>
-                    {archivedLists.map(renderListCard)}
-
-                    {/* Archive Pagination Controls */}
-                    <View style={baseStyles.paginationContainer}>
-                      <View style={baseStyles.paginationInfo}>
-                        <Typography
-                          variant='caption'
-                          color={safeTheme.colors.text.secondary}
-                          style={baseStyles.paginationText}>
-                          Page {archivePage + 1} • {archivedLists.length} of {archiveLimit} per page
-                        </Typography>
-                      </View>
-
-                      <View style={baseStyles.paginationButtons}>
-                        {/* Previous Page Button */}
-                        <TouchableOpacity
-                          style={[
-                            baseStyles.paginationButton,
-                            archivePage === 0 && baseStyles.paginationButtonDisabled,
-                          ]}
-                          onPress={handlePreviousArchivePage}
-                          disabled={archivePage === 0 || isLoadingArchive}
-                          accessibilityRole='button'
-                          accessibilityLabel='Previous page'>
-                          <Typography
-                            style={[
-                              baseStyles.paginationButtonText,
-                              archivePage === 0 && baseStyles.paginationButtonTextDisabled,
-                            ]}>
-                            ← Previous
-                          </Typography>
-                        </TouchableOpacity>
-
-                        {/* Next Page Button */}
-                        <TouchableOpacity
-                          style={[
-                            baseStyles.paginationButton,
-                            !hasMoreArchived && baseStyles.paginationButtonDisabled,
-                          ]}
-                          onPress={handleNextArchivePage}
-                          disabled={!hasMoreArchived || isLoadingArchive}
-                          accessibilityRole='button'
-                          accessibilityLabel='Next page'>
-                          <Typography
-                            style={[
-                              baseStyles.paginationButtonText,
-                              !hasMoreArchived && baseStyles.paginationButtonTextDisabled,
-                            ]}>
-                            Next →
-                          </Typography>
-                        </TouchableOpacity>
-                      </View>
-
-                      {/* Loading indicator */}
-                      {isLoadingArchive && (
-                        <View style={baseStyles.paginationLoading}>
-                          <Typography variant='caption' color={safeTheme.colors.text.secondary}>
-                            Loading...
-                          </Typography>
-                        </View>
-                      )}
-                    </View>
-                  </>
-                ) : (
-                  <View style={baseStyles.emptyContainer}>
-                    <Typography
-                      variant='h3'
-                      color={safeTheme.colors.text.secondary}
-                      style={baseStyles.emptyTitle}>
-                      No Archived Lists
-                    </Typography>
-                    <Typography
-                      variant='body1'
-                      color={safeTheme.colors.text.secondary}
-                      style={baseStyles.emptyText}>
-                      Archived lists will appear here when you finish shopping.
-                    </Typography>
-                  </View>
-                )}
-              </>
             ) : activeLists.length > 0 ? (
               activeLists.map(renderListCard)
             ) : (
@@ -1358,12 +1201,10 @@ export const EnhancedListsScreen: React.FC<EnhancedListsScreenProps> = ({
           {archivedCount > 0 && (
             <View style={baseStyles.archiveButtonContainer}>
               <Button
-                title={
-                  showArchivedLists ? 'Show Active Lists' : `Show ${archivedCount} Archived Lists`
-                }
+                title={`View ${archivedCount} Archived Lists`}
                 variant='outline'
                 size='md'
-                onPress={() => setShowArchivedLists(!showArchivedLists)}
+                onPress={() => navigation.navigate('ArchivedLists')}
                 style={baseStyles.archiveButton}
               />
             </View>
