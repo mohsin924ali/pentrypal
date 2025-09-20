@@ -497,57 +497,7 @@ class AuthServiceImpl implements IAuthService {
           },
         };
 
-        console.log('🔍 DEBUG: COMPLEX frontendUser created successfully');
-
-        if (__DEV__ === false) {
-          setTimeout(() => {
-            Alert?.alert(
-              'STEP 3 TEST',
-              'Testing with STORAGE OPERATIONS - this will find the exact failing call'
-            );
-          }, 4000);
-        }
-
-        // STEP 3: Now add back STORAGE OPERATIONS with comprehensive debugging
-        console.log('🔍 DEBUG: Starting STORAGE operations...');
-
-        try {
-          console.log('🔍 DEBUG: About to call SecureTokenStorage.storeTokens');
-          console.log('🔍 DEBUG: SecureTokenStorage exists:', !!SecureTokenStorage);
-          console.log(
-            '🔍 DEBUG: SecureTokenStorage.storeTokens exists:',
-            !!SecureTokenStorage.storeTokens
-          );
-          console.log('🔍 DEBUG: AUTH_CONFIG.TOKEN_STORAGE_KEY:', AUTH_CONFIG.TOKEN_STORAGE_KEY);
-          console.log('🔍 DEBUG: frontendTokens exists:', !!frontendTokens);
-          console.log('🔍 DEBUG: frontendTokens keys:', Object.keys(frontendTokens));
-
-          if (__DEV__ === false) {
-            setTimeout(() => {
-              Alert?.alert(
-                'PRE-CALL DEBUG',
-                `SecureTokenStorage: ${!!SecureTokenStorage}, method: ${!!SecureTokenStorage?.storeTokens}, key: ${AUTH_CONFIG.TOKEN_STORAGE_KEY}`
-              );
-            }, 5500);
-          }
-
-          console.log('🔍 DEBUG: Making the actual method call NOW...');
-          await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-          console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully');
-        } catch (storageError: any) {
-          console.error('❌ STORAGE ERROR:', storageError);
-          if (__DEV__ === false) {
-            setTimeout(() => {
-              Alert?.alert(
-                'STORAGE ERROR FOUND',
-                `Error: ${storageError?.message || storageError}`
-              );
-            }, 5000);
-          }
-          throw storageError;
-        }
-
-        console.log('🔍 DEBUG: All storage operations completed successfully');
+        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
 
         return {
           success: true,
@@ -885,60 +835,7 @@ class AuthServiceImpl implements IAuthService {
           },
         };
 
-        console.log('🔍 DEBUG: REGISTER COMPLEX frontendUser created successfully');
-
-        if (__DEV__ === false) {
-          setTimeout(() => {
-            Alert?.alert(
-              'REGISTER STEP 3 TEST',
-              'Testing with STORAGE OPERATIONS - finding exact failing call'
-            );
-          }, 4500);
-        }
-
-        // STEP 3: Add back REGISTER STORAGE OPERATIONS with comprehensive debugging
-        console.log('🔍 DEBUG: Starting REGISTER STORAGE operations...');
-
-        try {
-          console.log('🔍 DEBUG: About to call SecureTokenStorage.storeTokens (REGISTER)');
-          console.log('🔍 DEBUG: REGISTER SecureTokenStorage exists:', !!SecureTokenStorage);
-          console.log(
-            '🔍 DEBUG: REGISTER SecureTokenStorage.storeTokens exists:',
-            !!SecureTokenStorage.storeTokens
-          );
-          console.log(
-            '🔍 DEBUG: REGISTER AUTH_CONFIG.TOKEN_STORAGE_KEY:',
-            AUTH_CONFIG.TOKEN_STORAGE_KEY
-          );
-          console.log('🔍 DEBUG: REGISTER frontendTokens exists:', !!frontendTokens);
-          console.log('🔍 DEBUG: REGISTER frontendTokens keys:', Object.keys(frontendTokens));
-
-          if (__DEV__ === false) {
-            setTimeout(() => {
-              Alert?.alert(
-                'REGISTER PRE-CALL',
-                `SecureTokenStorage: ${!!SecureTokenStorage}, method: ${!!SecureTokenStorage?.storeTokens}`
-              );
-            }, 6500);
-          }
-
-          console.log('🔍 DEBUG: REGISTER Making the actual method call NOW...');
-          await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
-          console.log('🔍 DEBUG: SecureTokenStorage.storeTokens COMPLETED successfully (REGISTER)');
-        } catch (storageError: any) {
-          console.error('❌ REGISTER STORAGE ERROR:', storageError);
-          if (__DEV__ === false) {
-            setTimeout(() => {
-              Alert?.alert(
-                'REGISTER STORAGE ERROR',
-                `Error: ${storageError?.message || storageError}`
-              );
-            }, 6000);
-          }
-          throw storageError;
-        }
-
-        console.log('🔍 DEBUG: All REGISTER storage operations completed successfully');
+        await SecureTokenStorage.storeTokens(AUTH_CONFIG.TOKEN_STORAGE_KEY, frontendTokens);
 
         return {
           success: true,

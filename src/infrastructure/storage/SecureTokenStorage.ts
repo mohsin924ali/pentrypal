@@ -64,29 +64,14 @@ export class SecureTokenStorage {
 
   private static encrypt(data: string): string {
     try {
-      console.log('🔍 DEBUG encrypt: STARTED - Pure JS base64');
-      console.log('🔍 DEBUG encrypt: input data length:', data.length);
-
-      // Use pure JavaScript base64 encoding - works everywhere
-      const encoded = this.base64Encode(data);
-      console.log('🔍 DEBUG encrypt: Base64 encoding SUCCESS - length:', encoded.length);
-      console.log('🔍 DEBUG encrypt: COMPLETED SUCCESSFULLY');
-      return encoded;
+      return this.base64Encode(data);
     } catch (error) {
-      console.error('❌ ENCRYPT ERROR:', error);
-      console.error('❌ ENCRYPT Error type:', typeof error);
-      console.error(
-        '❌ ENCRYPT Error message:',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-      console.error('❌ ENCRYPT Error stack:', error instanceof Error ? error.stack : 'No stack');
       throw new Error(`Failed to encrypt data: ${error instanceof Error ? error.message : error}`);
     }
   }
 
   private static decrypt(encryptedData: string): string {
     try {
-      // Use pure JavaScript base64 decoding
       const decryptedData = this.base64Decode(encryptedData);
 
       if (!decryptedData) {
@@ -102,115 +87,17 @@ export class SecureTokenStorage {
 
   static async storeTokens(key: string, tokens: StoredTokens): Promise<void> {
     try {
-      console.log('🔍 DEBUG SecureTokenStorage: storeTokens called with key:', key);
-      console.log('🔍 DEBUG SecureTokenStorage: tokens:', JSON.stringify(tokens, null, 2));
-      console.log('🔍 DEBUG SecureTokenStorage: __DEV__:', __DEV__);
-
-      // Add production alert to confirm method is called
-      if (__DEV__ === false) {
-        setTimeout(() => {
-          const Alert = require('react-native').Alert;
-          Alert?.alert('STORE TOKENS CALLED', `Key: ${key}, __DEV__: ${__DEV__}`);
-        }, 500);
-      }
-
       const jsonString = JSON.stringify(tokens);
-      console.log('🔍 DEBUG SecureTokenStorage: jsonString length:', jsonString.length);
 
       if (__DEV__) {
         // In development, use plain storage for easier debugging
-        console.log('🔍 DEBUG SecureTokenStorage: Using plain storage for dev');
         await AsyncStorage.setItem(key, jsonString);
-        console.log(`🔐 Stored tokens for key: ${key} (plain format for dev)`);
       } else {
         // In production, use encryption
-        console.log('🔍 DEBUG SecureTokenStorage: Using encryption for production');
-
-        // STEP-BY-STEP DEBUGGING - Test each operation individually
-        let encryptedData: string;
-        try {
-          console.log('🔍 DEBUG SecureTokenStorage: About to call encrypt()');
-          encryptedData = this.encrypt(jsonString);
-          console.log(
-            '🔍 DEBUG SecureTokenStorage: encrypt() SUCCESS - length:',
-            encryptedData.length
-          );
-
-          // Add production alert for encryption success
-          if (__DEV__ === false) {
-            setTimeout(() => {
-              const Alert = require('react-native').Alert;
-              Alert?.alert('ENCRYPT SUCCESS', `Encryption worked! Length: ${encryptedData.length}`);
-            }, 1000);
-          }
-        } catch (encryptError: any) {
-          console.error('❌ ENCRYPTION FAILED:', encryptError);
-
-          // Add production alert for encryption failure
-          if (__DEV__ === false) {
-            setTimeout(() => {
-              const Alert = require('react-native').Alert;
-              Alert?.alert('ENCRYPT FAILED', `Error: ${encryptError?.message || encryptError}`);
-            }, 1000);
-          }
-
-          throw new Error(`Encryption failed: ${encryptError?.message || encryptError}`);
-        }
-
-        try {
-          console.log('🔍 DEBUG SecureTokenStorage: About to call AsyncStorage.setItem()');
-          await AsyncStorage.setItem(key, encryptedData);
-          console.log('🔍 DEBUG SecureTokenStorage: AsyncStorage.setItem() SUCCESS');
-
-          // Add production alert for AsyncStorage success
-          if (__DEV__ === false) {
-            setTimeout(() => {
-              const Alert = require('react-native').Alert;
-              Alert?.alert('ASYNCSTORAGE SUCCESS', 'AsyncStorage.setItem() worked perfectly!');
-            }, 2000);
-          }
-        } catch (asyncStorageError: any) {
-          console.error('❌ ASYNCSTORAGE FAILED:', asyncStorageError);
-
-          // Add production alert for AsyncStorage failure
-          if (__DEV__ === false) {
-            setTimeout(() => {
-              const Alert = require('react-native').Alert;
-              Alert?.alert(
-                'ASYNCSTORAGE FAILED',
-                `Error: ${asyncStorageError?.message || asyncStorageError}`
-              );
-            }, 2000);
-          }
-
-          throw new Error(
-            `AsyncStorage failed: ${asyncStorageError?.message || asyncStorageError}`
-          );
-        }
-
-        console.log(`🔐 Stored tokens for key: ${key} (encrypted)`);
+        const encryptedData = this.encrypt(jsonString);
+        await AsyncStorage.setItem(key, encryptedData);
       }
     } catch (error) {
-      console.error('🔍 DEBUG SecureTokenStorage: Failed to store tokens:', error);
-      console.error('🔍 DEBUG SecureTokenStorage: Error type:', typeof error);
-      console.error(
-        '🔍 DEBUG SecureTokenStorage: Error message:',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-      console.error(
-        '🔍 DEBUG SecureTokenStorage: Error stack:',
-        error instanceof Error ? error.stack : 'No stack'
-      );
-
-      // Add production alert to show the EXACT error
-      if (__DEV__ === false) {
-        setTimeout(() => {
-          const Alert = require('react-native').Alert;
-          const errorMsg = error instanceof Error ? error.message : String(error);
-          Alert?.alert('EXACT STORAGE ERROR', `Error: ${errorMsg}`);
-        }, 3000);
-      }
-
       throw new Error('Failed to store tokens securely');
     }
   }
@@ -227,7 +114,6 @@ export class SecureTokenStorage {
         try {
           const parsed = JSON.parse(storedData);
           if (parsed.accessToken || parsed.access_token) {
-            console.log(`🔓 Retrieved tokens for key: ${key} (plain format)`);
             return this.normalizeTokenFormat(parsed);
           }
         } catch {
@@ -239,7 +125,6 @@ export class SecureTokenStorage {
       try {
         jsonString = this.decrypt(storedData);
         const parsed = JSON.parse(jsonString);
-        console.log(`🔓 Retrieved tokens for key: ${key} (decrypted)`);
         return this.normalizeTokenFormat(parsed);
       } catch (decryptError) {
         console.warn('Failed to decrypt tokens, clearing...', decryptError);
@@ -280,7 +165,6 @@ export class SecureTokenStorage {
   static async removeTokens(key: string): Promise<void> {
     try {
       await AsyncStorage.removeItem(key);
-      console.log(`🗑️ Removed tokens for key: ${key}`);
     } catch (error) {
       console.error('Failed to remove tokens:', error);
     }
@@ -294,7 +178,6 @@ export class SecureTokenStorage {
       );
 
       await AsyncStorage.multiRemove(tokenKeys);
-      console.log('🗑️ Cleared all authentication tokens');
     } catch (error) {
       console.error('Failed to clear tokens:', error);
     }
